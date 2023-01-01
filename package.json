@@ -20,6 +20,19 @@
       "title": "List Workspaces",
       "description": "Show all Gitpod Workspaces",
       "mode": "view"
+    },
+    {
+      "name": "active_workspaces",
+      "title": "Active Workspaces",
+      "subtitle": "Shows all the currently active workspaces in menu-bar",
+      "description": "Shows all the active workspaces in menu-bar",
+      "mode": "menu-bar",
+      "interval": "1m",
+      "keywords": [
+        "gitpod",
+        "gp",
+        "workspaces"
+      ]
     }
   ],
   "dependencies": {

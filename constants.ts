@@ -33,6 +33,11 @@ export const GitpodIcons = {
   stopped_icon: { source: "Icons/status_icon.png", tintColor: statusColors.stopped },
   failed_icon: { source: "Icons/status_icon.png", tintColor: statusColors.failed },
   progressing_icon: { source: "Icons/status_icon.png", tintColor: statusColors.progressing },
+  running_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.running },
+  stopped_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.stopped },
+  failed_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.failed },
+  progressing_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.progressing },
+
   octicon_branch_icon: {
     source: "https://raw.githubusercontent.com/primer/octicons-v2/master/icons/24/git-branch.svg",
     tintColor: statusColors.running,

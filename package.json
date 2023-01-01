@@ -6,6 +6,10 @@
   "icon": "logo-mark.png",
   "author": "Palanikannan1437",
   "owner": "gitpod",
+  "contributors": [
+    "Palanikannan1437",
+    "henit-chobisa"
+  ],
   "categories": [
     "Developer Tools"
   ],

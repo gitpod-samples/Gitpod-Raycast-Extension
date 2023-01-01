@@ -1,13 +1,14 @@
-import { ActionPanel, Detail, List, Action, Color, Icon } from "@raycast/api";
+import { ActionPanel, Detail, List, Action, Icon } from "@raycast/api";
 import IWorkspace from "../types/IWorkspace";
 import { usePromise } from "@raycast/utils";
-import { statusColors, workspaceStatus } from "../constants";
+import { desc, GitpodIcons, UIColors, workspaceClass, workspaceStatus } from "../constants";
 import { listWorkspaces } from "../gitpod-sdk/workspaces";
+import sinceTime from "../utils/sinceTime";
 
 export default function Command() {
   const { isLoading, data: workspaces } = usePromise(async () => await listWorkspaces(25));
 
-  if (workspaces == undefined) {
+  if (!workspaces) {
     return <Detail markdown={"- Something went wrong..."} />;
   }
 
@@ -18,8 +19,16 @@ export default function Command() {
         "Active Workspaces"
       )}
       {renderWorkspaces(
+        workspaces.filter((workspace) => workspace.status == workspaceStatus.workspace_progressing),
+        "Progressing Workspaces"
+      )}
+      {renderWorkspaces(
         workspaces.filter((workspace) => workspace.status == workspaceStatus.workspace_Inactive),
         "Inactive Workspaces"
+      )}
+      {renderWorkspaces(
+        workspaces.filter((workspace) => workspace.status == workspaceStatus.workspace_failed),
+        "Failed Workspaces"
       )}
     </List>
   );
@@ -32,35 +41,46 @@ function renderWorkspaces(workspaces: IWorkspace[], title: string) {
 function renderWorkspaceListItem(workspace: IWorkspace) {
   return (
     <List.Item
-      title={workspace.workspaceId}
-      subtitle={{ value: workspace.context.type, tooltip: "8gb, 4 Cores" }}
-      // icon={{ source: "../assets/logo-mark.png" }}
-      icon = { workspace.status === workspaceStatus.workspace_active
-              ? { source: Icon.CircleFilled, tintColor: statusColors.running }
-              : { source: Icon.CircleFilled, tintColor: Color.Red } }
+      title={workspace.context.source}
+      subtitle={{ value: sinceTime(workspace.context.date) + " ago" }}
       key={workspace.workspaceId}
+      icon={workspace.isGitPodified ? GitpodIcons.gitpod_logo_primary : GitpodIcons.gitpod_logo_secondary}
       actions={
         <ActionPanel>
-          <Action.OpenInBrowser url={`https://gitpod.io/start/#${workspace.workspaceId}`} />
+          <Action.OpenInBrowser title="Open Workspace" url={`https://gitpod.io/start/#${workspace.workspaceId}`} />
+          <Action.OpenInBrowser title="Open Repository" url={`https://github.com/${workspace.context.source}`} />
+          <Action.OpenInBrowser title="Open Gitpod Dashboard" url={`https://gitpod.io/workspaces`} />
         </ActionPanel>
       }
       accessories={[
         {
-          icon : { source: "../assets/logo-mark.png" }
-        },
-        {
           text: {
-            value: `${workspace.context.date.getDate()}-${workspace.context.date.getMonth() + 1}-${workspace.context.date.getFullYear()}`,
+            value: workspace.context.type,
           },
+          icon: {
+            source: Icon.ComputerChip,
+            tintColor: UIColors.gitpod_gold,
+          },
+          tooltip:
+            workspace.context.type === workspaceClass.standard
+              ? desc.standard_workspace_desc
+              : desc.large_workspace_desc,
         },
         {
-          icon: {
-            source: "https://raw.githubusercontent.com/primer/octicons-v2/master/icons/24/git-branch.svg",
-            tintColor: statusColors.running,
-          },
-          tag: {
+          icon: GitpodIcons.octicon_branch_icon,
+          text: {
             value: workspace.context.branch,
           },
+        },
+        {
+          icon:
+            workspace.status === workspaceStatus.workspace_active
+              ? GitpodIcons.running_icon
+              : workspace.status === workspaceStatus.workspace_Inactive
+              ? GitpodIcons.stopped_icon
+              : workspace.status === workspaceStatus.workspace_failed
+              ? GitpodIcons.failed_icon
+              : GitpodIcons.progressing_icon,
         },
       ]}
     />

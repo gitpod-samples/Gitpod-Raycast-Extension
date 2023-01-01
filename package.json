@@ -3,9 +3,13 @@
   "name": "gitpod",
   "title": "Gitpod",
   "description": "Ease the Gitpod Workflow",
-  "icon": "command-icon.png",
+  "icon": "logo-mark.png",
   "author": "Palanikannan1437",
   "owner": "gitpod",
+  "contributors": [
+    "Palanikannan1437",
+    "henit-chobisa"
+  ],
   "categories": [
     "Developer Tools"
   ],
@@ -19,7 +23,8 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.45.2"
+    "@raycast/api": "^1.45.2",
+    "@raycast/utils": "^1.4.14"
   },
   "devDependencies": {
     "@types/node": "18.8.3",

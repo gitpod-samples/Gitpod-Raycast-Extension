@@ -55,7 +55,15 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
       accessories={[
         {
           text: {
-            value: workspace.context.type,
+            value: workspace.context.branch,
+          }
+        },
+        {
+          icon: GitpodIcons.octicon_branch_icon,
+        },
+        {
+          tag: {
+            value: workspace.context.type === "Large" ? workspaceClass.large : workspaceClass.standard
           },
           icon: {
             source: Icon.ComputerChip,
@@ -67,12 +75,6 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
               : desc.large_workspace_desc,
         },
         {
-          icon: GitpodIcons.octicon_branch_icon,
-          text: {
-            value: workspace.context.branch,
-          },
-        },
-        {
           icon:
             workspace.status === workspaceStatus.workspace_active
               ? GitpodIcons.running_icon
@@ -80,7 +82,7 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
               ? GitpodIcons.stopped_icon
               : workspace.status === workspaceStatus.workspace_failed
               ? GitpodIcons.failed_icon
-              : GitpodIcons.progressing_icon,
+              : GitpodIcons.progressing_icon
         },
       ]}
     />

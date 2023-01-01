@@ -6,8 +6,12 @@ export enum workspaceStatus {
 }
 
 export enum workspaceClass {
-  standard = "Standard",
-  large = "Large"
+//   standard = "Standard",
+//   large =    "Large     "
+    // standard = "  8GB, 4 Core",
+    // large = "16GB, 8 Core"
+    standard= "S",
+    large= "L"
 }
 
 export enum desc {
@@ -39,7 +43,7 @@ export const GitpodIcons = {
   progressing_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.progressing },
 
   octicon_branch_icon: {
-    source: "https://raw.githubusercontent.com/primer/octicons-v2/master/icons/24/git-branch.svg",
+    source: "https://raw.githubusercontent.com/primer/octicons/main/icons/git-merge-16.svg",
     tintColor: statusColors.running,
   },
   gitpod_logo_primary: { source: "logo-mark.png" },

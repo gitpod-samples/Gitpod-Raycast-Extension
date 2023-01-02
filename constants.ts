@@ -1,3 +1,5 @@
+import { Color } from "@raycast/api";
+
 export enum workspaceStatus {
   workspace_Inactive = "stopped",
   workspace_active = "running",
@@ -23,6 +25,9 @@ export enum UIColors {
   primary_dark = "#12100C",
   primary_light = "#f5f4f4",
   gitpod_gold = "#FFB45B",
+  green = "#84cc18",
+  grey = "#a8a29e",
+  red = "#f77171",
 }
 
 export enum statusColors {
@@ -33,6 +38,18 @@ export enum statusColors {
 }
 
 export const GitpodIcons = {
+  tag_icon: {
+    source: "Icons/tag.svg",
+    tintColor: Color.Green
+  },
+  issues_icon: {
+    source: "Icons/bug.svg",
+    tintColor: UIColors.red
+  },
+  pulls_icon: {
+    source: "Icons/git-pull-request.svg",
+    tintColor: UIColors.gitpod_gold
+  },
   running_icon: { source: "Icons/status_icon.png", tintColor: statusColors.running },
   stopped_icon: { source: "Icons/status_icon.png", tintColor: statusColors.stopped },
   failed_icon: { source: "Icons/status_icon.png", tintColor: statusColors.failed },

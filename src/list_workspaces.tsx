@@ -1,8 +1,9 @@
 import { ActionPanel, Detail, List, Action, Icon } from "@raycast/api";
-import IWorkspace from "../types/IWorkspace";
 import { usePromise } from "@raycast/utils";
+
 import { desc, GitpodIcons, UIColors, workspaceClass, workspaceStatus } from "../constants";
 import { listWorkspaces } from "../gitpod-sdk/workspaces";
+import IWorkspace from "../types/IWorkspace";
 import sinceTime from "../utils/sinceTime";
 
 export default function Command() {
@@ -56,14 +57,14 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
         {
           text: {
             value: workspace.context.branch,
-          }
+          },
         },
         {
-          icon: GitpodIcons.octicon_branch_icon,
+          icon: GitpodIcons.branch_icon,
         },
         {
           tag: {
-            value: workspace.context.type === "Large" ? workspaceClass.large : workspaceClass.standard
+            value: workspace.context.type === "Large" ? workspaceClass.large : workspaceClass.standard,
           },
           icon: {
             source: Icon.ComputerChip,
@@ -82,7 +83,7 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
               ? GitpodIcons.stopped_icon
               : workspace.status === workspaceStatus.workspace_failed
               ? GitpodIcons.failed_icon
-              : GitpodIcons.progressing_icon
+              : GitpodIcons.progressing_icon,
         },
       ]}
     />

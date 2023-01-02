@@ -6,17 +6,17 @@ export enum workspaceStatus {
 }
 
 export enum workspaceClass {
-//   standard = "Standard",
-//   large =    "Large     "
-    // standard = "  8GB, 4 Core",
-    // large = "16GB, 8 Core"
-    standard= "S",
-    large= "L"
+  //   standard = "Standard",
+  //   large =    "Large     "
+  // standard = "  8GB, 4 Core",
+  // large = "16GB, 8 Core"
+  standard = "S",
+  large = "L",
 }
 
 export enum desc {
   standard_workspace_desc = "Up to 4 vCPU, 8GB memory, 30GB disk",
-  large_workspace_desc = "Up to 8 vCPU, 16GB memory, 50GB disk"
+  large_workspace_desc = "Up to 8 vCPU, 16GB memory, 50GB disk",
 }
 
 export enum UIColors {
@@ -42,10 +42,11 @@ export const GitpodIcons = {
   failed_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.failed },
   progressing_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.progressing },
 
-  octicon_branch_icon: {
-    source: "https://raw.githubusercontent.com/primer/octicons/main/icons/git-merge-16.svg",
+  branch_icon: {
+    source: "Icons/merge.svg",
     tintColor: statusColors.running,
   },
+
   gitpod_logo_primary: { source: "logo-mark.png" },
   gitpod_logo_secondary: { source: "logo-mark.png", tintColor: statusColors.stopped },
 };

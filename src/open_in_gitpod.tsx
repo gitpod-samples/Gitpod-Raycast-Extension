@@ -13,16 +13,11 @@ import { getGitHubClient } from "./helpers/withGithubClient";
 function SearchRepositories() {
   const { github } = getGitHubClient();
 
-  const preferences = getPreferenceValues<{ includeForks: boolean }>();
-
   const [searchText, setSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
 
   const { data: history, visitRepository } = useHistory(searchText, searchFilter);
-  const query = useMemo(
-    () => `${searchFilter} ${searchText} fork:${preferences.includeForks}`,
-    [searchText, searchFilter]
-  );
+  const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
 
   const {
     data,
@@ -30,8 +25,7 @@ function SearchRepositories() {
     mutate: mutateList,
   } = useCachedPromise(
     async (query) => {
-      const result = await github.searchRepositories({ query, numberOfItems: 20 });
-
+      const result = await github.searchRepositories({ query, numberOfItems: 15 });
       return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],

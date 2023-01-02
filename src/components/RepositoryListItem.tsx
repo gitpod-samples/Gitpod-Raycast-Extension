@@ -1,17 +1,19 @@
 import { Color, Icon, List, ActionPanel, Action } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
+import { GitpodIcons } from "../../constants";
 
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 import { getGitHubUser } from "../helpers/users";
 
 type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
+  isGitpodified: boolean;
   onVisit: (repository: ExtendedRepositoryFieldsFragment) => void;
   mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
 };
 
-export default function RepositoryListItem({ repository, mutateList, onVisit }: RepositoryListItemProps) {
+export default function RepositoryListItem({ repository, isGitpodified ,mutateList, onVisit }: RepositoryListItemProps) {
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
   const updatedAt = new Date(repository.updatedAt);
@@ -21,6 +23,9 @@ export default function RepositoryListItem({ repository, mutateList, onVisit }: 
       date: updatedAt,
       tooltip: `Updated: ${format(updatedAt, "EEEE d MMMM yyyy 'at' HH:mm")}`,
     },
+    {
+      icon: isGitpodified ? GitpodIcons.gitpod_logo_primary : GitpodIcons.gitpod_logo_secondary
+    }
   ];
 
   if (repository.primaryLanguage) {

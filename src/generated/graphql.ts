@@ -30383,6 +30383,7 @@ export type ExtendedRepositoryFieldsFragment = {
   hasWikiEnabled: boolean;
   hasProjectsEnabled: boolean;
   hasDiscussionsEnabled: boolean;
+  isGitpodified?: boolean;
   owner:
     | { __typename?: "Organization"; login: string; avatarUrl: any }
     | { __typename?: "User"; login: string; avatarUrl: any };

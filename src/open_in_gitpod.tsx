@@ -1,6 +1,6 @@
 import { List, getPreferenceValues } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 
 import RepositoryListEmptyView from "./components/RepositoryListEmptyView";
 import RepositoryListItem from "./components/RepositoryListItem";
@@ -13,10 +13,12 @@ import { getGitHubClient } from "./helpers/withGithubClient";
 function SearchRepositories() {
   const { github } = getGitHubClient();
 
+  const preferences = getPreferenceValues<{ includeForks: boolean }>();
+
   const [searchText, setSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
-
   const { data: history, visitRepository } = useHistory(searchText, searchFilter);
+  const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
 
   const {
@@ -25,17 +27,33 @@ function SearchRepositories() {
     mutate: mutateList,
   } = useCachedPromise(
     async (query) => {
-      const result = await github.searchRepositories({ query, numberOfItems: 15 });
+      const result = await github.searchRepositories({ query, numberOfItems: 20 });
       return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],
     { keepPreviousData: true }
   );
 
-  const foundRepositories = useMemo(
-    () => data?.filter((repository) => !history.find((r) => r.id === repository.id)),
-    [data]
-  );
+  const gitpodFilter = async (repo: ExtendedRepositoryFieldsFragment[]) => {
+    const result = [];
+    for (const node of repo) {
+      const res = await github.isRepositoryGitpodified({ owner: node.owner.login, name: node.name });
+      if (res.repository?.content) {
+        result.push(node.name);
+      }
+    }
+    return result;
+  };
+
+  const foundRepositories = useMemo(() => {
+    const found = data?.filter((repository) => !history.find((r) => r.id === repository.id));
+    if (found) {
+      gitpodFilter(found.slice(0, 6)).then((result) => {
+        setGitpodArray(result);
+      });
+    }
+    return found;
+  }, [data]);
 
   return (
     <List
@@ -49,6 +67,7 @@ function SearchRepositories() {
         {history.map((repository) => (
           <RepositoryListItem
             key={repository.id}
+            isGitpodified={gitpodArray?.includes(repository.name) ?? false}
             repository={repository}
             onVisit={visitRepository}
             mutateList={mutateList}
@@ -65,6 +84,7 @@ function SearchRepositories() {
             return (
               <RepositoryListItem
                 key={repository.id}
+                isGitpodified={gitpodArray?.includes(repository.name) ?? false}
                 repository={repository}
                 mutateList={mutateList}
                 onVisit={visitRepository}

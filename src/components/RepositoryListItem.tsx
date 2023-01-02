@@ -1,4 +1,4 @@
-import { Color, Icon, List } from "@raycast/api";
+import { Color, Icon, List, ActionPanel, Action } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -50,6 +50,11 @@ export default function RepositoryListItem({ repository, mutateList, onVisit }: 
           }
         : {})}
       accessories={accessories}
+      actions={
+        <ActionPanel>
+          <Action.OpenInBrowser url={`https://gitpod.io/#${repository.url}`} />
+        </ActionPanel>
+      }
     />
   );
 }

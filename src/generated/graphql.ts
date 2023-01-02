@@ -30451,6 +30451,24 @@ export type MilestonesForRepositoryQuery = {
   } | null;
 };
 
+export type IsRepositoryGitpodifiedQueryVariables = Exact<{
+  owner: Scalars["String"];
+  name: Scalars["String"];
+}>;
+
+export type IsRepositoryGitpodifiedQuery = {
+  __typename?: "Query";
+  repository?: {
+    __typename?: "Repository";
+    content?:
+      | { __typename?: "Blob"; byteSize: number }
+      | { __typename?: "Commit" }
+      | { __typename?: "Tag" }
+      | { __typename?: "Tree" }
+      | null;
+  } | null;
+};
+
 export type DataForRepositoryQueryVariables = Exact<{
   owner: Scalars["String"];
   name: Scalars["String"];
@@ -31554,6 +31572,17 @@ export const MilestonesForRepositoryDocument = gql`
     }
   }
 `;
+export const IsRepositoryGitpodifiedDocument = gql`
+  query isRepositoryGitpodified($owner: String!, $name: String!) {
+    repository(owner: $owner, name: $name) {
+      content: object(expression: "HEAD:.gitpod.yml") {
+        ... on Blob {
+          byteSize
+        }
+      }
+    }
+  }
+`;
 export const DataForRepositoryDocument = gql`
   query dataForRepository($owner: String!, $name: String!) {
     repository(owner: $owner, name: $name) {
@@ -32098,6 +32127,20 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
             ...wrappedRequestHeaders,
           }),
         "milestonesForRepository",
+        "query"
+      );
+    },
+    isRepositoryGitpodified(
+      variables: IsRepositoryGitpodifiedQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"]
+    ): Promise<IsRepositoryGitpodifiedQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<IsRepositoryGitpodifiedQuery>(IsRepositoryGitpodifiedDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "isRepositoryGitpodified",
         "query"
       );
     },

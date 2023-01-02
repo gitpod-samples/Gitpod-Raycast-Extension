@@ -62,6 +62,16 @@ query milestonesForRepository($owner: String!, $name: String!) {
   }
 }
 
+query isRepositoryGitpodified($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) {
+    content: object(expression: "HEAD:.gitpod.yml") {
+      ... on Blob {
+        byteSize
+      }
+    }
+  }
+}
+
 query dataForRepository($owner: String!, $name: String!) {
   repository(owner: $owner, name: $name) {
     defaultBranchRef {

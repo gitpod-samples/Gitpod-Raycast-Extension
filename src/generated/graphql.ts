@@ -30383,10 +30383,12 @@ export type ExtendedRepositoryFieldsFragment = {
   hasWikiEnabled: boolean;
   hasProjectsEnabled: boolean;
   hasDiscussionsEnabled: boolean;
-  isGitpodified?: boolean;
   owner:
     | { __typename?: "Organization"; login: string; avatarUrl: any }
     | { __typename?: "User"; login: string; avatarUrl: any };
+  latestRelease?: { __typename?: "Release"; tagName: string } | null;
+  issues: { __typename?: "IssueConnection"; totalCount: number };
+  pullRequests: { __typename?: "PullRequestConnection"; totalCount: number };
   primaryLanguage?: { __typename?: "Language"; id: string; name: string; color?: string | null } | null;
   releases: { __typename?: "ReleaseConnection"; totalCount: number };
 };
@@ -30426,6 +30428,9 @@ export type SearchRepositoriesQuery = {
           owner:
             | { __typename?: "Organization"; login: string; avatarUrl: any }
             | { __typename?: "User"; login: string; avatarUrl: any };
+          latestRelease?: { __typename?: "Release"; tagName: string } | null;
+          issues: { __typename?: "IssueConnection"; totalCount: number };
+          pullRequests: { __typename?: "PullRequestConnection"; totalCount: number };
           primaryLanguage?: { __typename?: "Language"; id: string; name: string; color?: string | null } | null;
           releases: { __typename?: "ReleaseConnection"; totalCount: number };
         }
@@ -31080,6 +31085,18 @@ export const ExtendedRepositoryFieldsFragmentDoc = gql`
     updatedAt
     stargazerCount
     viewerHasStarred
+    latestRelease {
+      tagName
+    }
+    latestRelease {
+      tagName
+    }
+    issues(states: OPEN) {
+      totalCount
+    }
+    pullRequests(states: OPEN) {
+      totalCount
+    }
     primaryLanguage {
       id
       name

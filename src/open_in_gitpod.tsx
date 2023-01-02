@@ -19,12 +19,9 @@ function SearchRepositories() {
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
   const { data: history, visitRepository } = useHistory(searchText, searchFilter);
   const [gitpodArray, setGitpodArray] = useState<string[]>();
-  const query = useMemo(
-    () => `${searchFilter} ${searchText} fork:${preferences.includeForks}`,
-    [searchText, searchFilter]
-  )
+  const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
 
-  let {
+  const {
     data,
     isLoading,
     mutate: mutateList,
@@ -39,27 +36,24 @@ function SearchRepositories() {
 
   const gitpodFilter = async (repo: ExtendedRepositoryFieldsFragment[]) => {
     const result = [];
-    for (let node of repo) {
-      const res = await github.isRepositoryGitpodified({ owner: node.owner.login, name: node.name })
+    for (const node of repo) {
+      const res = await github.isRepositoryGitpodified({ owner: node.owner.login, name: node.name });
       if (res.repository?.content) {
         result.push(node.name);
       }
     }
     return result;
-  }
+  };
 
-  const foundRepositories = useMemo(
-    () => { 
-      let found = data?.filter((repository) => !history.find((r) => r.id === repository.id))
-      if (found){
-        gitpodFilter(found.slice(0, 6)).then((result) => {
-          setGitpodArray(result);
-        });
-      }
-      return found;
-    },
-    [data]
-  );
+  const foundRepositories = useMemo(() => {
+    const found = data?.filter((repository) => !history.find((r) => r.id === repository.id));
+    if (found) {
+      gitpodFilter(found.slice(0, 6)).then((result) => {
+        setGitpodArray(result);
+      });
+    }
+    return found;
+  }, [data]);
 
   return (
     <List

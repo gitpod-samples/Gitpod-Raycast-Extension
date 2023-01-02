@@ -27,6 +27,18 @@ fragment ExtendedRepositoryFields on Repository {
   updatedAt
   stargazerCount
   viewerHasStarred
+  latestRelease {
+    tagName
+  }
+  latestRelease {
+    tagName
+  }
+  issues(states: OPEN) {
+    totalCount
+  }
+  pullRequests(states: OPEN) {
+    totalCount
+  }
   primaryLanguage {
     id
     name

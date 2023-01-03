@@ -18,7 +18,7 @@ export async function listWorkspaces(Pagesize: number): Promise<IWorkspace[]> {
         isGitPodified: true, // will be determinded on the basis of if .gitpod.yml is present in the repository
       },
       {
-        workspaceId: "https://gitpod.io/start/#raycast-extensions-lfi6vqr3348",
+        workspaceId: "raycast-extensions-lfi6vqr3348",
         ownerId: "string",
         projectId: "Gitpod-website",
         context: {

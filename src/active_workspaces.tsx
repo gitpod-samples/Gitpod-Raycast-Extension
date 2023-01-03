@@ -1,13 +1,16 @@
-import { MenuBarExtra } from "@raycast/api";
+import { MenuBarExtra, open } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
+
 
 import { GitpodIcons, workspaceStatus } from "../constants";
 import { listWorkspaces } from "../gitpod-sdk/workspaces";
 
 export default function command() {
   const { isLoading, data: workspaces } = usePromise(async () => await listWorkspaces(10));
+  const { isLoading, data: workspaces } = usePromise(async () => await listWorkspaces(10));
 
   if (!workspaces) {
+    return <MenuBarExtra isLoading={true}></MenuBarExtra>;
     return <MenuBarExtra isLoading={true}></MenuBarExtra>;
   }
 
@@ -16,7 +19,17 @@ export default function command() {
       workspace.status === workspaceStatus.workspace_active ||
       workspace.status === workspaceStatus.workspace_progressing
   );
+  const activeWorkspaces = workspaces.filter(
+    (workspace) =>
+      workspace.status === workspaceStatus.workspace_active ||
+      workspace.status === workspaceStatus.workspace_progressing
+  );
 
+  const recentWorkspaces = workspaces.filter(
+    (workspace) =>
+      workspace.status !== workspaceStatus.workspace_active &&
+      workspace.status !== workspaceStatus.workspace_progressing
+  );
   const recentWorkspaces = workspaces.filter(
     (workspace) =>
       workspace.status !== workspaceStatus.workspace_active &&
@@ -35,9 +48,7 @@ export default function command() {
                 : GitpodIcons.progressing_icon_menubar
             }
             title={workspace.context.source}
-            onAction={() => {
-              console.log("oka");
-            }}
+            onAction={() => open(`https://gitpod.io#https://github.com/${workspace.context.source}`)}
           />
         ))}
       </MenuBarExtra.Section>
@@ -51,9 +62,10 @@ export default function command() {
                 : GitpodIcons.failed_icon_menubar
             }
             title={workspace.context.source}
-            onAction={() => console.log("MKC")}
+            onAction={() => open(`https://gitpod.io#https://github.com/${workspace.context.source}`)}
           />
         ))}
+      </MenuBarExtra.Section>
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

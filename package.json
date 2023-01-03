@@ -51,6 +51,18 @@
         "gp",
         "Open in Gitpod"
       ]
+    },
+    {
+      "name": "open_repo_context",
+      "title": "Open any Repository's PR, Issue or Branch in Gitpod",
+      "subtitle": "Open any Repository's PR, Issue or Branch in Gitpod",
+      "description": "Open any Repository's PR, Issue or Branch in Gitpod",
+      "mode": "view",
+      "keywords": [
+        "gitpod",
+        "gp",
+        "Open in Gitpod"
+      ]
     }
   ],
   "preferences": [

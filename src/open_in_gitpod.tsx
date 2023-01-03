@@ -1,4 +1,4 @@
-import { List, getPreferenceValues } from "@raycast/api";
+import { List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 

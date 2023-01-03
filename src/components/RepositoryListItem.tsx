@@ -1,9 +1,10 @@
-import { Color, List, ActionPanel, Action, showToast, Toast, open } from "@raycast/api";
+import { Color, List, ActionPanel, Action, showToast, Toast, open, useNavigation } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 
 import { GitpodIcons } from "../../constants";
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 import { getGitHubUser } from "../helpers/users";
+import SearchContext from "../open_repo_context";
 
 type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
@@ -13,6 +14,7 @@ type RepositoryListItemProps = {
 };
 
 export default function RepositoryListItem({ repository, isGitpodified }: RepositoryListItemProps) {
+  const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
 
@@ -74,6 +76,7 @@ export default function RepositoryListItem({ repository, isGitpodified }: Reposi
       accessories={accessories}
       actions={
         <ActionPanel>
+          <Action title="Get In" onAction={() => push(<SearchContext repository={repository} />)} />
           <Action title="Trigger Workspace" onAction={showLaunchToast} />
         </ActionPanel>
       }

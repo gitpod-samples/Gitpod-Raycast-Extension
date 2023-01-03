@@ -5,12 +5,15 @@ import { useState } from "react";
 import PullRequestListItem from "./components/PullRequestListItem";
 import SearchContextDropdown from "./components/SearchContextDropdown";
 import View from "./components/View";
-import { PullRequestFieldsFragment } from "./generated/graphql";
+import { ExtendedRepositoryFieldsFragment, PullRequestFieldsFragment } from "./generated/graphql";
 import { pluralize } from "./helpers";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
 
-function SearchContext() {
+type SearchContextProps = {
+  repository?: ExtendedRepositoryFieldsFragment;
+};
+function SearchContext({ repository }: SearchContextProps) {
   const { github } = getGitHubClient();
 
   const viewer = useViewer();

@@ -2,6 +2,7 @@ import { List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState } from "react";
 
+import BranchListItem from "./components/BranchListItem";
 import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
 import SearchContextDropdown from "./components/SearchContextDropdown";
@@ -131,7 +132,7 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.branches.length, "Branch", { withNumber: true })}
         >
           {data.branches.map((branch) => {
-            return <List.Item title={branch ?? ""} key={branch} />;
+            return <BranchListItem mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""} branch={branch} viewer={viewer}/>;
           })}
         </List.Section>
       )}

@@ -61,6 +61,25 @@ query searchRepositories($query: String!, $numberOfItems: Int!) {
   }
 }
 
+query getExistingRepoBranches($query: String!, $numberOfItems: Int!) {
+  repository(query: $query, first: $numberOfItems, type: REPOSITORY) {
+    nodes {
+      id
+      name
+      refs(refPrefix: "refs/heads/", first: 20) {
+        edges {
+          node {
+            branchName: name
+          }
+        }
+        pageInfo {
+          endCursor
+        }
+      }
+    }
+  }
+}
+
 query milestonesForRepository($owner: String!, $name: String!) {
   repository(owner: $owner, name: $name) {
     milestones(first: 25, orderBy: { field: DUE_DATE, direction: ASC }) {

@@ -30699,20 +30699,28 @@ export type SearchRepositoriesQuery = {
 };
 
 export type GetExistingRepoBranchesQueryVariables = Exact<{
-  owner: Scalars["String"];
-  name: Scalars["String"];
+  orgName: Scalars["String"];
+  repoName: Scalars["String"];
+  branchQuery: Scalars["String"];
+  numberOfItems: Scalars["Int"];
 }>;
 
 export type GetExistingRepoBranchesQuery = {
   __typename?: "Query";
-  repository?: {
-    __typename?: "Repository";
-    id: string;
-    name: string;
-    refs?: {
-      __typename?: "RefConnection";
-      edges?: Array<{ __typename?: "RefEdge"; node?: { __typename?: "Ref"; branchName: string } | null } | null> | null;
-      pageInfo: { __typename?: "PageInfo"; endCursor?: string | null };
+  organization?: {
+    __typename?: "Organization";
+    repository?: {
+      __typename?: "Repository";
+      id: string;
+      name: string;
+      refs?: {
+        __typename?: "RefConnection";
+        edges?: Array<{
+          __typename?: "RefEdge";
+          node?: { __typename?: "Ref"; branchName: string } | null;
+        } | null> | null;
+        pageInfo: { __typename?: "PageInfo"; endCursor?: string | null };
+      } | null;
     } | null;
   } | null;
 };
@@ -31842,18 +31850,20 @@ export const SearchRepositoriesDocument = gql`
   ${ExtendedRepositoryFieldsFragmentDoc}
 `;
 export const GetExistingRepoBranchesDocument = gql`
-  query getExistingRepoBranches($owner: String!, $name: String!) {
-    repository(owner: $owner, name: $name) {
-      id
-      name
-      refs(refPrefix: "refs/heads/", first: 20) {
-        edges {
-          node {
-            branchName: name
+  query getExistingRepoBranches($orgName: String!, $repoName: String!, $branchQuery: String!, $numberOfItems: Int!) {
+    organization(login: $orgName) {
+      repository(name: $repoName) {
+        id
+        name
+        refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
+          edges {
+            node {
+              branchName: name
+            }
           }
-        }
-        pageInfo {
-          endCursor
+          pageInfo {
+            endCursor
+          }
         }
       }
     }

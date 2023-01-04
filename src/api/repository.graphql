@@ -61,19 +61,19 @@ query searchRepositories($query: String!, $numberOfItems: Int!) {
   }
 }
 
-query getExistingRepoBranches($query: String!, $numberOfItems: Int!) {
-  repository(query: $query, first: $numberOfItems, type: REPOSITORY) {
-    nodes {
+query getExistingRepoBranches($orgName: String!, $repoName: String!, $branchQuery: String!, $numberOfItems: Int!) {
+  organization(login: $orgName) {
+    repository(name: $repoName) {
       id
       name
-      refs(refPrefix: "refs/heads/", first: 20) {
+      refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
         edges {
           node {
             branchName: name
           }
         }
         pageInfo {
-          endCursor
+          endCursor #use this value to paginate through repos with more than 100 branches
         }
       }
     }

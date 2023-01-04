@@ -1,9 +1,10 @@
-import { Color, List, ActionPanel, Action, showToast, Toast, open } from "@raycast/api";
+import { Color, List, ActionPanel, Action, showToast, Toast, open, useNavigation } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 
-import { GitpodIcons, statusColors, UIColors } from "../../constants";
+import { GitpodIcons } from "../../constants";
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 import { getGitHubUser } from "../helpers/users";
+import SearchContext from "../open_repo_context";
 
 type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
@@ -12,15 +13,10 @@ type RepositoryListItemProps = {
   mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
 };
 
-export default function RepositoryListItem({
-  repository,
-  isGitpodified,
-  mutateList,
-  onVisit,
-}: RepositoryListItemProps) {
+export default function RepositoryListItem({ repository, isGitpodified }: RepositoryListItemProps) {
+  const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
-  const updatedAt = new Date(repository.updatedAt);
 
   const accessories: List.Item.Accessory[] = [
     {
@@ -29,36 +25,37 @@ export default function RepositoryListItem({
   ];
 
   const showLaunchToast = async () => {
-     await showToast({
-      title : "Launching your workspace",
+    await showToast({
+      title: "Launching your workspace",
       style: Toast.Style.Success,
-    })
+    });
     setTimeout(() => {
       open(`https://gitpod.io/#${repository.url}`);
-    }, 1500)
-    
-  }
+    }, 1500);
+  };
 
-  accessories.unshift({
-    text: {
-      value: repository.issues.totalCount.toString()
+  accessories.unshift(
+    {
+      text: {
+        value: repository.issues?.totalCount.toString(),
+      },
+      icon: GitpodIcons.issues_icon,
     },
-    icon: GitpodIcons.issues_icon,
-  },
-  {
-    text: {
-      value: repository.pullRequests.totalCount.toString()
-    },
-    icon: GitpodIcons.pulls_icon
-  },)
+    {
+      text: {
+        value: repository.pullRequests?.totalCount.toString(),
+      },
+      icon: GitpodIcons.pulls_icon,
+    }
+  );
 
   if (repository.latestRelease?.tagName) {
     accessories.unshift({
       tag: {
         value: repository.latestRelease.tagName,
-        color: Color.Green
+        color: Color.Green,
       },
-      icon: GitpodIcons.tag_icon
+      icon: GitpodIcons.tag_icon,
     });
   }
 
@@ -77,6 +74,12 @@ export default function RepositoryListItem({
       accessories={accessories}
       actions={
         <ActionPanel>
+          <Action
+            title="Get In"
+            onAction={() => {
+              push(<SearchContext repository={repository} />);
+            }}
+          />
           <Action title="Trigger Workspace" onAction={showLaunchToast} />
         </ActionPanel>
       }

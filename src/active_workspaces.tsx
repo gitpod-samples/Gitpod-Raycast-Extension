@@ -9,8 +9,8 @@ export default function command() {
 
   if (!workspaces) {
     return <MenuBarExtra isLoading={true}></MenuBarExtra>;
+    return <MenuBarExtra isLoading={true}></MenuBarExtra>;
   }
-
   const activeWorkspaces = workspaces.filter(
     (workspace) =>
       workspace.status === workspaceStatus.workspace_active ||

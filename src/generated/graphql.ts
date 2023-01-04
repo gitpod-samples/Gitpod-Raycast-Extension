@@ -13013,6 +13013,7 @@ export type OrganizationSponsorshipsAsMaintainerArgs = {
 
 /** An account on GitHub, with one or more owners, that has repositories, members and teams. */
 export type OrganizationSponsorshipsAsSponsorArgs = {
+  activeOnly?: InputMaybe<Scalars["Boolean"]>;
   after?: InputMaybe<Scalars["String"]>;
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
@@ -14344,6 +14345,11 @@ export type ProjectNext = Closable &
      */
     description?: Maybe<Scalars["String"]>;
     /**
+     * List of fields and their constraints in the project
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    fieldConstraints: ProjectNextFieldConfigurationConnection;
+    /**
      * List of fields in the project
      * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
      */
@@ -14407,6 +14413,14 @@ export type ProjectNext = Closable &
      */
     views: ProjectViewConnection;
   };
+
+/** New projects that manage issues, pull requests and drafts using tables and boards. */
+export type ProjectNextFieldConstraintsArgs = {
+  after?: InputMaybe<Scalars["String"]>;
+  before?: InputMaybe<Scalars["String"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  last?: InputMaybe<Scalars["Int"]>;
+};
 
 /** New projects that manage issues, pull requests and drafts using tables and boards. */
 export type ProjectNextFieldsArgs = {
@@ -14543,6 +14557,31 @@ export type ProjectNextFieldCommon = {
    * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
    */
   updatedAt: Scalars["DateTime"];
+};
+
+/** Configurations for project next fields. */
+export type ProjectNextFieldConfiguration = ProjectNextField | ProjectNextIterationField | ProjectNextSingleSelectField;
+
+/** The connection type for ProjectNextFieldConfiguration. */
+export type ProjectNextFieldConfigurationConnection = {
+  __typename?: "ProjectNextFieldConfigurationConnection";
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ProjectNextFieldConfigurationEdge>>>;
+  /** A list of nodes. */
+  nodes?: Maybe<Array<Maybe<ProjectNextFieldConfiguration>>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars["Int"];
+};
+
+/** An edge in a connection. */
+export type ProjectNextFieldConfigurationEdge = {
+  __typename?: "ProjectNextFieldConfigurationEdge";
+  /** A cursor for use in pagination. */
+  cursor: Scalars["String"];
+  /** The item at the end of the edge. */
+  node?: Maybe<ProjectNextFieldConfiguration>;
 };
 
 /** The connection type for ProjectNextField. */
@@ -14755,6 +14794,11 @@ export type ProjectNextItemFieldValue = Node & {
    */
   projectField: ProjectNextField;
   /**
+   * The project field that contains this value and it's constraint.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  projectFieldConstraint: ProjectNextFieldConfiguration;
+  /**
    * The project item that contains this value.
    * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
    */
@@ -14791,6 +14835,108 @@ export type ProjectNextItemFieldValueEdge = {
   cursor: Scalars["String"];
   /** The item at the end of the edge. */
   node?: Maybe<ProjectNextItemFieldValue>;
+};
+
+/** An iteration field inside a project. */
+export type ProjectNextIterationField = Node &
+  ProjectNextFieldCommon & {
+    __typename?: "ProjectNextIterationField";
+    /**
+     * Iteration configuration settings
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    configuration: ProjectNextIterationFieldConfiguration;
+    /**
+     * Identifies the date and time when the object was created.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    createdAt: Scalars["DateTime"];
+    /**
+     * The field's type.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    dataType: ProjectNextFieldType;
+    /**
+     * Identifies the primary key from the database.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    databaseId?: Maybe<Scalars["Int"]>;
+    id: Scalars["ID"];
+    /**
+     * The project field's name.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    name: Scalars["String"];
+    /**
+     * The project that contains this field.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    project: ProjectNext;
+    /**
+     * The field's settings.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    settings?: Maybe<Scalars["String"]>;
+    /**
+     * Identifies the date and time when the object was last updated.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    updatedAt: Scalars["DateTime"];
+  };
+
+/** Iteration field configuration for a project. */
+export type ProjectNextIterationFieldConfiguration = {
+  __typename?: "ProjectNextIterationFieldConfiguration";
+  /**
+   * The iteration's completed iterations
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  completedIterations: Array<ProjectNextIterationFieldIteration>;
+  /**
+   * The iteration's duration in days
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  duration: Scalars["Int"];
+  /**
+   * The iteration's iterations
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  iterations: Array<ProjectNextIterationFieldIteration>;
+  /**
+   * The iteration's start day of the week
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  startDay: Scalars["Int"];
+};
+
+/** Iteration field iteration settings for a project. */
+export type ProjectNextIterationFieldIteration = {
+  __typename?: "ProjectNextIterationFieldIteration";
+  /**
+   * The iteration's duration in days
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  duration: Scalars["Int"];
+  /**
+   * The iteration's ID.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  id: Scalars["String"];
+  /**
+   * The iteration's start date
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  startDate: Scalars["Date"];
+  /**
+   * The iteration's title.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  title: Scalars["String"];
+  /**
+   * The iteration's html title.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  titleHTML: Scalars["String"];
 };
 
 /** Properties by which the return project can be ordered. */
@@ -14845,6 +14991,73 @@ export type ProjectNextOwnerProjectsNextArgs = {
   last?: InputMaybe<Scalars["Int"]>;
   query?: InputMaybe<Scalars["String"]>;
   sortBy?: InputMaybe<ProjectNextOrderField>;
+};
+
+/** A single select field inside a project. */
+export type ProjectNextSingleSelectField = Node &
+  ProjectNextFieldCommon & {
+    __typename?: "ProjectNextSingleSelectField";
+    /**
+     * Identifies the date and time when the object was created.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    createdAt: Scalars["DateTime"];
+    /**
+     * The field's type.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    dataType: ProjectNextFieldType;
+    /**
+     * Identifies the primary key from the database.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    databaseId?: Maybe<Scalars["Int"]>;
+    id: Scalars["ID"];
+    /**
+     * The project field's name.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    name: Scalars["String"];
+    /**
+     * Options for the single select field
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    options: Array<ProjectNextSingleSelectFieldOption>;
+    /**
+     * The project that contains this field.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    project: ProjectNext;
+    /**
+     * The field's settings.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    settings?: Maybe<Scalars["String"]>;
+    /**
+     * Identifies the date and time when the object was last updated.
+     * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+     */
+    updatedAt: Scalars["DateTime"];
+  };
+
+/** Single select field option for a configuration for a project. */
+export type ProjectNextSingleSelectFieldOption = {
+  __typename?: "ProjectNextSingleSelectFieldOption";
+  /**
+   * The option's ID.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  id: Scalars["String"];
+  /**
+   * The option's name.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  name: Scalars["String"];
+  /**
+   * The option's html name.
+   * @deprecated The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement. Removal on 2023-01-01 UTC.
+   */
+  nameHTML: Scalars["String"];
 };
 
 /** Ways in which lists of projects can be ordered upon return. */
@@ -22032,6 +22245,7 @@ export type SponsorableSponsorshipsAsMaintainerArgs = {
 
 /** Entities that can sponsor or be sponsored through GitHub Sponsors. */
 export type SponsorableSponsorshipsAsSponsorArgs = {
+  activeOnly?: InputMaybe<Scalars["Boolean"]>;
   after?: InputMaybe<Scalars["String"]>;
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
@@ -22685,6 +22899,8 @@ export type SponsorsListing = Node & {
   __typename?: "SponsorsListing";
   /** The current goal the maintainer is trying to reach with GitHub Sponsors, if any. */
   activeGoal?: Maybe<SponsorsGoal>;
+  /** The Stripe Connect account currently in use for payouts for this Sponsors listing, if any. Will only return a value when queried by the maintainer themselves, or by an admin of the sponsorable organization. */
+  activeStripeConnectAccount?: Maybe<StripeConnectAccount>;
   /** The name of the country or region with the maintainer's bank account or fiscal host. Will only return a value when queried by the maintainer themselves, or by an admin of the sponsorable organization. */
   billingCountryOrRegion?: Maybe<Scalars["String"]>;
   /** The email address used by GitHub to contact the sponsorable about their GitHub Sponsors profile. Will only return a value when queried by the maintainer themselves, or by an admin of the sponsorable organization. */
@@ -23297,6 +23513,23 @@ export enum StatusState {
   /** Status is successful. */
   Success = "SUCCESS",
 }
+
+/** A Stripe Connect account for receiving sponsorship funds from GitHub Sponsors. */
+export type StripeConnectAccount = {
+  __typename?: "StripeConnectAccount";
+  /** The account number used to identify this Stripe Connect account. */
+  accountId: Scalars["String"];
+  /** The name of the country or region of an external account, such as a bank account, tied to the Stripe Connect account. Will only return a value when queried by the maintainer of the associated GitHub Sponsors profile themselves, or by an admin of the sponsorable organization. */
+  billingCountryOrRegion?: Maybe<Scalars["String"]>;
+  /** The name of the country or region of the Stripe Connect account. Will only return a value when queried by the maintainer of the associated GitHub Sponsors profile themselves, or by an admin of the sponsorable organization. */
+  countryOrRegion?: Maybe<Scalars["String"]>;
+  /** Whether this Stripe Connect account is currently in use for the associated GitHub Sponsors profile. */
+  isActive: Scalars["Boolean"];
+  /** The GitHub Sponsors profile associated with this Stripe Connect account. */
+  sponsorsListing: SponsorsListing;
+  /** The URL to access this Stripe Connect account on Stripe's website. */
+  stripeDashboardUrl: Scalars["URI"];
+};
 
 /** Autogenerated input type of SubmitPullRequestReview */
 export type SubmitPullRequestReviewInput = {
@@ -25808,6 +26041,15 @@ export type UpdateProjectNextItemFieldInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars["String"]>;
   /**
+   * The id of the field to be updated. Only supports custom fields and status for now.
+   *
+   * **Upcoming Change on 2023-01-01 UTC**
+   * **Description:** `fieldConstraintId` will be removed. Follow the ProjectV2 guide at https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/, to find a suitable replacement.
+   * **Reason:** The `ProjectNext` API is deprecated in favour of the more capable `ProjectV2` API.
+   *
+   */
+  fieldConstraintId?: InputMaybe<Scalars["ID"]>;
+  /**
    * The id of the field to be updated.
    *
    * **Upcoming Change on 2023-01-01 UTC**
@@ -25816,6 +26058,15 @@ export type UpdateProjectNextItemFieldInput = {
    *
    */
   fieldId?: InputMaybe<Scalars["ID"]>;
+  /**
+   * The id of the field to be updated. Only supports custom fields and status for now.
+   *
+   * **Upcoming Change on 2022-10-01 UTC**
+   * **Description:** `fieldWithSettingId` will be removed. Use `fieldConstraintId` instead
+   * **Reason:** Renamed to fieldConstraintId to improve naming consistency.
+   *
+   */
+  fieldWithSettingId?: InputMaybe<Scalars["ID"]>;
   /**
    * The id of the item to be updated. This field is required.
    *
@@ -26823,6 +27074,7 @@ export type UserSponsorshipsAsMaintainerArgs = {
 
 /** A user is an individual's account on GitHub that owns repositories and can make new content. */
 export type UserSponsorshipsAsSponsorArgs = {
+  activeOnly?: InputMaybe<Scalars["Boolean"]>;
   after?: InputMaybe<Scalars["String"]>;
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
@@ -27884,6 +28136,8 @@ export type IssueDetailsQuery = {
     | { __typename?: "ProjectNextField" }
     | { __typename?: "ProjectNextItem" }
     | { __typename?: "ProjectNextItemFieldValue" }
+    | { __typename?: "ProjectNextIterationField" }
+    | { __typename?: "ProjectNextSingleSelectField" }
     | { __typename?: "ProjectV2" }
     | { __typename?: "ProjectV2Field" }
     | { __typename?: "ProjectV2Item" }
@@ -29601,6 +29855,8 @@ export type PullRequestDetailsQuery = {
     | { __typename?: "ProjectNextField" }
     | { __typename?: "ProjectNextItem" }
     | { __typename?: "ProjectNextItemFieldValue" }
+    | { __typename?: "ProjectNextIterationField" }
+    | { __typename?: "ProjectNextSingleSelectField" }
     | { __typename?: "ProjectV2" }
     | { __typename?: "ProjectV2Field" }
     | { __typename?: "ProjectV2Item" }
@@ -30025,6 +30281,8 @@ export type PullRequestCommitsQuery = {
     | { __typename?: "ProjectNextField" }
     | { __typename?: "ProjectNextItem" }
     | { __typename?: "ProjectNextItemFieldValue" }
+    | { __typename?: "ProjectNextIterationField" }
+    | { __typename?: "ProjectNextSingleSelectField" }
     | { __typename?: "ProjectV2" }
     | { __typename?: "ProjectV2Field" }
     | { __typename?: "ProjectV2Item" }
@@ -30367,6 +30625,18 @@ export type ShortRepositoryFieldsFragment = {
     | { __typename?: "User"; login: string; avatarUrl: any };
 };
 
+export type BranchDetailsFragment = {
+  __typename?: "Ref";
+  branchName: string;
+  compData?: {
+    __typename?: "Comparison";
+    aheadBy: number;
+    behindBy: number;
+    status: ComparisonStatus;
+    commits: { __typename?: "ComparisonCommitConnection"; totalCount: number };
+  } | null;
+};
+
 export type ExtendedRepositoryFieldsFragment = {
   __typename?: "Repository";
   id: string;
@@ -30376,6 +30646,7 @@ export type ExtendedRepositoryFieldsFragment = {
   mergeCommitAllowed: boolean;
   squashMergeAllowed: boolean;
   rebaseMergeAllowed: boolean;
+  isFork: boolean;
   updatedAt: any;
   stargazerCount: number;
   viewerHasStarred: boolean;
@@ -30386,6 +30657,7 @@ export type ExtendedRepositoryFieldsFragment = {
   owner:
     | { __typename?: "Organization"; login: string; avatarUrl: any }
     | { __typename?: "User"; login: string; avatarUrl: any };
+  defaultBranchRef?: { __typename?: "Ref"; defaultBranch: string } | null;
   latestRelease?: { __typename?: "Release"; tagName: string } | null;
   issues: { __typename?: "IssueConnection"; totalCount: number };
   pullRequests: { __typename?: "PullRequestConnection"; totalCount: number };
@@ -30418,6 +30690,7 @@ export type SearchRepositoriesQuery = {
           mergeCommitAllowed: boolean;
           squashMergeAllowed: boolean;
           rebaseMergeAllowed: boolean;
+          isFork: boolean;
           updatedAt: any;
           stargazerCount: number;
           viewerHasStarred: boolean;
@@ -30428,6 +30701,7 @@ export type SearchRepositoriesQuery = {
           owner:
             | { __typename?: "Organization"; login: string; avatarUrl: any }
             | { __typename?: "User"; login: string; avatarUrl: any };
+          defaultBranchRef?: { __typename?: "Ref"; defaultBranch: string } | null;
           latestRelease?: { __typename?: "Release"; tagName: string } | null;
           issues: { __typename?: "IssueConnection"; totalCount: number };
           pullRequests: { __typename?: "PullRequestConnection"; totalCount: number };
@@ -30438,6 +30712,39 @@ export type SearchRepositoriesQuery = {
       | null
     > | null;
   };
+};
+
+export type GetExistingRepoBranchesQueryVariables = Exact<{
+  orgName: Scalars["String"];
+  repoName: Scalars["String"];
+  defaultBranch: Scalars["String"];
+  branchQuery: Scalars["String"];
+  numberOfItems: Scalars["Int"];
+}>;
+
+export type GetExistingRepoBranchesQuery = {
+  __typename?: "Query";
+  repository?: {
+    __typename?: "Repository";
+    refs?: {
+      __typename?: "RefConnection";
+      edges?: Array<{
+        __typename?: "RefEdge";
+        node?: {
+          __typename?: "Ref";
+          branchName: string;
+          compData?: {
+            __typename?: "Comparison";
+            aheadBy: number;
+            behindBy: number;
+            status: ComparisonStatus;
+            commits: { __typename?: "ComparisonCommitConnection"; totalCount: number };
+          } | null;
+        } | null;
+      } | null> | null;
+      pageInfo: { __typename?: "PageInfo"; endCursor?: string | null };
+    } | null;
+  } | null;
 };
 
 export type MilestonesForRepositoryQueryVariables = Exact<{
@@ -30508,18 +30815,6 @@ export type DataForRepositoryQuery = {
           | { __typename?: "Tag" }
           | { __typename?: "Tree" }
           | null;
-      } | null> | null;
-    } | null;
-    collaborators?: {
-      __typename?: "RepositoryCollaboratorConnection";
-      totalCount: number;
-      nodes?: Array<{
-        __typename?: "User";
-        id: string;
-        avatarUrl: any;
-        name?: string | null;
-        login: string;
-        isViewer: boolean;
       } | null> | null;
     } | null;
     labels?: {
@@ -31069,6 +31364,19 @@ export const CommitFieldsFragmentDoc = gql`
     message
   }
 `;
+export const BranchDetailsFragmentDoc = gql`
+  fragment BranchDetails on Ref {
+    branchName: name
+    compData: compare(headRef: $defaultBranch) {
+      aheadBy
+      behindBy
+      status
+      commits {
+        totalCount
+      }
+    }
+  }
+`;
 export const ExtendedRepositoryFieldsFragmentDoc = gql`
   fragment ExtendedRepositoryFields on Repository {
     id
@@ -31082,6 +31390,10 @@ export const ExtendedRepositoryFieldsFragmentDoc = gql`
     mergeCommitAllowed
     squashMergeAllowed
     rebaseMergeAllowed
+    isFork
+    defaultBranchRef {
+      defaultBranch: name
+    }
     updatedAt
     stargazerCount
     viewerHasStarred
@@ -31576,6 +31888,29 @@ export const SearchRepositoriesDocument = gql`
   }
   ${ExtendedRepositoryFieldsFragmentDoc}
 `;
+export const GetExistingRepoBranchesDocument = gql`
+  query getExistingRepoBranches(
+    $orgName: String!
+    $repoName: String!
+    $defaultBranch: String!
+    $branchQuery: String!
+    $numberOfItems: Int!
+  ) {
+    repository(owner: $orgName, name: $repoName) {
+      refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
+        edges {
+          node {
+            ...BranchDetails
+          }
+        }
+        pageInfo {
+          endCursor
+        }
+      }
+    }
+  }
+  ${BranchDetailsFragmentDoc}
+`;
 export const MilestonesForRepositoryDocument = gql`
   query milestonesForRepository($owner: String!, $name: String!) {
     repository(owner: $owner, name: $name) {
@@ -31619,12 +31954,6 @@ export const DataForRepositoryDocument = gql`
           target {
             ...CommitFields
           }
-        }
-      }
-      collaborators(first: 50) {
-        totalCount
-        nodes {
-          ...UserFields
         }
       }
       labels(first: 50) {
@@ -31671,7 +32000,6 @@ export const DataForRepositoryDocument = gql`
     }
   }
   ${CommitFieldsFragmentDoc}
-  ${UserFieldsFragmentDoc}
 `;
 export const RepositoryReleasesDocument = gql`
   query repositoryReleases($name: String!, $owner: String!) {
@@ -32131,6 +32459,20 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
             ...wrappedRequestHeaders,
           }),
         "searchRepositories",
+        "query"
+      );
+    },
+    getExistingRepoBranches(
+      variables: GetExistingRepoBranchesQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"]
+    ): Promise<GetExistingRepoBranchesQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetExistingRepoBranchesQuery>(GetExistingRepoBranchesDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "getExistingRepoBranches",
         "query"
       );
     },

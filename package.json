@@ -16,7 +16,8 @@
   "commands": [
     {
       "name": "list_workspaces",
-      "title": "List Workspaces",
+      "title": "Workspaces",
+      "subtitle": "Show all Gitpod Workspaces",
       "description": "Show all Gitpod Workspaces",
       "mode": "view",
       "keywords": [

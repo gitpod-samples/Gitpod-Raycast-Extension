@@ -122,12 +122,6 @@ query dataForRepository($owner: String!, $name: String!) {
         }
       }
     }
-    collaborators(first: 50) {
-      totalCount
-      nodes {
-        ...UserFields
-      }
-    }
     labels(first: 50) {
       totalCount
       nodes {

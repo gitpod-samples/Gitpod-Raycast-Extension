@@ -30787,18 +30787,6 @@ export type DataForRepositoryQuery = {
           | null;
       } | null> | null;
     } | null;
-    collaborators?: {
-      __typename?: "RepositoryCollaboratorConnection";
-      totalCount: number;
-      nodes?: Array<{
-        __typename?: "User";
-        id: string;
-        avatarUrl: any;
-        name?: string | null;
-        login: string;
-        isViewer: boolean;
-      } | null> | null;
-    } | null;
     labels?: {
       __typename?: "LabelConnection";
       totalCount: number;
@@ -31916,12 +31904,6 @@ export const DataForRepositoryDocument = gql`
           }
         }
       }
-      collaborators(first: 50) {
-        totalCount
-        nodes {
-          ...UserFields
-        }
-      }
       labels(first: 50) {
         totalCount
         nodes {
@@ -31966,7 +31948,6 @@ export const DataForRepositoryDocument = gql`
     }
   }
   ${CommitFieldsFragmentDoc}
-  ${UserFieldsFragmentDoc}
 `;
 export const RepositoryReleasesDocument = gql`
   query repositoryReleases($name: String!, $owner: String!) {

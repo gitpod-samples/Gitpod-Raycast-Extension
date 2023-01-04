@@ -24,8 +24,6 @@ export default function RepositoryListItem({ repository, isGitpodified }: Reposi
     },
   ];
 
-  console.log(isGitpodified);
-
   const showLaunchToast = async () => {
     await showToast({
       title: "Launching your workspace",
@@ -76,7 +74,12 @@ export default function RepositoryListItem({ repository, isGitpodified }: Reposi
       accessories={accessories}
       actions={
         <ActionPanel>
-          <Action title="Get In" onAction={() => push(<SearchContext repository={repository} />)} />
+          <Action
+            title="Get In"
+            onAction={() => {
+              push(<SearchContext repository={repository} />);
+            }}
+          />
           <Action title="Trigger Workspace" onAction={showLaunchToast} />
         </ActionPanel>
       }

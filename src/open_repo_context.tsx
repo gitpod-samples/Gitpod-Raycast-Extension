@@ -1,6 +1,6 @@
-import { Detail, List } from "@raycast/api";
+import { List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
@@ -29,7 +29,6 @@ function SearchContext({ repository }: SearchContextProps) {
     mutate: mutateList,
   } = useCachedPromise(
     async (searchText) => {
-      console.log(sections);
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
         issues?: IssueFieldsFragment[] | undefined;
@@ -132,7 +131,7 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.branches.length, "Branch", { withNumber: true })}
         >
           {data.branches.map((branch) => {
-            return <List.Item title={branch.branchName ?? ""} />;
+            return <List.Item title={branch ?? ""} key={branch} />;
           })}
         </List.Section>
       )}

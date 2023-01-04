@@ -1,4 +1,4 @@
-import { Action, Icon, List } from "@raycast/api";
+import { Action, ActionPanel, Icon, List } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -57,15 +57,32 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
       accessories={accessories}
-      // actions={
-      //   <IssueActions issue={issue} mutateList={mutateList} viewer={viewer}>
-      //     <Action.Push
-      //       title="Show Details"
-      //       icon={Icon.Sidebar}
-      //       target={<IssueDetail initialIssue={issue} viewer={viewer} mutateList={mutateList} />}
-      //     />
-      //   </IssueActions>
-      // }
+      actions={
+        <ActionPanel>
+          <Action
+            title="Open PR in Gitpod"
+            shortcut={{ modifiers: ["cmd"], key: "enter" }}
+            onAction={() => {
+              open(`https://gitpod.io/#${issue.url}`);
+            }}
+          />
+          <Action
+            title="Open PR in github"
+            onAction={() => {
+              open(issue.url);
+            }}
+            shortcut={{ modifiers: ["shift"], key: "enter" }}
+          />
+        </ActionPanel>
+      }
     />
   );
 }
+
+// <IssueActions issue={issue} mutateList={mutateList} viewer={viewer}>
+//   <Action.Push
+//     title="Show Details"
+//     icon={Icon.Sidebar}
+//     target={<IssueDetail initialIssue={issue} viewer={viewer} mutateList={mutateList} />}
+//   />
+// </IssueActions>

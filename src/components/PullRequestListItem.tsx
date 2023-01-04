@@ -1,4 +1,4 @@
-import { Action, Icon, List } from "@raycast/api";
+import { Action, ActionPanel, Icon, List } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 import { useMemo } from "react";
@@ -74,15 +74,34 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
       accessories={accessories}
-      // actions={
-      //   <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
-      //     <Action.Push
-      //       title="Show Details"
-      //       icon={Icon.Sidebar}
-      //       target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
-      //     />
-      //   </PullRequestActions>
-      // }
+      actions={
+        <ActionPanel>
+          <Action
+            title="Open PR in Gitpod"
+            shortcut={{ modifiers: ["cmd"], key: "enter" }}
+            onAction={() => {
+              open(`https://gitpod.io/#${pullRequest.permalink}`);
+            }}
+          />
+          <Action
+            title="Open PR in github"
+            onAction={() => {
+              open(pullRequest.permalink);
+            }}
+            shortcut={{ modifiers: ["shift"], key: "enter" }}
+          />
+        </ActionPanel>
+      }
     />
   );
+}
+
+{
+  /* <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
+  <Action.Push
+    title="Show Details"
+    icon={Icon.Sidebar}
+    target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
+  />
+</PullRequestActions>; */
 }

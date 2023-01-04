@@ -1,77 +1,69 @@
-import { Icon, List } from "@raycast/api";
-import { MutatePromise } from "@raycast/utils";
-import { format } from "date-fns";
-import { useMemo } from "react";
+import { Color, List } from "@raycast/api";
 
-import { MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
-import {
-  getCheckStateAccessory,
-  getNumberOfComments,
-  getPullRequestAuthor,
-  getPullRequestStatus,
-  getReviewDecision,
-} from "../helpers/pull-request";
-
+// import { MutatePromise } from "@raycast/utils";
+// import { format } from "date-fns";
+// import { useMemo } from "react";
+import { branchStatus, GitpodIcons, UIColors } from "../../constants";
+import { BranchDetailsFragment, MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
 
 type BranchItemProps = {
-  branch: PullRequestFieldsFragment;
+  branch: BranchDetailsFragment;
+  mainBranch: string;
   viewer?: UserFieldsFragment;
-  mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
 };
 
-export default function BranchListItem({ pullRequest, viewer, mutateList }: BranchItemProps) {
-  const updatedAt = new Date(pullRequest.updatedAt);
+export default function BranchListItem({ branch, mainBranch , viewer }: BranchItemProps) {
+  const accessories: List.Item.Accessory[] = [];
 
-  const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
-  const author = getPullRequestAuthor(pullRequest);
-  const status = getPullRequestStatus(pullRequest);
-  const reviewDecision = getReviewDecision(pullRequest.reviewDecision);
-
-  const accessories: List.Item.Accessory[] = [
-    {
-      date: updatedAt,
-      tooltip: `Updated: ${format(updatedAt, "EEEE d MMMM yyyy 'at' HH:mm")}`,
-    },
-    {
-      icon: author.icon,
-      tooltip: `Author: ${author.text}`,
-    },
-  ];
-
-  if (reviewDecision) {
-    accessories.unshift(reviewDecision);
-  }
-
-  if (numberOfComments > 0) {
-    accessories.unshift({
-      text: `${numberOfComments}`,
-      icon: Icon.Bubble,
-    });
-  }
-
-  if (pullRequest.commits.nodes) {
-    const checkState = pullRequest.commits.nodes[0]?.commit.statusCheckRollup?.state;
-    const checkStateAccessory = checkState ? getCheckStateAccessory(checkState) : null;
-
-    if (checkStateAccessory) {
-      accessories.unshift(checkStateAccessory);
+  if (branch.compData){
+    if (branch.compData.status){
+      switch( branch.compData.status.toString()){
+        case branchStatus.ahead:
+          accessories.unshift({
+            text: branch.compData.aheadBy.toString(),
+            icon: GitpodIcons.branchAhead
+          });
+          break;
+        case branchStatus.behind: 
+          accessories.unshift({
+            text: branch.compData.aheadBy.toString(),
+            icon: GitpodIcons.branchBehind
+          });
+          break;
+        case branchStatus.diverged:
+          accessories.unshift({
+            text: branch.compData.aheadBy.toString(),
+            icon: GitpodIcons.branchDiverged
+          })
+          break;
+        case branchStatus.IDENTICAL: 
+          accessories.unshift({
+            text: "IDN",
+            icon: GitpodIcons.branchIdentical
+          })
+          break;
+      }
     }
-  }
 
-  const keywords = [`${pullRequest.number}`];
-
-  if (pullRequest.author?.login) {
-    keywords.push(pullRequest.author.login);
+    if (branch.compData.commits){
+      accessories.unshift({
+        tag : {
+          value : branch.compData.commits.totalCount.toString(),
+          color : Color.Yellow
+        },
+        icon: GitpodIcons.commit_icon
+        
+      })
+    }
   }
 
   return (
     <List.Item
-      key={pullRequest.id}
-      title={pullRequest.title}
-      subtitle={{ value: `#${pullRequest.number}`, tooltip: `Repository: ${pullRequest.repository.nameWithOwner}` }}
-      icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
-      keywords={keywords}
+      icon={ GitpodIcons.branchIcon }
+      subtitle={mainBranch}
+      title={branch.branchName}
       accessories={accessories}
     />
-  );
+  )
+
 }

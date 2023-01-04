@@ -18,10 +18,10 @@ import PullRequestDetail from "./PullRequestDetail";
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
-  mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
+  // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer, mutateList }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, viewer }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
@@ -74,15 +74,15 @@ export default function PullRequestListItem({ pullRequest, viewer, mutateList }:
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
       accessories={accessories}
-      actions={
-        <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
-          <Action.Push
-            title="Show Details"
-            icon={Icon.Sidebar}
-            target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
-          />
-        </PullRequestActions>
-      }
+      // actions={
+      //   <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
+      //     <Action.Push
+      //       title="Show Details"
+      //       icon={Icon.Sidebar}
+      //       target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
+      //     />
+      //   </PullRequestActions>
+      // }
     />
   );
 }

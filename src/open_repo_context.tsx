@@ -6,7 +6,7 @@ import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
 import SearchContextDropdown from "./components/SearchContextDropdown";
 import View from "./components/View";
-import { ExtendedRepositoryFieldsFragment, IssueFieldsFragment, PullRequestFieldsFragment } from "./generated/graphql";
+import { BranchDetailsFragment, ExtendedRepositoryFieldsFragment, IssueFieldsFragment, PullRequestFieldsFragment } from "./generated/graphql";
 import { pluralize } from "./helpers";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
@@ -33,15 +33,14 @@ function SearchContext({ repository }: SearchContextProps) {
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
         issues?: IssueFieldsFragment[] | undefined;
-        branches?: (string | undefined)[];
+        branches?: BranchDetailsFragment[] | undefined;
       } = {};
 
       let n = 2;
-      if (sections.length == 1){
+      if (sections.length == 1) {
         n = 10;
-      }
-      else if (sections.length == 2){
-        n = 3
+      } else if (sections.length == 2) {
+        n = 3;
       }
 
       if (sections.includes("/p")) {
@@ -70,13 +69,14 @@ function SearchContext({ repository }: SearchContextProps) {
 
       if (sections.includes("/b")) {
         const branches = (
-          (await github.getExistingRepoBranches({
-            orgName : forAuthor && viewer?.login ? viewer.login : repository.owner.login,
+          await github.getExistingRepoBranches({
+            orgName: forAuthor && viewer?.login ? viewer.login : repository.owner.login,
             repoName: repository.name,
             branchQuery: searchText.trim(),
-            numberOfItems: n
-          })).organization?.repository?.refs?.edges?.map((edge) => edge?.node?.branchName)
-        )
+            defaultBranch: repository.defaultBranchRef?.defaultBranch ?? "main",
+            numberOfItems: n,
+          })
+        ).repository?.refs?.edges?.map((edge) => edge?.node as BranchDetailsFragment);
         result.branches = branches;
       }
 
@@ -132,7 +132,7 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.branches.length, "Branch", { withNumber: true })}
         >
           {data.branches.map((branch) => {
-            return <List.Item title={branch ?? ""} />;
+            return <List.Item title={branch.branchName ?? ""} />;
           })}
         </List.Section>
       )}

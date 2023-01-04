@@ -30625,6 +30625,18 @@ export type ShortRepositoryFieldsFragment = {
     | { __typename?: "User"; login: string; avatarUrl: any };
 };
 
+export type BranchDetailsFragment = {
+  __typename?: "Ref";
+  branchName: string;
+  compData?: {
+    __typename?: "Comparison";
+    aheadBy: number;
+    behindBy: number;
+    status: ComparisonStatus;
+    commits: { __typename?: "ComparisonCommitConnection"; totalCount: number };
+  } | null;
+};
+
 export type ExtendedRepositoryFieldsFragment = {
   __typename?: "Repository";
   id: string;
@@ -30634,6 +30646,7 @@ export type ExtendedRepositoryFieldsFragment = {
   mergeCommitAllowed: boolean;
   squashMergeAllowed: boolean;
   rebaseMergeAllowed: boolean;
+  isFork: boolean;
   updatedAt: any;
   stargazerCount: number;
   viewerHasStarred: boolean;
@@ -30644,6 +30657,7 @@ export type ExtendedRepositoryFieldsFragment = {
   owner:
     | { __typename?: "Organization"; login: string; avatarUrl: any }
     | { __typename?: "User"; login: string; avatarUrl: any };
+  defaultBranchRef?: { __typename?: "Ref"; defaultBranch: string } | null;
   latestRelease?: { __typename?: "Release"; tagName: string } | null;
   issues: { __typename?: "IssueConnection"; totalCount: number };
   pullRequests: { __typename?: "PullRequestConnection"; totalCount: number };
@@ -30676,6 +30690,7 @@ export type SearchRepositoriesQuery = {
           mergeCommitAllowed: boolean;
           squashMergeAllowed: boolean;
           rebaseMergeAllowed: boolean;
+          isFork: boolean;
           updatedAt: any;
           stargazerCount: number;
           viewerHasStarred: boolean;
@@ -30686,6 +30701,7 @@ export type SearchRepositoriesQuery = {
           owner:
             | { __typename?: "Organization"; login: string; avatarUrl: any }
             | { __typename?: "User"; login: string; avatarUrl: any };
+          defaultBranchRef?: { __typename?: "Ref"; defaultBranch: string } | null;
           latestRelease?: { __typename?: "Release"; tagName: string } | null;
           issues: { __typename?: "IssueConnection"; totalCount: number };
           pullRequests: { __typename?: "PullRequestConnection"; totalCount: number };
@@ -30701,26 +30717,32 @@ export type SearchRepositoriesQuery = {
 export type GetExistingRepoBranchesQueryVariables = Exact<{
   orgName: Scalars["String"];
   repoName: Scalars["String"];
+  defaultBranch: Scalars["String"];
   branchQuery: Scalars["String"];
   numberOfItems: Scalars["Int"];
 }>;
 
 export type GetExistingRepoBranchesQuery = {
   __typename?: "Query";
-  organization?: {
-    __typename?: "Organization";
-    repository?: {
-      __typename?: "Repository";
-      id: string;
-      name: string;
-      refs?: {
-        __typename?: "RefConnection";
-        edges?: Array<{
-          __typename?: "RefEdge";
-          node?: { __typename?: "Ref"; branchName: string } | null;
-        } | null> | null;
-        pageInfo: { __typename?: "PageInfo"; endCursor?: string | null };
-      } | null;
+  repository?: {
+    __typename?: "Repository";
+    refs?: {
+      __typename?: "RefConnection";
+      edges?: Array<{
+        __typename?: "RefEdge";
+        node?: {
+          __typename?: "Ref";
+          branchName: string;
+          compData?: {
+            __typename?: "Comparison";
+            aheadBy: number;
+            behindBy: number;
+            status: ComparisonStatus;
+            commits: { __typename?: "ComparisonCommitConnection"; totalCount: number };
+          } | null;
+        } | null;
+      } | null> | null;
+      pageInfo: { __typename?: "PageInfo"; endCursor?: string | null };
     } | null;
   } | null;
 };
@@ -31342,6 +31364,19 @@ export const CommitFieldsFragmentDoc = gql`
     message
   }
 `;
+export const BranchDetailsFragmentDoc = gql`
+  fragment BranchDetails on Ref {
+    branchName: name
+    compData: compare(headRef: $defaultBranch) {
+      aheadBy
+      behindBy
+      status
+      commits {
+        totalCount
+      }
+    }
+  }
+`;
 export const ExtendedRepositoryFieldsFragmentDoc = gql`
   fragment ExtendedRepositoryFields on Repository {
     id
@@ -31355,6 +31390,10 @@ export const ExtendedRepositoryFieldsFragmentDoc = gql`
     mergeCommitAllowed
     squashMergeAllowed
     rebaseMergeAllowed
+    isFork
+    defaultBranchRef {
+      defaultBranch: name
+    }
     updatedAt
     stargazerCount
     viewerHasStarred
@@ -31850,24 +31889,27 @@ export const SearchRepositoriesDocument = gql`
   ${ExtendedRepositoryFieldsFragmentDoc}
 `;
 export const GetExistingRepoBranchesDocument = gql`
-  query getExistingRepoBranches($orgName: String!, $repoName: String!, $branchQuery: String!, $numberOfItems: Int!) {
-    organization(login: $orgName) {
-      repository(name: $repoName) {
-        id
-        name
-        refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
-          edges {
-            node {
-              branchName: name
-            }
+  query getExistingRepoBranches(
+    $orgName: String!
+    $repoName: String!
+    $defaultBranch: String!
+    $branchQuery: String!
+    $numberOfItems: Int!
+  ) {
+    repository(owner: $orgName, name: $repoName) {
+      refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
+        edges {
+          node {
+            ...BranchDetails
           }
-          pageInfo {
-            endCursor
-          }
+        }
+        pageInfo {
+          endCursor
         }
       }
     }
   }
+  ${BranchDetailsFragmentDoc}
 `;
 export const MilestonesForRepositoryDocument = gql`
   query milestonesForRepository($owner: String!, $name: String!) {

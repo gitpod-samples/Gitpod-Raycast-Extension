@@ -12,6 +12,18 @@ fragment ShortRepositoryFields on Repository {
   rebaseMergeAllowed
 }
 
+fragment BranchDetails on Ref {
+  branchName: name
+  compData: compare(headRef: $defaultBranch) {
+    aheadBy
+    behindBy
+    status
+    commits {
+      totalCount
+    }
+  }
+}
+
 fragment ExtendedRepositoryFields on Repository {
   id
   nameWithOwner
@@ -24,6 +36,10 @@ fragment ExtendedRepositoryFields on Repository {
   mergeCommitAllowed
   squashMergeAllowed
   rebaseMergeAllowed
+  isFork
+  defaultBranchRef {
+    defaultBranch: name
+  }
   updatedAt
   stargazerCount
   viewerHasStarred
@@ -61,20 +77,22 @@ query searchRepositories($query: String!, $numberOfItems: Int!) {
   }
 }
 
-query getExistingRepoBranches($orgName: String!, $repoName: String!, $branchQuery: String!, $numberOfItems: Int!) {
-  organization(login: $orgName) {
-    repository(name: $repoName) {
-      id
-      name
-      refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
-        edges {
-          node {
-            branchName: name
-          }
+query getExistingRepoBranches(
+  $orgName: String!
+  $repoName: String!
+  $defaultBranch: String!
+  $branchQuery: String!
+  $numberOfItems: Int!
+) {
+  repository(owner: $orgName, name: $repoName) {
+    refs(refPrefix: "refs/heads/", query: $branchQuery, first: $numberOfItems) {
+      edges {
+        node {
+          ...BranchDetails
         }
-        pageInfo {
-          endCursor #use this value to paginate through repos with more than 100 branches
-        }
+      }
+      pageInfo {
+        endCursor #use this value to paginate through repos with more than 100 branches
       }
     }
   }

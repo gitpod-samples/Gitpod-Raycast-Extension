@@ -1,4 +1,4 @@
-import { List } from "@raycast/api";
+import { Detail, List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -22,8 +22,7 @@ function SearchContext({ repository }: SearchContextProps) {
 
   const [searchText, setSearchText] = useState("");
   const [forAuthor, setForAuthor] = useState(false);
-
-
+  const [lock, setLock] = useState(true);
 
   const {
     data,
@@ -31,17 +30,28 @@ function SearchContext({ repository }: SearchContextProps) {
     mutate: mutateList,
   } = useCachedPromise(
     async (searchText) => {
+      console.log(sections);
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
         issues?: IssueFieldsFragment[] | undefined;
         branches?: (string | undefined)[];
       } = {};
 
+      let n = 2;
+      if (sections.length == 1){
+        n = 10;
+      }
+      else if (sections.length == 2){
+        n = 3
+      }
+
       if (sections.includes("/p")) {
         const pullRequest = (
           await github.searchPullRequests({
-            query: `is:pr repo:RocketChat/Rocket.Chat ${forAuthor ? "author:@me" : ""} archived:false ${searchText}`,
-            numberOfItems: 15,
+            query: `is:pr repo:${repository.nameWithOwner} ${
+              forAuthor ? "author:@me" : ""
+            } archived:false ${searchText.trim()}`,
+            numberOfItems: n,
           })
         ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
         result.pullRequest = pullRequest;
@@ -50,8 +60,10 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/i")) {
         const issues = (
           await github.searchIssues({
-            query: `is:issue repo:RocketChat/Rocket.Chat ${forAuthor ? "author:@me" : ""} archived:false ${searchText}`,
-            numberOfItems: 5,
+            query: `is:issue repo:${repository.nameWithOwner} ${
+              forAuthor ? "author:@me" : ""
+            } archived:false ${searchText.trim()}`,
+            numberOfItems: n,
           })
         ).search.nodes?.map((node) => node as IssueFieldsFragment);
         result.issues = issues;
@@ -59,11 +71,13 @@ function SearchContext({ repository }: SearchContextProps) {
 
       if (sections.includes("/b")) {
         const branches = (
-          await github.getExistingRepoBranches({
-            owner: "RocketChat",
-            name: "Rocket.Chat",
-          })
-        ).repository?.refs?.edges?.map((edge) => edge?.node?.branchName);
+          (await github.getExistingRepoBranches({
+            orgName : forAuthor && viewer?.login ? viewer.login : repository.owner.login,
+            repoName: repository.name,
+            branchQuery: searchText.trim(),
+            numberOfItems: n
+          })).organization?.repository?.refs?.edges?.map((edge) => edge?.node?.branchName)
+        )
         result.branches = branches;
       }
 
@@ -73,51 +87,46 @@ function SearchContext({ repository }: SearchContextProps) {
     { keepPreviousData: true }
   );
 
+  console.log(data?.branches, "Branches");
+
   const arr = ["/b", "/i", "/p"];
-
-  useEffect(() => {
-    if (sections.includes("/p") && data?.pullRequest) {
-      data?.pullRequest.filter((pullRequest) => {
-        return pullRequest.title.includes(searchText);
-      });
-    }
-
-      // if (sections.includes("/i")) {
-      //   data?.pullRequest.filter((pullRequest) => {
-      //     return pullRequest.title.includes(searchText);
-      //   });
-      // }
-
-      // if (sections.includes("/b")) {
-      // }
-  }, [searchText]);
 
   const parseSearchOptions = (searchDat: string) => {
     const chunks: string[] = searchDat.split(" ");
     const option: string[] = [];
     let isAuthor = false;
-    let searchString = " ";
+    const searchString: string[] = [];
     chunks.forEach((chunk) => {
       if (chunk[0] === "/" && arr.includes(chunk.toLocaleLowerCase())) {
         option.push(chunk.toLocaleLowerCase());
       } else if (chunk[0] === "/" && chunk === "/me") {
         isAuthor = true;
       } else {
-        searchString = chunk;
+        searchString.push(chunk);
       }
     });
-    console.log(searchString, "curr search str");
-    setSections(option);
+
+    if (option.length === 0) {
+      setSections(arr);
+    } else {
+      setSections(option);
+    }
+    const searchChunk = searchString.join(" ");
     setForAuthor(isAuthor);
-    setSearchText(searchString);
+    if (searchChunk === "") {
+      setSearchText(" ");
+    } else {
+      setSearchText(searchChunk.trim());
+    }
   };
 
   return (
     <List
+      isShowingDetail
       isLoading={isPRLoading}
-      searchBarPlaceholder="Globally search pull requests across repositories"
+      searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
       onSearchTextChange={parseSearchOptions}
-      searchBarAccessory={<SearchContextDropdown onFilterChange={setSearchText} />}
+      navigationTitle={"Add `/me` to filter from your profile 🧡"}
       throttle
     >
       {sections.includes("/b") && data?.branches !== undefined && (

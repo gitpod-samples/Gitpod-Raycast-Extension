@@ -22,7 +22,6 @@ function SearchContext({ repository }: SearchContextProps) {
 
   const [searchText, setSearchText] = useState("");
   const [forAuthor, setForAuthor] = useState(false);
-  const [lock, setLock] = useState(true);
 
   const {
     data,
@@ -87,8 +86,6 @@ function SearchContext({ repository }: SearchContextProps) {
     { keepPreviousData: true }
   );
 
-  console.log(data?.branches, "Branches");
-
   const arr = ["/b", "/i", "/p"];
 
   const parseSearchOptions = (searchDat: string) => {
@@ -122,7 +119,6 @@ function SearchContext({ repository }: SearchContextProps) {
 
   return (
     <List
-      isShowingDetail
       isLoading={isPRLoading}
       searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
       onSearchTextChange={parseSearchOptions}

@@ -11,7 +11,7 @@ const VISITED_REPOSITORIES_LENGTH = 25;
 async function loadVisitedRepositories() {
   const item = await LocalStorage.getItem<string>(VISITED_REPOSITORIES_KEY);
   if (item) {
-    const parsed = JSON.parse(item);
+    const parsed = JSON.parse(item).slice(0, VISITED_REPOSITORIES_LENGTH);
     return parsed as ExtendedRepositoryFieldsFragment[];
   } else {
     return [];
@@ -32,14 +32,12 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
   }, [migratedHistory]);
 
   function visitRepository(repository: ExtendedRepositoryFieldsFragment) {
-    const nextRepositories = [repository, ...(history?.filter((item) => item !== repository) ?? [])].slice(
-      0,
-      VISITED_REPOSITORIES_LENGTH
-    );
+    const visitedRepositories = [repository, ...(history?.filter((item) => item.id !== repository.id) ?? [])];
+    LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
+    const nextRepositories = visitedRepositories.slice(0, VISITED_REPOSITORIES_LENGTH);
     setHistory(nextRepositories);
   }
 
-  // Converting query filter string to regexp:
   const repositoryFilter = `${searchFilter?.replaceAll(/org:|user:/g, "").replaceAll(" ", "|")}/.*`;
 
   const data = history

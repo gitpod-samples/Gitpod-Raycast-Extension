@@ -7,7 +7,12 @@ import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
 import SearchContextDropdown from "./components/SearchContextDropdown";
 import View from "./components/View";
-import { BranchDetailsFragment, ExtendedRepositoryFieldsFragment, IssueFieldsFragment, PullRequestFieldsFragment } from "./generated/graphql";
+import {
+  BranchDetailsFragment,
+  ExtendedRepositoryFieldsFragment,
+  IssueFieldsFragment,
+  PullRequestFieldsFragment,
+} from "./generated/graphql";
 import { pluralize } from "./helpers";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
@@ -132,7 +137,14 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.branches.length, "Branch", { withNumber: true })}
         >
           {data.branches.map((branch) => {
-            return <BranchListItem mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""} branch={branch} viewer={viewer}/>;
+            return (
+              <BranchListItem
+                key={branch.branchName}
+                mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
+                branch={branch}
+                viewer={viewer}
+              />
+            );
           })}
         </List.Section>
       )}

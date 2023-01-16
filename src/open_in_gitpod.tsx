@@ -25,7 +25,7 @@ function SearchRepositories() {
     mutate: mutateList,
   } = useCachedPromise(
     async (query) => {
-      const result = await github.searchRepositories({ query, numberOfItems: 20 });
+      const result = await github.searchRepositories({ query, numberOfItems: 10 });
       return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],
@@ -61,7 +61,7 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
-      <List.Section title="Visited Repositories" subtitle={history ? String(history.length) : undefined}>
+      <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
         {history.map((repository) => (
           <RepositoryListItem
             key={repository.id}

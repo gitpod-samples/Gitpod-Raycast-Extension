@@ -1,4 +1,4 @@
-import { List } from "@raycast/api";
+import { Detail, List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState } from "react";
 
@@ -32,6 +32,7 @@ function SearchContext({ repository }: SearchContextProps) {
   const {
     data,
     isLoading: isPRLoading,
+    error: error,
     mutate: mutateList,
   } = useCachedPromise(
     async (searchText) => {
@@ -130,6 +131,7 @@ function SearchContext({ repository }: SearchContextProps) {
       navigationTitle={"Add `/me` to filter from your profile 🧡"}
       throttle
     >
+      {error && <Detail markdown={"Something went wrong..."}/>}
       {sections.includes("/b") && data?.branches !== undefined && (
         <List.Section
           key={"Branches"}

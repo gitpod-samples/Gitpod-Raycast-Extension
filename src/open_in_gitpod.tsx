@@ -1,4 +1,4 @@
-import { List } from "@raycast/api";
+import { Detail, List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
@@ -18,6 +18,7 @@ function SearchRepositories() {
   const { data: history, visitRepository } = useHistory(searchText, searchFilter);
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
+  // const [error, setError] = useState<Error>()
 
   const {
     data,
@@ -26,7 +27,7 @@ function SearchRepositories() {
   } = useCachedPromise(
     async (query) => {
       const result = await github.searchRepositories({ query, numberOfItems: 10 });
-      return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
+        return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],
     { keepPreviousData: true }

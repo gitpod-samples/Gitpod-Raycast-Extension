@@ -1,4 +1,4 @@
-import { List } from "@raycast/api";
+import { Detail, List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState } from "react";
 
@@ -7,7 +7,12 @@ import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
 import SearchContextDropdown from "./components/SearchContextDropdown";
 import View from "./components/View";
-import { BranchDetailsFragment, ExtendedRepositoryFieldsFragment, IssueFieldsFragment, PullRequestFieldsFragment } from "./generated/graphql";
+import {
+  BranchDetailsFragment,
+  ExtendedRepositoryFieldsFragment,
+  IssueFieldsFragment,
+  PullRequestFieldsFragment,
+} from "./generated/graphql";
 import { pluralize } from "./helpers";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
@@ -27,6 +32,7 @@ function SearchContext({ repository }: SearchContextProps) {
   const {
     data,
     isLoading: isPRLoading,
+    error: error,
     mutate: mutateList,
   } = useCachedPromise(
     async (searchText) => {
@@ -83,7 +89,12 @@ function SearchContext({ repository }: SearchContextProps) {
       return result;
     },
     [searchText],
-    { keepPreviousData: true }
+    { keepPreviousData: true, onError(error) {
+      showToast({
+        title : error.message,
+        style: Toast.Style.Failure
+      })
+  }, }
   );
 
   const arr = ["/b", "/i", "/p"];
@@ -125,6 +136,7 @@ function SearchContext({ repository }: SearchContextProps) {
       navigationTitle={"Add `/me` to filter from your profile 🧡"}
       throttle
     >
+      {error && <Detail markdown={"Something went wrong..."}/>}
       {sections.includes("/b") && data?.branches !== undefined && (
         <List.Section
           key={"Branches"}
@@ -132,7 +144,15 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.branches.length, "Branch", { withNumber: true })}
         >
           {data.branches.map((branch) => {
-            return <BranchListItem mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""} branch={branch} viewer={viewer}/>;
+            return (
+              <BranchListItem
+                key={branch.branchName}
+                mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
+                repository={repository.nameWithOwner}
+                branch={branch}
+                viewer={viewer}
+              />
+            );
           })}
         </List.Section>
       )}

@@ -1,5 +1,7 @@
 # Gitpod-Raycast Extension
 
+![GitpodRaycast](https://user-images.githubusercontent.com/72302948/212153237-df8ea15e-c50f-4ab2-9694-d6671abe568f.png)
+
 A Raycast extension for Gitpod to support _BLAGINGLY FAST_ Gitpod Workflow 🍊
 
 ![ Gitpod Commands for Raycast ](/metadata/Raycast%202023-01-04%20at%2022.29.01.png)

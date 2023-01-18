@@ -1,4 +1,4 @@
-import { Color, List } from "@raycast/api";
+import { Action, ActionPanel, Color, List, open } from "@raycast/api";
 
 // import { MutatePromise } from "@raycast/utils";
 // import { format } from "date-fns";
@@ -10,10 +10,12 @@ type BranchItemProps = {
   branch: BranchDetailsFragment;
   mainBranch: string;
   viewer?: UserFieldsFragment;
+  repository: string
 };
 
-export default function BranchListItem({ branch, mainBranch , viewer }: BranchItemProps) {
+export default function BranchListItem({ branch, mainBranch, repository , viewer }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
+  const branchURL = "https://github.com/"+repository+"/tree/"+branch.branchName
 
   if (branch.compData){
     if (branch.compData.status){
@@ -63,6 +65,24 @@ export default function BranchListItem({ branch, mainBranch , viewer }: BranchIt
       subtitle={mainBranch}
       title={branch.branchName}
       accessories={accessories}
+      actions={
+        <ActionPanel>
+          <Action
+            title="Open PR in Gitpod"
+            shortcut={{ modifiers: ["cmd"], key: "enter" }}
+            onAction={() => {
+              open(`https://gitpod.io/#${branchURL}`);
+            }}
+          />
+          <Action
+            title="Open PR in github"
+            onAction={() => {
+              open(branchURL);
+            }}
+            shortcut={{ modifiers: ["shift"], key: "enter" }}
+          />
+        </ActionPanel>
+      }
     />
   )
 

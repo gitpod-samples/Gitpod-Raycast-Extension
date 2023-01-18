@@ -15,42 +15,28 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "list_workspaces",
-      "title": "Workspaces",
-      "subtitle": "Show all Gitpod Workspaces",
-      "description": "Show all Gitpod Workspaces",
-      "mode": "view",
-      "keywords": [
-        "gitpod",
-        "gp",
-        "workspaces",
-        "ls"
-      ]
-    },
-    {
-      "name": "active_workspaces",
-      "title": "Active Workspaces",
-      "subtitle": "Shows all the currently active workspaces in menu-bar",
-      "description": "Shows all the active workspaces in menu-bar",
-      "mode": "menu-bar",
-      "interval": "1m",
-      "keywords": [
-        "gitpod",
-        "gp",
-        "active",
-        "workspaces"
-      ]
-    },
-    {
       "name": "open_in_gitpod",
       "title": "Open in Gitpod",
-      "subtitle": "Open any Repository, Issue or PR in Gitpod",
+      "subtitle": "Open from github",
       "description": "Open any Repository, Pull Request or Issue in Gitpod",
       "mode": "view",
       "keywords": [
         "gitpod",
         "gp",
         "Open in Gitpod"
+      ]
+    },
+    {
+      "name" : "menubar",
+      "title" : "Toggle Recent Repositories",
+      "subtitle": "Menubar Shortcut",
+      "description": "Adds up a simple menubar icon for faster access to recent Repositories",
+      "mode": "menu-bar",
+      "keywords": [
+        "menubar",
+        "gitpod",
+        "gp",
+        "recent"
       ]
     }
   ],
@@ -78,7 +64,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",
-    "@types/node": "18.8.3",
+    "@types/node": "^18.8.3",
     "@types/react": "18.0.9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",

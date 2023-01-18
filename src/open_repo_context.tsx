@@ -141,6 +141,7 @@ function SearchContext({ repository }: SearchContextProps) {
               <BranchListItem
                 key={branch.branchName}
                 mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
+                repository={repository.nameWithOwner}
                 branch={branch}
                 viewer={viewer}
               />

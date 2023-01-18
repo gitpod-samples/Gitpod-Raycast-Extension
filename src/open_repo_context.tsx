@@ -1,11 +1,10 @@
-import { Detail, List, showToast, Toast } from "@raycast/api";
+import { List, Cache, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BranchListItem from "./components/BranchListItem";
 import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
-import SearchContextDropdown from "./components/SearchContextDropdown";
 import View from "./components/View";
 import {
   BranchDetailsFragment,
@@ -21,6 +20,8 @@ type SearchContextProps = {
   repository: ExtendedRepositoryFieldsFragment;
 };
 
+const cache = new Cache();
+
 function SearchContext({ repository }: SearchContextProps) {
   const { github } = getGitHubClient();
   const viewer = useViewer();
@@ -28,6 +29,8 @@ function SearchContext({ repository }: SearchContextProps) {
 
   const [searchText, setSearchText] = useState("");
   const [forAuthor, setForAuthor] = useState(false);
+
+  const [firstLoad, setfirstLoad] = useState(true);
 
   const {
     data,
@@ -86,15 +89,22 @@ function SearchContext({ repository }: SearchContextProps) {
         result.branches = branches;
       }
 
+      if (n == 2) {
+        cache.set(repository.name, JSON.stringify(result));
+      }
+
       return result;
     },
     [searchText],
-    { keepPreviousData: true, onError(error) {
-      showToast({
-        title : error.message,
-        style: Toast.Style.Failure
-      })
-  }, }
+    {
+      keepPreviousData: true,
+      onError(error) {
+        showToast({
+          title: error.message,
+          style: Toast.Style.Failure,
+        });
+      },
+    }
   );
 
   const arr = ["/b", "/i", "/p"];
@@ -128,6 +138,71 @@ function SearchContext({ repository }: SearchContextProps) {
     }
   };
 
+  useEffect(() => {
+    if (firstLoad && !isPRLoading) {
+      setfirstLoad(false);
+    }
+  }, [isPRLoading]);
+
+  if (firstLoad && isPRLoading && cache.has(repository.name)) {
+    return (
+      <List
+        searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
+        onSearchTextChange={parseSearchOptions}
+        navigationTitle={"Add `/me` to filter from your profile 🧡"}
+        throttle
+      >
+        {sections.includes("/b") && JSON.parse(cache.get(repository.name)!)?.branches !== undefined && (
+          <List.Section
+            key={"Branches"}
+            title={"Branches"}
+            subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.branches.length, "Branch", {
+              withNumber: true,
+            })}
+          >
+            {JSON.parse(cache.get(repository.name)!).branches.map((branch: BranchDetailsFragment) => {
+              return (
+                <BranchListItem
+                  key={branch.branchName}
+                  mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
+                  repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
+                  branch={branch}
+                  viewer={viewer}
+                />
+              );
+            })}
+          </List.Section>
+        )}
+
+        {sections.includes("/p") && JSON.parse(cache.get(repository.name)!)?.pullRequest !== undefined && (
+          <List.Section
+            key={"Pulls"}
+            title={"Pull Requests"}
+            subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.pullRequest.length, "Pull Request", {
+              withNumber: true,
+            })}
+          >
+            {JSON.parse(cache.get(repository.name)!).pullRequest.map((pullRequest: PullRequestFieldsFragment) => {
+              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+            })}
+          </List.Section>
+        )}
+
+        {sections.includes("/i") && JSON.parse(cache.get(repository.name)!)?.issues !== undefined && (
+          <List.Section
+            key={"Issues"}
+            title={"Issues"}
+            subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.issues.length, "Issue", { withNumber: true })}
+          >
+            {JSON.parse(cache.get(repository.name)!).issues.map((issue: IssueFieldsFragment) => {
+              return <IssueListItem key={issue.id} issue={issue} viewer={viewer} />;
+            })}
+          </List.Section>
+        )}
+      </List>
+    );
+  }
+
   return (
     <List
       isLoading={isPRLoading}
@@ -136,7 +211,6 @@ function SearchContext({ repository }: SearchContextProps) {
       navigationTitle={"Add `/me` to filter from your profile 🧡"}
       throttle
     >
-      {error && <Detail markdown={"Something went wrong..."}/>}
       {sections.includes("/b") && data?.branches !== undefined && (
         <List.Section
           key={"Branches"}
@@ -148,7 +222,7 @@ function SearchContext({ repository }: SearchContextProps) {
               <BranchListItem
                 key={branch.branchName}
                 mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
-                repository={repository.nameWithOwner}
+                repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                 branch={branch}
                 viewer={viewer}
               />

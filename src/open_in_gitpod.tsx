@@ -1,4 +1,4 @@
-import { Detail, List } from "@raycast/api";
+import { Detail, List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
@@ -30,7 +30,12 @@ function SearchRepositories() {
         return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],
-    { keepPreviousData: true }
+    { keepPreviousData: true, onError(error) {
+        showToast({
+          title : error.message,
+          style: Toast.Style.Failure
+        })
+    }, }
   );
 
   const gitpodFilter = async (repo: ExtendedRepositoryFieldsFragment[]) => {

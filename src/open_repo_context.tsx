@@ -1,4 +1,4 @@
-import { Detail, List } from "@raycast/api";
+import { Detail, List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState } from "react";
 
@@ -89,7 +89,12 @@ function SearchContext({ repository }: SearchContextProps) {
       return result;
     },
     [searchText],
-    { keepPreviousData: true }
+    { keepPreviousData: true, onError(error) {
+      showToast({
+        title : error.message,
+        style: Toast.Style.Failure
+      })
+  }, }
   );
 
   const arr = ["/b", "/i", "/p"];

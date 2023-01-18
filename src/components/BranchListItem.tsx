@@ -15,7 +15,6 @@ type BranchItemProps = {
 
 export default function BranchListItem({ branch, mainBranch, repository , viewer }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
-  console.log(branch.branchName)
   const branchURL = "https://github.com/"+repository+"/tree/"+branch.branchName
 
   if (branch.compData){

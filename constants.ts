@@ -72,6 +72,11 @@ export const GitpodIcons = {
   failed_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.failed },
   progressing_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.progressing },
 
+  repoIcon : {
+    source: "Icons/repo-16.svg",
+    tintColor: statusColors.progressing
+  },
+
   commit_icon: {source: "Icons/git-commit.svg", tintColor: UIColors.gitpod_gold},
 
   branch_icon: {

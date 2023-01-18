@@ -25,6 +25,19 @@
         "gp",
         "Open in Gitpod"
       ]
+    },
+    {
+      "name" : "menubar",
+      "title" : "Toggle Recent Repositories",
+      "subtitle": "Menubar Shortcut",
+      "description": "Adds up a simple menubar icon for faster access to recent Repositories",
+      "mode": "menu-bar",
+      "keywords": [
+        "menubar",
+        "gitpod",
+        "gp",
+        "recent"
+      ]
     }
   ],
   "preferences": [

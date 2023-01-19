@@ -13,7 +13,7 @@ type RepositoryListItemProps = {
   mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
 };
 
-export default function RepositoryListItem({ repository, isGitpodified }: RepositoryListItemProps) {
+export default function RepositoryListItem({ repository, isGitpodified, onVisit }: RepositoryListItemProps) {
   const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
@@ -77,6 +77,7 @@ export default function RepositoryListItem({ repository, isGitpodified }: Reposi
           <Action
             title="Get In"
             onAction={() => {
+              onVisit(repository);
               push(<SearchContext repository={repository} />);
             }}
           />

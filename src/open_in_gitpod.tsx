@@ -1,4 +1,4 @@
-import { List } from "@raycast/api";
+import { List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
@@ -25,11 +25,19 @@ function SearchRepositories() {
     mutate: mutateList,
   } = useCachedPromise(
     async (query) => {
-      const result = await github.searchRepositories({ query, numberOfItems: 20 });
+      const result = await github.searchRepositories({ query, numberOfItems: 10 });
       return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],
-    { keepPreviousData: true }
+    {
+      keepPreviousData: true,
+      onError(error) {
+        showToast({
+          title: error.message,
+          style: Toast.Style.Failure,
+        });
+      },
+    }
   );
 
   const gitpodFilter = async (repo: ExtendedRepositoryFieldsFragment[]) => {
@@ -61,7 +69,7 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
-      <List.Section title="Visited Repositories" subtitle={history ? String(history.length) : undefined}>
+      <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
         {history.map((repository) => (
           <RepositoryListItem
             key={repository.id}

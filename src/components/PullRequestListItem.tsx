@@ -1,5 +1,5 @@
-import { Action, ActionPanel, Icon, List } from "@raycast/api";
-import { MutatePromise } from "@raycast/utils";
+import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
+// import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 import { useMemo } from "react";
 
@@ -12,8 +12,8 @@ import {
   getReviewDecision,
 } from "../helpers/pull-request";
 
-import PullRequestActions from "./PullRequestActions";
-import PullRequestDetail from "./PullRequestDetail";
+// import PullRequestActions from "./PullRequestActions";
+// import PullRequestDetail from "./PullRequestDetail";
 
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;

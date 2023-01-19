@@ -2,64 +2,52 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "gitpod",
   "title": "Gitpod",
-  "description": "Ease the Gitpod Workflow",
-  "icon": "logo-mark.png",
+  "description": "A blazingly fast way to work with Gitpod",
+  "icon": "logo-mark.svg",
   "author": "Palanikannan1437",
   "owner": "raycast",
   "contributors": [
     "henitchobisa"
   ],
   "categories": [
-    "Developer Tools"
+    "Developer Tools",
+    "Productivity"
   ],
   "license": "MIT",
   "commands": [
     {
-      "name": "list_workspaces",
-      "title": "Workspaces",
-      "subtitle": "Show all Gitpod Workspaces",
-      "description": "Show all Gitpod Workspaces",
-      "mode": "view",
-      "keywords": [
-        "gitpod",
-        "gp",
-        "workspaces",
-        "ls"
-      ]
-    },
-    {
-      "name": "active_workspaces",
-      "title": "Active Workspaces",
-      "subtitle": "Shows all the currently active workspaces in menu-bar",
-      "description": "Shows all the active workspaces in menu-bar",
-      "mode": "menu-bar",
-      "interval": "1m",
-      "keywords": [
-        "gitpod",
-        "gp",
-        "active",
-        "workspaces"
-      ]
-    },
-    {
       "name": "open_in_gitpod",
       "title": "Open in Gitpod",
-      "subtitle": "Open any Repository, Issue or PR in Gitpod",
-      "description": "Open any Repository, Pull Request or Issue in Gitpod",
+      "subtitle": "Gitpod",
+      "description": "Open any GitHub Repository's Branch, Pull Request or Issue in Gitpod",
       "mode": "view",
       "keywords": [
         "gitpod",
         "gp",
         "Open in Gitpod"
       ]
+    },
+    {
+      "name": "menubar",
+      "title": "Recent Repositories",
+      "subtitle": "Gitpod",
+      "description": "A Menubar Icon for faster access to recently visited Repositories",
+      "mode": "menu-bar",
+      "keywords": [
+        "gitpod",
+        "gp",
+        "recent repositories",
+        "menubar"
+      ]
     }
   ],
+  
   "preferences": [
     {
       "name": "personalAccessToken",
       "title": "Personal Access Token",
-      "description": "Personal Access Token for GitHub",
-      "placeholder": "Enter Personal Access Token from Github",
+      "placeholder": "Visit https://github.com/settings/tokens",
+      "description": "Enter Classic Personal Access Token from Github",
       "type": "password",
       "required": true
     }
@@ -78,7 +66,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",
-    "@types/node": "18.8.3",
+    "@types/node": "^18.8.3",
     "@types/react": "18.0.9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",

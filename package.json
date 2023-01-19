@@ -2,7 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "gitpod",
   "title": "Gitpod",
-  "description": "Ease the Gitpod Workflow",
+  "description": "A blazingly fast way to work with Gitpod",
   "icon": "logo-mark.png",
   "author": "Palanikannan1437",
   "owner": "raycast",
@@ -10,15 +10,16 @@
     "henitchobisa"
   ],
   "categories": [
-    "Developer Tools"
+    "Developer Tools",
+    "Productivity"
   ],
   "license": "MIT",
   "commands": [
     {
       "name": "open_in_gitpod",
       "title": "Open in Gitpod",
-      "subtitle": "Open from github",
-      "description": "Open any Repository, Pull Request or Issue in Gitpod",
+      "subtitle": "Gitpod",
+      "description": "Open any GitHub Repository's Branch, Pull Request or Issue in Gitpod",
       "mode": "view",
       "keywords": [
         "gitpod",
@@ -27,16 +28,16 @@
       ]
     },
     {
-      "name" : "menubar",
-      "title" : "Toggle Recent Repositories",
-      "subtitle": "Menubar Shortcut",
-      "description": "Adds up a simple menubar icon for faster access to recent Repositories",
+      "name": "menubar",
+      "title": "Recent Repositories",
+      "subtitle": "Gitpod",
+      "description": "A Menubar Icon for faster access to recently visited Repositories",
       "mode": "menu-bar",
       "keywords": [
-        "menubar",
         "gitpod",
         "gp",
-        "recent"
+        "recent repositories",
+        "menubar"
       ]
     }
   ],

@@ -1,4 +1,4 @@
-import { Detail, List, showToast, Toast } from "@raycast/api";
+import { List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
@@ -18,7 +18,6 @@ function SearchRepositories() {
   const { data: history, visitRepository } = useHistory(searchText, searchFilter);
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
-  // const [error, setError] = useState<Error>()
 
   const {
     data,
@@ -27,15 +26,18 @@ function SearchRepositories() {
   } = useCachedPromise(
     async (query) => {
       const result = await github.searchRepositories({ query, numberOfItems: 10 });
-        return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
+      return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },
     [query],
-    { keepPreviousData: true, onError(error) {
+    {
+      keepPreviousData: true,
+      onError(error) {
         showToast({
-          title : error.message,
-          style: Toast.Style.Failure
-        })
-    }, }
+          title: error.message,
+          style: Toast.Style.Failure,
+        });
+      },
+    }
   );
 
   const gitpodFilter = async (repo: ExtendedRepositoryFieldsFragment[]) => {

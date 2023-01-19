@@ -1,67 +1,63 @@
 import { Action, ActionPanel, Color, List, open } from "@raycast/api";
 
-// import { MutatePromise } from "@raycast/utils";
-// import { format } from "date-fns";
-// import { useMemo } from "react";
-import { branchStatus, GitpodIcons, UIColors } from "../../constants";
-import { BranchDetailsFragment, MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import { branchStatus, GitpodIcons } from "../../constants";
+import { BranchDetailsFragment, UserFieldsFragment } from "../generated/graphql";
 
 type BranchItemProps = {
   branch: BranchDetailsFragment;
   mainBranch: string;
   viewer?: UserFieldsFragment;
-  repository: string
+  repository: string;
 };
 
-export default function BranchListItem({ branch, mainBranch, repository , viewer }: BranchItemProps) {
+export default function BranchListItem({ branch, mainBranch, repository }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
-  const branchURL = "https://github.com/"+repository+"/tree/"+branch.branchName
+  const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
 
-  if (branch.compData){
-    if (branch.compData.status){
-      switch( branch.compData.status.toString()){
+  if (branch.compData) {
+    if (branch.compData.status) {
+      switch (branch.compData.status.toString()) {
         case branchStatus.ahead:
           accessories.unshift({
             text: branch.compData.aheadBy.toString(),
-            icon: GitpodIcons.branchAhead
+            icon: GitpodIcons.branchAhead,
           });
           break;
-        case branchStatus.behind: 
+        case branchStatus.behind:
           accessories.unshift({
             text: branch.compData.aheadBy.toString(),
-            icon: GitpodIcons.branchBehind
+            icon: GitpodIcons.branchBehind,
           });
           break;
         case branchStatus.diverged:
           accessories.unshift({
             text: branch.compData.aheadBy.toString(),
-            icon: GitpodIcons.branchDiverged
-          })
+            icon: GitpodIcons.branchDiverged,
+          });
           break;
-        case branchStatus.IDENTICAL: 
+        case branchStatus.IDENTICAL:
           accessories.unshift({
             text: "IDN",
-            icon: GitpodIcons.branchIdentical
-          })
+            icon: GitpodIcons.branchIdentical,
+          });
           break;
       }
     }
 
-    if (branch.compData.commits){
+    if (branch.compData.commits) {
       accessories.unshift({
-        tag : {
-          value : branch.compData.commits.totalCount.toString(),
-          color : Color.Yellow
+        tag: {
+          value: branch.compData.commits.totalCount.toString(),
+          color: Color.Yellow,
         },
-        icon: GitpodIcons.commit_icon
-        
-      })
+        icon: GitpodIcons.commit_icon,
+      });
     }
   }
 
   return (
     <List.Item
-      icon={ GitpodIcons.branchIcon }
+      icon={GitpodIcons.branchIcon}
       subtitle={mainBranch}
       title={branch.branchName}
       accessories={accessories}
@@ -84,6 +80,5 @@ export default function BranchListItem({ branch, mainBranch, repository , viewer
         </ActionPanel>
       }
     />
-  )
-
+  );
 }

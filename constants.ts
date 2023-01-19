@@ -84,6 +84,6 @@ export const GitpodIcons = {
     tintColor: statusColors.running,
   },
 
-  gitpod_logo_primary: { source: "logo-mark.png" },
-  gitpod_logo_secondary: { source: "logo-mark.png", tintColor: statusColors.stopped },
+  gitpod_logo_primary: { source: "logo-mark.svg" },
+  gitpod_logo_secondary: { source: "logo-mark.svg", tintColor: statusColors.stopped },
 };

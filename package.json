@@ -3,7 +3,7 @@
   "name": "gitpod",
   "title": "Gitpod",
   "description": "A blazingly fast way to work with Gitpod",
-  "icon": "logo-mark.png",
+  "icon": "logo-mark.svg",
   "author": "Palanikannan1437",
   "owner": "raycast",
   "contributors": [
@@ -41,12 +41,13 @@
       ]
     }
   ],
+  
   "preferences": [
     {
       "name": "personalAccessToken",
       "title": "Personal Access Token",
-      "description": "Personal Access Token for GitHub",
-      "placeholder": "Enter Personal Access Token from Github",
+      "placeholder": "Visit https://github.com/settings/tokens",
+      "description": "Enter Classic Personal Access Token from Github",
       "type": "password",
       "required": true
     }

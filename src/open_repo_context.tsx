@@ -183,7 +183,11 @@ function SearchContext({ repository }: SearchContextProps) {
             })}
           >
             {JSON.parse(cache.get(repository.name)!).pullRequest.map((pullRequest: PullRequestFieldsFragment) => {
-              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              if (pullRequest.closed && pullRequest.merged) {
+                return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              } else if (!pullRequest.closed) {
+                return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              }
             })}
           </List.Section>
         )}
@@ -238,7 +242,11 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.pullRequest.length, "Pull Request", { withNumber: true })}
         >
           {data.pullRequest.map((pullRequest) => {
-            return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+            if (pullRequest.closed && pullRequest.merged) {
+              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+            } else if (!pullRequest.closed) {
+              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+            }
           })}
         </List.Section>
       )}

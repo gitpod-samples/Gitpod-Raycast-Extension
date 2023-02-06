@@ -8,7 +8,10 @@ A _BLAZINGLY FAST_ way to work with Gitpod 🍊
 
 ### Installation
 
-1. Install Raycast to get started if you haven't 😉
+1. Install Raycast to get started if you haven't by simply clicking on this button! 😉
+
+<a href="https://www.raycast.com/henitchobisa/gitpod"><img src="https://www.raycast.com/henitchobisa/gitpod/install_button@2x.png" height="64" alt="" style="height: 64px;"></a>
+
 2. Navigate to the Raycast Store to Download the `Gitpod` extension
 3. While generating the GitHub Access Token, make sure to give the `user`, `admin` & `repo` access rights, else it may result in some weird behaviours.
 

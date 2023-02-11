@@ -47,7 +47,7 @@
       "name": "personalAccessToken",
       "title": "Personal Access Token",
       "placeholder": "Visit https://github.com/settings/tokens",
-      "description": "Enter Classic Personal Access Token from Github",
+      "description": "Enter Classic Personal Access Token from GitHub",
       "type": "password",
       "required": true
     }

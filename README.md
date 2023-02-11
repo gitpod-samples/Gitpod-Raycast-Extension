@@ -18,7 +18,7 @@ A _BLAZINGLY FAST_ way to work with Gitpod 🍊
 ### Currently Supported Features
 
 1. "Open in Gitpod" -> Experience the power of Gitpod Contexts!
-   1. Find the repository from Github (you can even see if the repo is Gitpodified...it glows up ✨)
+   1. Find the repository from GitHub (you can even see if the repo is Gitpodified...it glows up ✨)
    
       ![RepoSearch](/metadata/RepoCatelog.png)
    2. You can now see and find all the branches, PRs and Issues which you can directly open in Gitpod with a single Keypress!

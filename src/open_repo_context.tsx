@@ -1,4 +1,4 @@
-import { List, Cache, Toast, showToast } from "@raycast/api";
+import { List, Cache, Toast, showToast, ActionPanel, Action } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -26,11 +26,15 @@ function SearchContext({ repository }: SearchContextProps) {
   const { github } = getGitHubClient();
   const viewer = useViewer();
   const [sections, setSections] = useState(["/b", "/i", "/p"]);
-
+  const [ bodyVisible, setBodyVisible ] = useState(false)
   const [searchText, setSearchText] = useState("");
   const [forAuthor, setForAuthor] = useState(false);
 
   const [firstLoad, setfirstLoad] = useState(true);
+
+  const changeBodyVisibility = (state : boolean) => {
+    setBodyVisible(state)
+  }
 
   const {
     data,
@@ -150,6 +154,7 @@ function SearchContext({ repository }: SearchContextProps) {
         searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
         onSearchTextChange={parseSearchOptions}
         navigationTitle={"Add `/me` to filter from your profile 🧡"}
+        isShowingDetail={bodyVisible}
         throttle
       >
         {sections.includes("/b") && JSON.parse(cache.get(repository.name)!)?.branches !== undefined && (
@@ -163,7 +168,12 @@ function SearchContext({ repository }: SearchContextProps) {
             {JSON.parse(cache.get(repository.name)!).branches.map((branch: BranchDetailsFragment) => {
               return (
                 <BranchListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  repositoryOwner={repository.owner.login}
+                  repositoryWithoutOwner={repository.name}
                   key={branch.branchName}
+                  repositoryLogo={repository.owner.avatarUrl}
                   mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                   repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                   branch={branch}
@@ -184,9 +194,9 @@ function SearchContext({ repository }: SearchContextProps) {
           >
             {JSON.parse(cache.get(repository.name)!).pullRequest.map((pullRequest: PullRequestFieldsFragment) => {
               if (pullRequest.closed && pullRequest.merged) {
-                return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+                return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
               } else if (!pullRequest.closed) {
-                return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+                return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
               }
             })}
           </List.Section>
@@ -199,7 +209,7 @@ function SearchContext({ repository }: SearchContextProps) {
             subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.issues.length, "Issue", { withNumber: true })}
           >
             {JSON.parse(cache.get(repository.name)!).issues.map((issue: IssueFieldsFragment) => {
-              return <IssueListItem key={issue.id} issue={issue} viewer={viewer} />;
+              return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} />;
             })}
           </List.Section>
         )}
@@ -209,6 +219,7 @@ function SearchContext({ repository }: SearchContextProps) {
 
   return (
     <List
+      isShowingDetail={bodyVisible}
       isLoading={isPRLoading}
       searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
       onSearchTextChange={parseSearchOptions}
@@ -224,7 +235,12 @@ function SearchContext({ repository }: SearchContextProps) {
           {data.branches.map((branch) => {
             return (
               <BranchListItem
+                bodyVisible={bodyVisible}
+                changeBodyVisibility={changeBodyVisibility}
                 key={branch.branchName}
+                repositoryLogo={repository.owner.avatarUrl}
+                repositoryOwner={repository.owner.login}
+                repositoryWithoutOwner={repository.name}
                 mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                 repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                 branch={branch}
@@ -243,9 +259,9 @@ function SearchContext({ repository }: SearchContextProps) {
         >
           {data.pullRequest.map((pullRequest) => {
             if (pullRequest.closed && pullRequest.merged) {
-              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
             } else if (!pullRequest.closed) {
-              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
             }
           })}
         </List.Section>
@@ -258,7 +274,7 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.issues.length, "Issue", { withNumber: true })}
         >
           {data.issues.map((issue) => {
-            return <IssueListItem key={issue.id} issue={issue} viewer={viewer} />;
+            return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} />;
           })}
         </List.Section>
       )}

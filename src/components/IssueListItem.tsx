@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, List, open } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -13,13 +13,15 @@ import { getIssueAuthor, getIssueStatus } from "../helpers/issue";
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
   viewer?: UserFieldsFragment;
+  changeBodyVisibility: (state: boolean) => void;
+  bodyVisible: boolean;
   mutateList?:
     | MutatePromise<SearchCreatedIssuesQuery | undefined>
     | MutatePromise<SearchOpenIssuesQuery | undefined>
     | MutatePromise<IssueFieldsFragment[] | undefined>;
 };
 
-export default function IssueListItem({ issue }: IssueListItemProps) {
+export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible }: IssueListItemProps) {
   const updatedAt = new Date(issue.updatedAt);
 
   const author = getIssueAuthor(issue);
@@ -52,11 +54,12 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
   return (
     <List.Item
       key={issue.id}
-      title={issue.title}
+      title={!bodyVisible ? issue.title : ""}
       subtitle={{ value: `#${issue.number}`, tooltip: `Repository: ${issue.repository.nameWithOwner}` }}
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
       accessories={accessories}
+      detail={<List.Item.Detail markdown={`## ${issue.title}\n\n ${issue.body}`} />}
       actions={
         <ActionPanel>
           <Action
@@ -72,6 +75,20 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
               open(issue.url);
             }}
             shortcut={{ modifiers: ["shift"], key: "enter" }}
+          />
+          <Action
+            title="Show Issue Preview"
+            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+            onAction={() => {
+              changeBodyVisibility(true);
+            }}
+          />
+          <Action
+            title="Hide Issue Preview"
+            onAction={() => {
+              changeBodyVisibility(false)
+            }}
+            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
           />
         </ActionPanel>
       }

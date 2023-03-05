@@ -79,7 +79,7 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
-      <List.Section title="Recent Contexts" subtitle={history ? String(history.length) : undefined}>
+      {searchText == "" && (<List.Section title="Recent Contexts" subtitle={(visitedBranches || visitedPullReqs || visitedIssues) ? String(visitedBranches?.length + visitedPullReqs?.length + visitedIssues?.length) : undefined}>
         {visitedBranches.map((branch, index) => (
           <BranchListItem
             branch={branch}
@@ -91,7 +91,7 @@ function SearchRepositories() {
         {visitedIssues.map((issue) => (
           <IssueListItem key={issue.id} issue={issue} />
         ))}
-      </List.Section>
+      </List.Section>)}
       <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
         {history.map((repository) => (
           <RepositoryListItem

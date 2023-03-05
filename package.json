@@ -28,6 +28,18 @@
       ]
     },
     {
+      "name": "open_template",
+      "title": "Find Gitpod Templates",
+      "subtitle": "Gitpod Templates",
+      "description": "Start your next app with our pre-configured templates",
+      "mode": "view",
+      "keywords": [
+        "gitpod",
+        "gp",
+        "template"
+      ]
+    },
+    {
       "name": "menubar",
       "title": "Recent Repositories",
       "subtitle": "Gitpod",

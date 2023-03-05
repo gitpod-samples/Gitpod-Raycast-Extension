@@ -83,17 +83,15 @@ export default function PullRequestListItem({ pullRequest, viewer, changeBodyVis
         <ActionPanel>
           <Action
             title="Open PR in Gitpod"
-            shortcut={{ modifiers: ["cmd"], key: "enter" }}
             onAction={() => {
               open(`https://gitpod.io/#${pullRequest.permalink}`);
             }}
           />
           <Action
-            title="Open PR in github"
+            title="View PR in GitHub"
             onAction={() => {
               open(pullRequest.permalink);
             }}
-            shortcut={{ modifiers: ["shift"], key: "enter" }}
           />
           <Action
             title="Show PR Preview"

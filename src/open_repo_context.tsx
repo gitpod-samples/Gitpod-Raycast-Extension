@@ -1,5 +1,6 @@
-import { List, Cache, Toast, showToast, ActionPanel, Action } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { List, Cache, Toast, showToast } from "@raycast/api";
+import { usePromise } from "@raycast/utils";
+
 import { useEffect, useState } from "react";
 
 import BranchListItem from "./components/BranchListItem";
@@ -36,12 +37,7 @@ function SearchContext({ repository }: SearchContextProps) {
     setBodyVisible(state)
   }
 
-  const {
-    data,
-    isLoading: isPRLoading,
-    error: error,
-    mutate: mutateList,
-  } = useCachedPromise(
+  const { data, isLoading: isPRLoading } = usePromise(
     async (searchText) => {
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
@@ -94,14 +90,13 @@ function SearchContext({ repository }: SearchContextProps) {
       }
 
       if (n == 2) {
-        cache.set(repository.name, JSON.stringify(result));
+        cache.set(repository.nameWithOwner, JSON.stringify(result));
       }
 
       return result;
     },
     [searchText],
     {
-      keepPreviousData: true,
       onError(error) {
         showToast({
           title: error.message,
@@ -148,24 +143,23 @@ function SearchContext({ repository }: SearchContextProps) {
     }
   }, [isPRLoading]);
 
-  if (firstLoad && isPRLoading && cache.has(repository.name)) {
+  if (firstLoad && isPRLoading && cache.has(repository.nameWithOwner)) {
     return (
       <List
-        searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
+        searchBarPlaceholder="Filter `/me` for your stuff, `/b` for branches, `/p` for Pull Request, `/i` for issues"
         onSearchTextChange={parseSearchOptions}
-        navigationTitle={"Add `/me` to filter from your profile 🧡"}
         isShowingDetail={bodyVisible}
         throttle
       >
-        {sections.includes("/b") && JSON.parse(cache.get(repository.name)!)?.branches !== undefined && (
+        {sections.includes("/b") && JSON.parse(cache.get(repository.nameWithOwner)!)?.branches !== undefined && (
           <List.Section
             key={"Branches"}
             title={"Branches"}
-            subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.branches.length, "Branch", {
+            subtitle={pluralize(JSON.parse(cache.get(repository.nameWithOwner)!)?.branches.length, "Branch", {
               withNumber: true,
             })}
           >
-            {JSON.parse(cache.get(repository.name)!).branches.map((branch: BranchDetailsFragment) => {
+            {JSON.parse(cache.get(repository.nameWithOwner)!).branches.map((branch: BranchDetailsFragment) => {
               return (
                 <BranchListItem
                   bodyVisible={bodyVisible}
@@ -184,31 +178,31 @@ function SearchContext({ repository }: SearchContextProps) {
           </List.Section>
         )}
 
-        {sections.includes("/p") && JSON.parse(cache.get(repository.name)!)?.pullRequest !== undefined && (
+        {sections.includes("/p") && JSON.parse(cache.get(repository.nameWithOwner)!)?.pullRequest !== undefined && (
           <List.Section
             key={"Pulls"}
             title={"Pull Requests"}
-            subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.pullRequest.length, "Pull Request", {
+            subtitle={pluralize(JSON.parse(cache.get(repository.nameWithOwner)!)?.pullRequest.length, "Pull Request", {
               withNumber: true,
             })}
           >
-            {JSON.parse(cache.get(repository.name)!).pullRequest.map((pullRequest: PullRequestFieldsFragment) => {
-              if (pullRequest.closed && pullRequest.merged) {
-                return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
-              } else if (!pullRequest.closed) {
-                return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+            {JSON.parse(cache.get(repository.nameWithOwner)!).pullRequest.map((pullRequest: PullRequestFieldsFragment) => {
+              if (!pullRequest.closed) {
+                  return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
               }
-            })}
+            )}
           </List.Section>
         )}
 
-        {sections.includes("/i") && JSON.parse(cache.get(repository.name)!)?.issues !== undefined && (
+        {sections.includes("/i") && JSON.parse(cache.get(repository.nameWithOwner)!)?.issues !== undefined && (
           <List.Section
             key={"Issues"}
             title={"Issues"}
-            subtitle={pluralize(JSON.parse(cache.get(repository.name)!)?.issues.length, "Issue", { withNumber: true })}
+            subtitle={pluralize(JSON.parse(cache.get(repository.nameWithOwner)!)?.issues.length, "Issue", {
+              withNumber: true,
+            })}
           >
-            {JSON.parse(cache.get(repository.name)!).issues.map((issue: IssueFieldsFragment) => {
+            {JSON.parse(cache.get(repository.nameWithOwner)!).issues.map((issue: IssueFieldsFragment) => {
               return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} />;
             })}
           </List.Section>
@@ -221,9 +215,9 @@ function SearchContext({ repository }: SearchContextProps) {
     <List
       isShowingDetail={bodyVisible}
       isLoading={isPRLoading}
-      searchBarPlaceholder="Filter `/b` for branches, `/p` for Pull Request, `/i` for issues"
+      searchBarPlaceholder="Filter `/me` for your stuff, `/b` for branches, `/p` for Pull Request, `/i` for issues"
       onSearchTextChange={parseSearchOptions}
-      navigationTitle={"Add `/me` to filter from your profile 🧡"}
+      navigationTitle={repository.nameWithOwner}
       throttle
     >
       {sections.includes("/b") && data?.branches !== undefined && (
@@ -258,9 +252,7 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.pullRequest.length, "Pull Request", { withNumber: true })}
         >
           {data.pullRequest.map((pullRequest) => {
-            if (pullRequest.closed && pullRequest.merged) {
-              return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
-            } else if (!pullRequest.closed) {
+            if (!pullRequest.closed) {
               return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
             }
           })}

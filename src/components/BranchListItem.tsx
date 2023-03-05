@@ -88,18 +88,16 @@ export default function BranchListItem({ branch, mainBranch, repository, reposit
       actions={
         <ActionPanel>
           <Action
-            title="Open Gitpod with Branch"
-            shortcut={{ modifiers: ["cmd"], key: "enter" }}
+            title="Open Branch in Gitpod"
             onAction={() => {
               open(`https://gitpod.io/#${branchURL}`);
             }}
           />
           <Action
-            title="Open branch in Github"
+            title="Open Branch in GitHub"
             onAction={() => {
               open(branchURL);
             }}
-            shortcut={{ modifiers: ["shift"], key: "enter" }}
           />
           <Action
             title="Show branch Preview"

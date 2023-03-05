@@ -2,11 +2,17 @@ import { List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
+import BranchListItem from "./components/BranchListItem";
+import IssueListItem from "./components/IssueListItem";
+import PullRequestListItem from "./components/PullRequestListItem";
 import RepositoryListEmptyView from "./components/RepositoryListEmptyView";
 import RepositoryListItem from "./components/RepositoryListItem";
 import SearchRepositoryDropdown from "./components/SearchRepositoryDropdown";
 import View from "./components/View";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
+import { useBranchHistory } from "./helpers/branch";
+import { useIssueHistory } from "./helpers/issue";
+import { usePullReqHistory } from "./helpers/pull-request";
 import { useHistory } from "./helpers/repository";
 import { getGitHubClient } from "./helpers/withGithubClient";
 
@@ -16,6 +22,10 @@ function SearchRepositories() {
   const [searchText, setSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
   const { data: history, visitRepository } = useHistory(searchText, searchFilter);
+  const { history: visitedPullReqs } = usePullReqHistory();
+  const { history: visitedBranches } = useBranchHistory();
+  const { history: visitedIssues } = useIssueHistory();
+
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
 
@@ -69,6 +79,19 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
+      <List.Section title="Recent Contexts" subtitle={history ? String(history.length) : undefined}>
+        {visitedBranches.map((branch, index) => (
+          <BranchListItem
+            branch={branch}
+            key={index} />
+        ))}
+        {visitedPullReqs.map((pullRequest) => (
+          <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} />
+        ))}
+        {visitedIssues.map((issue) => (
+          <IssueListItem key={issue.id} issue={issue} />
+        ))}
+      </List.Section>
       <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
         {history.map((repository) => (
           <RepositoryListItem

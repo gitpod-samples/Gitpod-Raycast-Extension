@@ -14,12 +14,13 @@ type IssueListItemProps = {
   issue: IssueFieldsFragment;
   viewer?: UserFieldsFragment;
   mutateList?:
-    | MutatePromise<SearchCreatedIssuesQuery | undefined>
-    | MutatePromise<SearchOpenIssuesQuery | undefined>
-    | MutatePromise<IssueFieldsFragment[] | undefined>;
+  | MutatePromise<SearchCreatedIssuesQuery | undefined>
+  | MutatePromise<SearchOpenIssuesQuery | undefined>
+  | MutatePromise<IssueFieldsFragment[] | undefined>;
+  visitIssue?: (issue: IssueFieldsFragment) => void;
 };
 
-export default function IssueListItem({ issue }: IssueListItemProps) {
+export default function IssueListItem({ issue, visitIssue }: IssueListItemProps) {
   const updatedAt = new Date(issue.updatedAt);
 
   const author = getIssueAuthor(issue);
@@ -62,6 +63,7 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
           <Action
             title="Open Issue in Gitpod"
             onAction={() => {
+              visitIssue?.(issue)
               open(`https://gitpod.io/#${issue.url}`);
             }}
           />

@@ -21,10 +21,6 @@ type TemplateListEmptyViewProps = {
 };
 
 export default function TemplateListEmptyView({ searchText, isLoading }: TemplateListEmptyViewProps) {
-  if (searchText.length > 0 && !isLoading) {
-    return <List.EmptyView title="No templates found" />;
-  }
-
   const example = useMemo(() => sampleQueries[random(0, sampleQueries.length - 1)], []);
   // If a search is in progress, don't show any text.
   if (isLoading) {
@@ -35,4 +31,7 @@ export default function TemplateListEmptyView({ searchText, isLoading }: Templat
   if (searchText.length > 0) {
     return <List.EmptyView title="No templates found" />;
   }
+
+  // Unreachable, but required by TypeScript.
+  return null
 }

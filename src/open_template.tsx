@@ -2,7 +2,7 @@ import { List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
-import TemplateListEmptyView from "./components/TemplateListEmptyView copy";
+import TemplateListEmptyView from "./components/TemplateListEmptyView";
 import TemplateListItem from "./components/TemplateListItem";
 import View from "./components/View";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
@@ -52,7 +52,6 @@ function SearchRepositories() {
             return (
               <TemplateListItem
                 key={repository.id}
-                isGitpodified={true}
                 repository={repository}
                 mutateList={mutateList}
               />

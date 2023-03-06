@@ -21,11 +21,18 @@ type TemplateListEmptyViewProps = {
 };
 
 export default function TemplateListEmptyView({ searchText, isLoading }: TemplateListEmptyViewProps) {
-  const example = useMemo(() => sampleQueries[random(0, sampleQueries.length - 1)], []);
-
   if (searchText.length > 0 && !isLoading) {
     return <List.EmptyView title="No templates found" />;
   }
 
-  return <List.EmptyView title={`Type query e.g "${example}"`} />;
+  const example = useMemo(() => sampleQueries[random(0, sampleQueries.length - 1)], []);
+  // If a search is in progress, don't show any text.
+  if (isLoading) {
+    return <List.EmptyView title={`Type query e.g "${example}"`} />;
+  }
+
+  // If a search has been performed and returned no results, show a message.
+  if (searchText.length > 0) {
+    return <List.EmptyView title="No templates found" />;
+  }
 }

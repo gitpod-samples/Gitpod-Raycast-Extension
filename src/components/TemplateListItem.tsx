@@ -7,24 +7,30 @@ import { getGitHubUser } from "../helpers/users";
 
 type RepositoryListItemProps = {
     repository: ExtendedRepositoryFieldsFragment;
-    isGitpodified: boolean;
     mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
 };
 
-export default function TemplateListItem({ repository, isGitpodified }: RepositoryListItemProps) {
+export default function TemplateListItem({ repository }: RepositoryListItemProps) {
     const owner = getGitHubUser(repository.owner);
     const numberOfStars = repository.stargazerCount;
 
     const accessories: List.Item.Accessory[] = [];
 
     const showLaunchToast = async () => {
-        await showToast({
-            title: "Launching your workspace",
-            style: Toast.Style.Success,
-        });
-        setTimeout(() => {
-            open(`https://gitpod.io/#${repository.url}`);
-        }, 1500);
+        try {
+            await showToast({
+                title: "Launching your workspace",
+                style: Toast.Style.Success,
+            });
+            setTimeout(() => {
+                open(`https://gitpod.io/#${repository.url}`);
+            }, 1500);
+        } catch (error) {
+            await showToast({
+                title: "Error launching workspace",
+                style: Toast.Style.Failure,
+            });
+        }
     };
 
     accessories.unshift(

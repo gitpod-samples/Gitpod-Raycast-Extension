@@ -41,17 +41,6 @@
       ]
     }
   ],
-  
-  "preferences": [
-    {
-      "name": "personalAccessToken",
-      "title": "Personal Access Token",
-      "placeholder": "Visit https://github.com/settings/tokens",
-      "description": "Enter Classic Personal Access Token from GitHub",
-      "type": "password",
-      "required": true
-    }
-  ],
   "dependencies": {
     "@graphql-codegen/cli": "^2.16.2",
     "@graphql-codegen/typescript-graphql-request": "^4.5.8",

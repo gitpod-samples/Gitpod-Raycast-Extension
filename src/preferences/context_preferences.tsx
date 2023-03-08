@@ -1,4 +1,4 @@
-import { ActionPanel, Form, Action, LocalStorage, showHUD, useNavigation } from "@raycast/api";
+import { ActionPanel, Form, Action, LocalStorage, useNavigation, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
 
 type ContextPreferenceProps = {
@@ -14,18 +14,18 @@ interface Preferences {
 }
 
 async function getDefaultValue(repository: string, context: string) {
-  let defaultPrefValue: Preferences = { preferredEditor: "code", preferredEditorClass: "g1-large", useLatest: false };
+  let defaultPrefValue: Preferences = { preferredEditor: "code", preferredEditorClass: "g1-standard", useLatest: false };
   const item = await LocalStorage.getItem<string>(`${repository}%${context}`)
   const contextPref = item ? await JSON.parse(item) : null
   if (contextPref && contextPref.preferredEditor && contextPref.preferredEditorClass) {
     defaultPrefValue = contextPref
   } else {
-      const repoItem = await LocalStorage.getItem<string>(`${repository}`);
-      const repoPref = repoItem ? await JSON.parse(repoItem) : null
-      if (repoPref && repoPref.preferredEditor && repoPref.preferredEditorClass) {
-        defaultPrefValue = repoPref
-      }
+    const repoItem = await LocalStorage.getItem<string>(`${repository}`);
+    const repoPref = repoItem ? await JSON.parse(repoItem) : null
+    if (repoPref && repoPref.preferredEditor && repoPref.preferredEditorClass) {
+      defaultPrefValue = repoPref
     }
+  }
 
   return defaultPrefValue
 }
@@ -47,11 +47,24 @@ export default function ContextPreferences({ repository, type, context }: Contex
   return (
     defaultPrefValue &&
     (<Form
+      navigationTitle={`${type} - ${context}`}
       actions={
         <ActionPanel>
           <Action.SubmitForm title="Set Context Preferences" onSubmit={async (values: Preferences) => {
-            await LocalStorage.setItem(`${repository}%${context}`, JSON.stringify(values));
-            pop();
+            try {
+              await LocalStorage.setItem(`${repository}%${context}`, JSON.stringify(values));
+              await showToast({
+                title: "Preferences saved successfully",
+                style: Toast.Style.Success,
+              });
+              pop();
+            }
+            catch (error) {
+              await showToast({
+                title: "Error saving preferences",
+                style: Toast.Style.Failure,
+              });
+            }
           }} />
         </ActionPanel>
       }

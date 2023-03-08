@@ -1,4 +1,4 @@
-import { ActionPanel, Form, Action, LocalStorage, showHUD, useNavigation } from "@raycast/api";
+import { ActionPanel, Form, Action, LocalStorage, showHUD, useNavigation, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
 
 type RepositoryPreferenceProps = {
@@ -12,7 +12,7 @@ interface Preferences {
 }
 
 async function getDefaultValue(repository: string) {
-  let defaultPrefValue: Preferences = { preferredEditor: "code", preferredEditorClass: "g1-large", useLatest: false };
+  let defaultPrefValue: Preferences = { preferredEditor: "code", preferredEditorClass: "g1-standard", useLatest: false };
   const item = await LocalStorage.getItem<string>(`${repository}`)
   const contextPref = item ? await JSON.parse(item) : null
   if (contextPref && contextPref.preferredEditor && contextPref.preferredEditorClass) {
@@ -38,11 +38,24 @@ export default function RepositoryPreference({ repository }: RepositoryPreferenc
   return (
     defaultPrefValue && (
       <Form
+        navigationTitle={`${repository}`}
         actions={
           <ActionPanel>
             <Action.SubmitForm title="Set Repository Preferences" onSubmit={async (values: Preferences) => {
-              await LocalStorage.setItem(`${repository}`, JSON.stringify(values));
-              pop();
+              try {
+                await LocalStorage.setItem(`${repository}`, JSON.stringify(values));
+                await showToast({
+                  title: "Preferences saved successfully",
+                  style: Toast.Style.Success,
+                });
+                pop();
+              }
+              catch (error) {
+                await showToast({
+                  title: "Error saving preferences",
+                  style: Toast.Style.Failure,
+                });
+              }
             }} />
           </ActionPanel>
         }

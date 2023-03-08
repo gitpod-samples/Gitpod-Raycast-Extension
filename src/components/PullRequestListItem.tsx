@@ -1,9 +1,10 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
-// import { MutatePromise } from "@raycast/utils";
+import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
 import { format } from "date-fns";
+import { pull } from "lodash";
 import { useMemo } from "react";
 
-import { MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import OpenInGitpod from "../helpers/openInGitpod";
 import {
   getCheckStateAccessory,
   getNumberOfComments,
@@ -11,18 +12,16 @@ import {
   getPullRequestStatus,
   getReviewDecision,
 } from "../helpers/pull-request";
-
-// import PullRequestActions from "./PullRequestActions";
-// import PullRequestDetail from "./PullRequestDetail";
+import ContextPreferences from "../preferences/context_preferences";
 
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
-  // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest}: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
+  const { push } = useNavigation();
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
   const author = getPullRequestAuthor(pullRequest);
@@ -79,8 +78,9 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
           <Action
             title="Open PR in Gitpod"
             onAction={() => {
-              open(`https://gitpod.io/#${pullRequest.permalink}`);
+              OpenInGitpod(pullRequest.permalink, "Pull Request", pullRequest.repository.nameWithOwner,pullRequest.title);
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="View PR in GitHub"
@@ -88,18 +88,9 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
               open(pullRequest.permalink);
             }}
           />
+          <Action title="Configure Workspace" onAction={()=> push(<ContextPreferences type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title}/>)} shortcut={{ modifiers: ["cmd"], key: "w" }}/>
         </ActionPanel>
       }
     />
   );
-}
-
-{
-  /* <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
-  <Action.Push
-    title="Show Details"
-    icon={Icon.Sidebar}
-    target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
-  />
-</PullRequestActions>; */
 }

@@ -1,7 +1,9 @@
-import { Action, ActionPanel, Color, List, open } from "@raycast/api";
+import { Action, ActionPanel, Color, List, open, useNavigation } from "@raycast/api";
 
 import { branchStatus, GitpodIcons } from "../../constants";
 import { BranchDetailsFragment, UserFieldsFragment } from "../generated/graphql";
+import OpenInGitpod from "../helpers/openInGitpod";
+import ContextPreferences from "../preferences/context_preferences";
 
 type BranchItemProps = {
   branch: BranchDetailsFragment;
@@ -14,6 +16,7 @@ export default function BranchListItem({ branch, mainBranch, repository }: Branc
   const accessories: List.Item.Accessory[] = [];
   const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
 
+  const { push } = useNavigation();
   if (branch.compData) {
     if (branch.compData.status) {
       switch (branch.compData.status.toString()) {
@@ -66,8 +69,9 @@ export default function BranchListItem({ branch, mainBranch, repository }: Branc
           <Action
             title="Open Branch in Gitpod"
             onAction={() => {
-              open(`https://gitpod.io/#${branchURL}`);
+              OpenInGitpod(branchURL,"Branch",repository,branch.branchName)
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="Open Branch in GitHub"
@@ -75,6 +79,7 @@ export default function BranchListItem({ branch, mainBranch, repository }: Branc
               open(branchURL);
             }}
           />
+          <Action title="Configure Workspace" onAction={()=> push(<ContextPreferences type="Branch" repository={repository} context={branch.branchName}/>)} shortcut={{ modifiers: ["cmd"], key: "w" }}/>
         </ActionPanel>
       }
     />

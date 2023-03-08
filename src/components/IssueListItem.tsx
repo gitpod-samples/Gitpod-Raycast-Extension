@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -9,6 +9,8 @@ import {
   UserFieldsFragment,
 } from "../generated/graphql";
 import { getIssueAuthor, getIssueStatus } from "../helpers/issue";
+import OpenInGitpod from "../helpers/openInGitpod";
+import ContextPreferences from "../preferences/context_preferences";
 
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
@@ -20,6 +22,7 @@ type IssueListItemProps = {
 };
 
 export default function IssueListItem({ issue }: IssueListItemProps) {
+    const { push } = useNavigation();
   const updatedAt = new Date(issue.updatedAt);
 
   const author = getIssueAuthor(issue);
@@ -62,8 +65,9 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
           <Action
             title="Open Issue in Gitpod"
             onAction={() => {
-              open(`https://gitpod.io/#${issue.url}`);
+              OpenInGitpod(issue.url,"Issue",issue.repository.nameWithOwner, issue.title)
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="View Issue in GitHub"
@@ -71,16 +75,10 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
               open(issue.url);
             }}
           />
+          <Action title="Configure Workspace" onAction={()=> push(<ContextPreferences repository={issue.repository.nameWithOwner} type="Issue" context={issue.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }}/>
         </ActionPanel>
       }
     />
   );
 }
 
-// <IssueActions issue={issue} mutateList={mutateList} viewer={viewer}>
-//   <Action.Push
-//     title="Show Details"
-//     icon={Icon.Sidebar}
-//     target={<IssueDetail initialIssue={issue} viewer={viewer} mutateList={mutateList} />}
-//   />
-// </IssueActions>

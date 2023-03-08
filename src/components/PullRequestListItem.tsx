@@ -18,10 +18,11 @@ import {
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
+  visitPullReq?: (pullRequest: PullRequestFieldsFragment) => void;
   // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, viewer, visitPullReq }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
@@ -79,6 +80,7 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
           <Action
             title="Open PR in Gitpod"
             onAction={() => {
+              visitPullReq?.(pullRequest)
               open(`https://gitpod.io/#${pullRequest.permalink}`);
             }}
           />

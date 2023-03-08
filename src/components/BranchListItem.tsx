@@ -5,12 +5,13 @@ import { BranchDetailsFragment, UserFieldsFragment } from "../generated/graphql"
 
 type BranchItemProps = {
   branch: BranchDetailsFragment;
-  mainBranch: string;
+  mainBranch?: string;
   viewer?: UserFieldsFragment;
   repository: string;
+  visitBranch?: (branch: BranchDetailsFragment, repository: string) => void;
 };
 
-export default function BranchListItem({ branch, mainBranch, repository }: BranchItemProps) {
+export default function BranchListItem({ branch, mainBranch, repository, visitBranch }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
   const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
 
@@ -58,7 +59,7 @@ export default function BranchListItem({ branch, mainBranch, repository }: Branc
   return (
     <List.Item
       icon={GitpodIcons.branchIcon}
-      subtitle={mainBranch}
+      subtitle={mainBranch ?? ""}
       title={branch.branchName}
       accessories={accessories}
       actions={
@@ -66,6 +67,7 @@ export default function BranchListItem({ branch, mainBranch, repository }: Branc
           <Action
             title="Open Branch in Gitpod"
             onAction={() => {
+              visitBranch?.(branch, repository)
               open(`https://gitpod.io/#${branchURL}`);
             }}
           />

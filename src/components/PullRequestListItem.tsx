@@ -18,10 +18,12 @@ import {
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
+  changeBodyVisibility: (state: boolean) => void
+  bodyVisible: boolean;
   // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, viewer, changeBodyVisibility, bodyVisible }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
@@ -69,10 +71,13 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
   return (
     <List.Item
       key={pullRequest.id}
-      title={pullRequest.title}
+      title={!bodyVisible ? pullRequest.title : ""}
       subtitle={{ value: `#${pullRequest.number}`, tooltip: `Repository: ${pullRequest.repository.nameWithOwner}` }}
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
+      detail={
+        <List.Item.Detail markdown={"## " + pullRequest.title + "\n" + pullRequest.body}/>
+      }
       accessories={accessories}
       actions={
         <ActionPanel>
@@ -87,6 +92,20 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
             onAction={() => {
               open(pullRequest.permalink);
             }}
+          />
+          <Action
+            title="Show PR Preview"
+            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+            onAction={() => {
+              changeBodyVisibility(true);
+            }}
+          />
+          <Action
+            title="Hide PR Preview"
+            onAction={() => {
+              changeBodyVisibility(false)
+            }}
+            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
           />
         </ActionPanel>
       }

@@ -5,6 +5,7 @@ fragment PullRequestFields on PullRequest {
   merged
   number
   isDraft
+  body
   closed
   updatedAt
   mergeable

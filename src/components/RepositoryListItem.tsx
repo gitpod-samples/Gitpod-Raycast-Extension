@@ -3,8 +3,10 @@ import { MutatePromise } from "@raycast/utils";
 
 import { GitpodIcons } from "../../constants";
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
+import OpenInGitpod from "../helpers/openInGitpod";
 import { getGitHubUser } from "../helpers/users";
 import SearchContext from "../open_repo_context";
+import RepositoryPreference from "../preferences/repository_preferences";
 
 type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
@@ -81,7 +83,9 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit 
               push(<SearchContext repository={repository} />);
             }}
           />
-          <Action title="Trigger Workspace" onAction={showLaunchToast} />
+          <Action title="Open Repo in GitHub" onAction={()=>open(repository.url)} />
+          <Action title="Trigger Workspace" onAction={()=>OpenInGitpod(repository.url,"Repository",repository.nameWithOwner)} shortcut={{ modifiers: ["cmd"], key: "g" }}/>
+          <Action title="Configure Workspace" onAction={()=> push(<RepositoryPreference repository={repository.nameWithOwner} />)} shortcut={{ modifiers: ["cmd"], key: "w" }}/>
         </ActionPanel>
       }
     />

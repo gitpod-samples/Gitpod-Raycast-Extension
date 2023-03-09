@@ -44,7 +44,7 @@ export default async function OpenInGitpod(contextUrl: string, type: "Branch" | 
       style: Toast.Style.Success,
     });
     setTimeout(() => {
-      open(`https://gitpod.io/new/?showOptions=false&useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`);
+      open(`https://gitpod.io/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`);
     }, 1000);
   } catch (error) {
     await showToast({

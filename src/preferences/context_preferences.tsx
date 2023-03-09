@@ -1,4 +1,4 @@
-import { ActionPanel, Form, Action, LocalStorage, useNavigation, showToast, Toast } from "@raycast/api";
+import { ActionPanel, Form, Action, LocalStorage, useNavigation, showToast, Toast, getPreferenceValues } from "@raycast/api";
 import { useEffect, useState } from "react";
 
 type ContextPreferenceProps = {
@@ -14,7 +14,7 @@ interface Preferences {
 }
 
 async function getDefaultValue(repository: string, context: string) {
-  let defaultPrefValue: Preferences = { preferredEditor: "code", preferredEditorClass: "g1-standard", useLatest: false };
+  let defaultPrefValue: Preferences = getPreferenceValues<Preferences>();
   const item = await LocalStorage.getItem<string>(`${repository}%${context}`)
   const contextPref = item ? await JSON.parse(item) : null
   if (contextPref && contextPref.preferredEditor && contextPref.preferredEditorClass) {

@@ -5,6 +5,7 @@ interface Preferences {
   preferredEditor: string;
   useLatest: boolean;
   preferredEditorClass: "g1-standard" | "g1-large";
+  gitpodUrl?: string
 }
 
 export default async function OpenInGitpod(contextUrl: string, type: "Branch" | "Pull Request" | "Issue" | "Repository", repository: string, context?: string) {
@@ -38,13 +39,16 @@ export default async function OpenInGitpod(contextUrl: string, type: "Branch" | 
     //visit issue
   }
 
+  const gitpodUrl = preferences.gitpodUrl ?? "https://gitpod.io";
+  console.log(preferences)
+
   try {
     await showToast({
       title: "Launching your workspace",
       style: Toast.Style.Success,
     });
     setTimeout(() => {
-      open(`https://gitpod.io/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`);
+      open(`${gitpodUrl}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`);
     }, 1000);
   } catch (error) {
     await showToast({

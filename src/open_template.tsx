@@ -5,24 +5,33 @@ import { useState, useMemo } from "react";
 import TemplateListEmptyView from "./components/TemplateListEmptyView";
 import TemplateListItem from "./components/TemplateListItem";
 import View from "./components/View";
-import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
 import { getGitHubClient } from "./helpers/withGithubClient";
+
+type TemplateRepositoryFieldsFragment = {
+  name: string;
+  url: string;
+  id: string;
+  stargazerCount: number;
+  owner: { name?: string | null; login?: string; avatarUrl: string }
+  issues: { totalCount: number }
+  pullRequests: { totalCount: number }
+};
 
 function SearchRepositories() {
   const { github } = getGitHubClient();
 
   const [searchText, setSearchText] = useState("");
 
-  const query = useMemo(() => `fork:true org:gitpod-samples is:template ${searchText}`, [searchText]);
+  const query = useMemo(() => `topic:template org:gitpod-samples ${searchText}`, [searchText]);
 
   const {
     data,
     isLoading,
-    mutate: mutateList,
   } = useCachedPromise(
     async (query) => {
-      const result = await github.searchRepositories({ query, numberOfItems: 10 });
-      return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
+      const result = await github.searchTemplateRepositories({ query, numberOfItems: 10 });
+      console.log(result.search.repos)
+      return result.search.repos?.map((node) => node?.repo as TemplateRepositoryFieldsFragment);
     },
     [query],
     {
@@ -43,19 +52,10 @@ function SearchRepositories() {
       onSearchTextChange={setSearchText}
       throttle
     >
-      {data ? (
-        <List.Section
-          title={"Find your favorite template"}
-          subtitle={`${data.length}`}
-        >
+      {data?.length && data?.length > 0 ? (
+        <List.Section title={"Find your favorite template"} subtitle={`${data.length}`}>
           {data.map((repository) => {
-            return (
-              <TemplateListItem
-                key={repository.id}
-                repository={repository}
-                mutateList={mutateList}
-              />
-            );
+            return <TemplateListItem key={repository?.id} repository={repository} />;
           })}
         </List.Section>
       ) : null}

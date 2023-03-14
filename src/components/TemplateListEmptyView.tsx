@@ -1,35 +1,48 @@
 import { List } from "@raycast/api";
 import { random } from "lodash";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const sampleQueries = [
-  "c++",
-  "django",
-  "flask",
-  "react",
-  "flutter",
-  "docker",
-  "node",
-  "nix",
-  "c#",
-  "go",
-];
+import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 
 type TemplateListEmptyViewProps = {
   searchText: string;
   isLoading: boolean;
+  sampleRepositories: ExtendedRepositoryFieldsFragment[] | undefined;
 };
 
-export default function TemplateListEmptyView({ searchText, isLoading }: TemplateListEmptyViewProps) {
-  const example = useMemo(() => sampleQueries[random(0, sampleQueries.length - 1)], []);
-  // If a search is in progress, don't show any text.
+function searchStringInArray(str: string, strArray: string[] | undefined) {
+  if (strArray) {
+    for (let j = 0; j < strArray.length; j++) {
+      if (strArray[j].match(str)) {
+        return strArray[j];
+      }
+    }
+  }
+  return "";
+}
+
+export default function TemplateListEmptyView({ searchText, isLoading, sampleRepositories }: TemplateListEmptyViewProps) {
+  const example = useMemo(() => sampleRepositories?.map((repository) => {
+    return repository.name
+  })[random(0, sampleRepositories?.length - 1)], []);
+
+  const sampleRepositoriesList = useMemo(() => sampleRepositories?.map(repository => repository.name), []);
+
+  const [exampleSearch, setexampleSearchExampleSearch] = useState<string>(example as string)
+
+  useEffect(() => {
+    if (sampleRepositoriesList && example) {
+      setexampleSearchExampleSearch(searchStringInArray(searchText[0], sampleRepositoriesList) as string)
+    }
+  }, [searchText, sampleRepositoriesList, example])
+
   if (isLoading) {
-    return <List.EmptyView title={`Type query e.g "${example}"`} />;
+    return <List.EmptyView title={`Type query e.g "${exampleSearch ?? example}"`} />;
   }
 
   // If a search has been performed and returned no results, show a message.
   if (searchText.length > 0) {
-    return <List.EmptyView title="No templates found" />;
+    return <List.EmptyView title={`No templates found, try searching "${exampleSearch ?? example}"`} />;
   }
 
   // Unreachable, but required by TypeScript.

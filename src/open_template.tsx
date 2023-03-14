@@ -59,8 +59,7 @@ function SearchRepositories() {
           })}
         </List.Section>
       ) : null}
-
-      <TemplateListEmptyView searchText={searchText} isLoading={isLoading} />
+      <TemplateListEmptyView searchText={searchText} isLoading={isLoading} sampleRepositories={data} />
     </List>
   );
 }

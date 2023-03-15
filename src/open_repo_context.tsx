@@ -33,7 +33,7 @@ function SearchContext({ repository }: SearchContextProps) {
   const [firstLoad, setfirstLoad] = useState(true);
 
   const { data, isLoading: isPRLoading } = usePromise(
-    async (searchText) => {
+    async (searchText, sections) => {
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
         issues?: IssueFieldsFragment[] | undefined;
@@ -50,9 +50,8 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/p")) {
         const pullRequest = (
           await github.searchPullRequests({
-            query: `is:pr repo:${repository.nameWithOwner} ${
-              forAuthor ? "author:@me" : ""
-            } archived:false ${searchText.trim()}`,
+            query: `is:pr repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
+              } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
@@ -62,9 +61,8 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/i")) {
         const issues = (
           await github.searchIssues({
-            query: `is:issue repo:${repository.nameWithOwner} ${
-              forAuthor ? "author:@me" : ""
-            } archived:false ${searchText.trim()}`,
+            query: `is:issue repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
+              } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.nodes?.map((node) => node as IssueFieldsFragment);
@@ -90,7 +88,7 @@ function SearchContext({ repository }: SearchContextProps) {
 
       return result;
     },
-    [searchText],
+    [searchText, sections],
     {
       onError(error) {
         showToast({

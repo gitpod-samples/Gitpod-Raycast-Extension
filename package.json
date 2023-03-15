@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "gitpod",
-  "title": "Gitpod",
+  "title": "Gitpod-beta",
   "description": "A blazingly fast way to work with Gitpod",
   "icon": "logo-mark.svg",
   "author": "Palanikannan1437",

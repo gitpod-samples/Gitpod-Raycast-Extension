@@ -26,6 +26,7 @@ async function loadVisitedRepositories() {
     return [];
   }
 }
+
 export function usePullReqHistory() {
   const [history, setHistory] = useCachedState<PullRequestFieldsFragment[]>("PullReqHistory", []);
   const [migratedHistory, setMigratedHistory] = useCachedState<boolean>("migratedPullReqHistory", false);
@@ -46,7 +47,14 @@ export function usePullReqHistory() {
     setHistory(nextPullReq);
   }
 
-  return { history, visitPullReq };
+  function removePullReq(pullRequest: PullRequestFieldsFragment) {
+    const visitedPullReq = [...(history?.filter((item) => item.id !== pullRequest.id) ?? [])];
+    LocalStorage.setItem(VISITED_PULL_REQ_KEY, JSON.stringify(visitedPullReq));
+    const nextPullReq = visitedPullReq.slice(0, VISITED_PULL_REQ_LENGTH);
+    setHistory(nextPullReq);
+  }
+
+  return { history, visitPullReq, removePullReq };
 }
 
 export function getPullRequestStatus(pullRequest: PullRequestFieldsFragment | PullRequestDetailsFieldsFragment) {

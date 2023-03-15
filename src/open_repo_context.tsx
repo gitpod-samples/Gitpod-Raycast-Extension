@@ -230,7 +230,6 @@ function SearchContext({ repository }: SearchContextProps) {
                 repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                 branch={branch}
                 visitBranch={visitBranch}
-                viewer={viewer}
               />
             );
           })}

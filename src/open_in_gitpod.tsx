@@ -21,10 +21,10 @@ function SearchRepositories() {
 
   const [searchText, setSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
-  const { data: history, visitRepository } = useHistory(searchText, searchFilter);
-  const { history: visitedPullReqs } = usePullReqHistory();
-  const { history: visitedBranches } = useBranchHistory();
-  const { history: visitedIssues } = useIssueHistory();
+  const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
+  const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
+  const { history: visitedBranches, removeBranch } = useBranchHistory();
+  const { history: visitedIssues, removeIssue } = useIssueHistory();
 
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
@@ -80,16 +80,22 @@ function SearchRepositories() {
       throttle
     >
       {searchText == "" && (<List.Section title="Recent Contexts" subtitle={(visitedBranches || visitedPullReqs || visitedIssues) ? String(visitedBranches?.length + visitedPullReqs?.length + visitedIssues?.length) : undefined}>
-        {visitedBranches.map((branch, index) => (
-          <BranchListItem
-            branch={branch}
-            key={index} />
-        ))}
+        {visitedBranches.map((branchCache, index) => {
+          return (
+            <BranchListItem
+              branch={branchCache.branch}
+              repository={branchCache.repository}
+              key={index}
+              removeBranch={removeBranch}
+              fromCache={true}
+            />
+          )
+        })}
         {visitedPullReqs.map((pullRequest) => (
-          <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} />
+          <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} fromCache={true} removePullReq={removePullReq} />
         ))}
         {visitedIssues.map((issue) => (
-          <IssueListItem key={issue.id} issue={issue} />
+          <IssueListItem key={issue.id} issue={issue} fromCache={true} removeIssue={removeIssue} />
         ))}
       </List.Section>)}
       <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
@@ -100,6 +106,8 @@ function SearchRepositories() {
             repository={repository}
             onVisit={visitRepository}
             mutateList={mutateList}
+            fromCache={true}
+            removeRepository={removeRepository}
           />
         ))}
       </List.Section>

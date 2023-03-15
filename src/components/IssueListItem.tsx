@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, showToast, Toast } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -18,9 +18,11 @@ type IssueListItemProps = {
   | MutatePromise<SearchOpenIssuesQuery | undefined>
   | MutatePromise<IssueFieldsFragment[] | undefined>;
   visitIssue?: (issue: IssueFieldsFragment) => void;
+  removeIssue?: (issue: IssueFieldsFragment) => void;
+  fromCache?: boolean;
 };
 
-export default function IssueListItem({ issue, visitIssue }: IssueListItemProps) {
+export default function IssueListItem({ issue, visitIssue, removeIssue, fromCache }: IssueListItemProps) {
   const updatedAt = new Date(issue.updatedAt);
 
   const author = getIssueAuthor(issue);
@@ -73,16 +75,20 @@ export default function IssueListItem({ issue, visitIssue }: IssueListItemProps)
               open(issue.url);
             }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removeIssue?.(issue)
+                await showToast({
+                  title: `Removed Issue #${issue.number} of "${issue.repository.name}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
         </ActionPanel>
       }
     />
   );
 }
-
-// <IssueActions issue={issue} mutateList={mutateList} viewer={viewer}>
-//   <Action.Push
-//     title="Show Details"
-//     icon={Icon.Sidebar}
-//     target={<IssueDetail initialIssue={issue} viewer={viewer} mutateList={mutateList} />}
-//   />
-// </IssueActions>

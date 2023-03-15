@@ -10,10 +10,12 @@ type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
   isGitpodified: boolean;
   onVisit: (repository: ExtendedRepositoryFieldsFragment) => void;
+  removeRepository?: (repository: ExtendedRepositoryFieldsFragment) => void;
   mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
+  fromCache?: boolean;
 };
 
-export default function RepositoryListItem({ repository, isGitpodified, onVisit }: RepositoryListItemProps) {
+export default function RepositoryListItem({ repository, isGitpodified, onVisit, fromCache, removeRepository }: RepositoryListItemProps) {
   const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
@@ -65,11 +67,11 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit 
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-            subtitle: {
-              value: `${numberOfStars}`,
-              tooltip: `Number of Stars: ${numberOfStars}`,
-            },
-          }
+          subtitle: {
+            value: `${numberOfStars}`,
+            tooltip: `Number of Stars: ${numberOfStars}`,
+          },
+        }
         : {})}
       accessories={accessories}
       actions={
@@ -82,6 +84,18 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit 
             }}
           />
           <Action title="Trigger Workspace" onAction={showLaunchToast} />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removeRepository?.(repository)
+                await showToast({
+                  title: `Removed "${repository.name}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
         </ActionPanel>
       }
     />

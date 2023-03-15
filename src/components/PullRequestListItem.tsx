@@ -1,9 +1,8 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
-// import { MutatePromise } from "@raycast/utils";
+import { Action, ActionPanel, Icon, List, open, showToast, Toast } from "@raycast/api";
 import { format } from "date-fns";
 import { useMemo } from "react";
 
-import { MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
 import {
   getCheckStateAccessory,
   getNumberOfComments,
@@ -12,17 +11,15 @@ import {
   getReviewDecision,
 } from "../helpers/pull-request";
 
-// import PullRequestActions from "./PullRequestActions";
-// import PullRequestDetail from "./PullRequestDetail";
-
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
+  removePullReq?: (PullRequest: PullRequestFieldsFragment) => void;
   visitPullReq?: (pullRequest: PullRequestFieldsFragment) => void;
-  // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
+  fromCache?: boolean;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer, visitPullReq }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, removePullReq, visitPullReq, fromCache }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
@@ -90,18 +87,21 @@ export default function PullRequestListItem({ pullRequest, viewer, visitPullReq 
               open(pullRequest.permalink);
             }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removePullReq?.(pullRequest)
+                await showToast({
+                  title: `Removed PR #${pullRequest.number} of "${pullRequest.repository.name}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
         </ActionPanel>
       }
     />
   );
 }
 
-{
-  /* <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
-  <Action.Push
-    title="Show Details"
-    icon={Icon.Sidebar}
-    target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
-  />
-</PullRequestActions>; */
-}

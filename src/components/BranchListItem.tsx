@@ -1,17 +1,18 @@
-import { Action, ActionPanel, Color, List, open } from "@raycast/api";
+import { Action, ActionPanel, Color, List, open, showToast, Toast } from "@raycast/api";
 
 import { branchStatus, GitpodIcons } from "../../constants";
-import { BranchDetailsFragment, UserFieldsFragment } from "../generated/graphql";
+import { BranchDetailsFragment } from "../generated/graphql";
 
 type BranchItemProps = {
   branch: BranchDetailsFragment;
   mainBranch?: string;
-  viewer?: UserFieldsFragment;
   repository: string;
   visitBranch?: (branch: BranchDetailsFragment, repository: string) => void;
+  removeBranch?: (branch: BranchDetailsFragment, repository: string) => void;
+  fromCache?: boolean
 };
 
-export default function BranchListItem({ branch, mainBranch, repository, visitBranch }: BranchItemProps) {
+export default function BranchListItem({ branch, repository, visitBranch, fromCache, removeBranch }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
   const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
 
@@ -59,7 +60,7 @@ export default function BranchListItem({ branch, mainBranch, repository, visitBr
   return (
     <List.Item
       icon={GitpodIcons.branchIcon}
-      subtitle={mainBranch ?? ""}
+      subtitle={repository ?? ""}
       title={branch.branchName}
       accessories={accessories}
       actions={
@@ -77,6 +78,18 @@ export default function BranchListItem({ branch, mainBranch, repository, visitBr
               open(branchURL);
             }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removeBranch?.(branch, repository)
+                await showToast({
+                  title: `Removed "${branch.branchName}" of "${repository}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
         </ActionPanel>
       }
     />

@@ -20,6 +20,7 @@ async function loadVisitedIssues() {
     return [];
   }
 }
+
 export function useIssueHistory() {
   const [history, setHistory] = useCachedState<IssueFieldsFragment[]>("IssueHistory", []);
   const [migratedHistory, setMigratedHistory] = useCachedState<boolean>("migratedIssueHistory", false);
@@ -40,7 +41,14 @@ export function useIssueHistory() {
     setHistory(nextIssue);
   }
 
-  return { history, visitIssue };
+  function removeIssue(issue: IssueFieldsFragment) {
+    const visitedIssues = [...(history?.filter((item) => item.id !== issue.id) ?? [])];
+    LocalStorage.setItem(VISITED_ISSUE_KEY, JSON.stringify(visitedIssues));
+    const nextIssue = visitedIssues.slice(0, VISITED_ISSUE_LENGTH);
+    setHistory(nextIssue);
+  }
+
+  return { history, visitIssue, removeIssue };
 }
 
 export function getIssueStatus(issue: IssueFieldsFragment | IssueDetailFieldsFragment) {

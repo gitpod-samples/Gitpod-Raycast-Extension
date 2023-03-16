@@ -39,7 +39,7 @@ function SearchContext({ repository }: SearchContextProps) {
   const [firstLoad, setfirstLoad] = useState(true);
 
   const { data, isLoading: isPRLoading } = usePromise(
-    async (searchText) => {
+    async (searchText, sections) => {
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
         issues?: IssueFieldsFragment[] | undefined;
@@ -94,7 +94,7 @@ function SearchContext({ repository }: SearchContextProps) {
 
       return result;
     },
-    [searchText],
+    [searchText, sections],
     {
       onError(error) {
         showToast({

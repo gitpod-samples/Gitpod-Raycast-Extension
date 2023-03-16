@@ -1,7 +1,8 @@
-import { Action, ActionPanel, Icon, List, open, showToast, Toast } from "@raycast/api";
-import { MutatePromise } from "@raycast/utils";
+import { Action, ActionPanel, Icon, List, open, useNavigation,showToast, Toast  } from "@raycast/api";
+import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
+import { UIColors } from "../../constants";
 import {
   IssueFieldsFragment,
   SearchCreatedIssuesQuery,
@@ -9,6 +10,8 @@ import {
   UserFieldsFragment,
 } from "../generated/graphql";
 import { getIssueAuthor, getIssueStatus } from "../helpers/issue";
+import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
+import ContextPreferences from "../preferences/context_preferences";
 
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
@@ -23,15 +26,33 @@ type IssueListItemProps = {
 };
 
 export default function IssueListItem({ issue, visitIssue, removeIssue, fromCache }: IssueListItemProps) {
+  const { push } = useNavigation();
   const updatedAt = new Date(issue.updatedAt);
 
   const author = getIssueAuthor(issue);
   const status = getIssueStatus(issue);
 
+  const { data: preferences, revalidate } = usePromise(
+    async () => {
+      const response = await getPreferencesForContext("Issue", issue.repository.nameWithOwner, issue.title);
+      return response;
+    },
+  );
+
   const accessories: List.Item.Accessory[] = [
     {
       date: updatedAt,
       tooltip: `Updated: ${format(updatedAt, "EEEE d MMMM yyyy 'at' HH:mm")}`,
+    },
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+      },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
     },
     {
       icon: author.icon,
@@ -66,8 +87,9 @@ export default function IssueListItem({ issue, visitIssue, removeIssue, fromCach
             title="Open Issue in Gitpod"
             onAction={() => {
               visitIssue?.(issue)
-              open(`https://gitpod.io/#${issue.url}`);
+              OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title)
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="View Issue in GitHub"
@@ -87,6 +109,7 @@ export default function IssueListItem({ issue, visitIssue, removeIssue, fromCach
               }}
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />}
+          <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} repository={issue.repository.nameWithOwner} type="Issue" context={issue.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }
     />

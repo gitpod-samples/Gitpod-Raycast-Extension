@@ -1,12 +1,13 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "gitpod",
-  "title": "Gitpod",
+  "title": "Gitpod (Beta)",
   "description": "A blazingly fast way to work with Gitpod",
   "icon": "logo-mark.svg",
-  "author": "Palanikannan1437",
-  "owner": "raycast",
+  "author": "Henit-Palani",
+  "owner": "gitpod",
   "contributors": [
+    "Palanikannan1437",
     "henitchobisa"
   ],
   "categories": [
@@ -14,11 +15,94 @@
     "Productivity"
   ],
   "license": "MIT",
+  "preferences": [
+		{
+			"name": "preferredEditor",
+			"title": "Default Workspace Editor",
+			"description": "Choose your Preferred editor for Gitpod",
+			"type": "dropdown",
+			"data": [
+				{
+					"title": "VS Code Browser",
+					"value": "code"
+				},
+				{
+					"title": "VS Code Desktop",
+					"value": "code-desktop"
+				},
+				{
+					"title": "IntelliJ",
+					"value": "intellij"
+				},
+				{
+					"title": "GoLand",
+					"value": "goland"
+				},
+				{
+					"title": "PhpStorm",
+					"value": "phpstorm"
+				},
+				{
+					"title": "PyCharm",
+					"value": "pycharm"
+				},
+				{
+					"title": "RubyMine",
+					"value": "rubymine"
+				},
+				{
+					"title": "WebStorm",
+					"value": "webstorm"
+				},
+				{
+					"title": "Rider",
+					"value": "rider"
+				},
+				{
+					"title": "CLion",
+					"value": "clion"
+				}
+			],
+			"required": true 
+		},
+		{
+			"name": "useLatest",
+			"label": "Latest Release (Unstable)",
+			"description": "Use the latest version for each editor. Insiders for VS Code, EAP for JetBrains IDEs.",
+			"type": "checkbox",
+			"required": true
+		},
+		{
+			"name": "preferredEditorClass",
+			"title": "Default Workspace Class",
+			"description": "Up to 4 cores, 8GB RAM, 30GB storage in Standard and Up to 8 cores, 16GB RAM, 50GB storage in Large",
+			"type": "dropdown",
+			"data": [
+				{
+					"title": "Standard",
+					"value": "g1-standard"
+				},
+				{
+					"title": "Large",
+					"value": "g1-large"
+				}
+			],
+			"required": true 
+		},
+    {
+      "name": "gitpodUrl",
+      "title": "Gitpod's URL Endpoint",
+      "placeholder": "https://custom-gitpod-host",
+      "description": "Configure your custom Gitpod URL for Dedicated and Self-Hosted",
+      "type": "textfield",
+      "required": false
+    }
+	],
   "commands": [
     {
       "name": "open_in_gitpod",
       "title": "Open in Gitpod",
-      "subtitle": "Gitpod",
+      "subtitle": "Gitpod (Beta)",
       "description": "Open any GitHub Repository's Branch, Pull Request or Issue in Gitpod",
       "mode": "view",
       "keywords": [
@@ -28,9 +112,21 @@
       ]
     },
     {
+      "name": "open_template",
+      "title": "Find Gitpod Templates",
+      "subtitle": "Gitpod Templates (Beta)",
+      "description": "Start your next app with our pre-configured templates",
+      "mode": "view",
+      "keywords": [
+        "gitpod",
+        "gp",
+        "template"
+      ]
+    },
+    {
       "name": "menubar",
       "title": "Recent Repositories",
-      "subtitle": "Gitpod",
+      "subtitle": "Gitpod (Beta)",
       "description": "A Menubar Icon for faster access to recently visited Repositories",
       "mode": "menu-bar",
       "keywords": [
@@ -39,17 +135,6 @@
         "recent repositories",
         "menubar"
       ]
-    }
-  ],
-  
-  "preferences": [
-    {
-      "name": "personalAccessToken",
-      "title": "Personal Access Token",
-      "placeholder": "Visit https://github.com/settings/tokens",
-      "description": "Enter Classic Personal Access Token from GitHub",
-      "type": "password",
-      "required": true
     }
   ],
   "dependencies": {

@@ -1,8 +1,8 @@
-import { clearLocalStorage, LocalStorage } from "@raycast/api";
+import { LocalStorage } from "@raycast/api";
 import { useCachedState } from "@raycast/utils";
 import { useEffect } from "react";
 
-import { BranchDetailsFragment } from "../generated/graphql";
+import { BranchDetailsFragment, ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 
 const VISITED_BRANCH_KEY = "VISITED_BRANCHES";
 const VISITED_BRANCH_LENGTH = 10;

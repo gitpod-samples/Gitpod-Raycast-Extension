@@ -165,7 +165,6 @@ function SearchContext({ repository }: SearchContextProps) {
                   mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                   repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                   branch={branch}
-                  viewer={viewer}
                   visitBranch={visitBranch}
                 />
               );

@@ -1,9 +1,11 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
-// import { MutatePromise } from "@raycast/utils";
+import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
+import { usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 import { useMemo } from "react";
 
-import { MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import { UIColors } from "../../constants";
+import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import {
   getCheckStateAccessory,
   getNumberOfComments,
@@ -11,28 +13,43 @@ import {
   getPullRequestStatus,
   getReviewDecision,
 } from "../helpers/pull-request";
-
-// import PullRequestActions from "./PullRequestActions";
-// import PullRequestDetail from "./PullRequestDetail";
+import ContextPreferences from "../preferences/context_preferences";
 
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
-  // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
+  const { push } = useNavigation();
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
   const author = getPullRequestAuthor(pullRequest);
   const status = getPullRequestStatus(pullRequest);
   const reviewDecision = getReviewDecision(pullRequest.reviewDecision);
 
+  const { data: preferences, revalidate } = usePromise(
+    async () => {
+      const response = await getPreferencesForContext("Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
+      return response;
+    },
+  );
+
   const accessories: List.Item.Accessory[] = [
     {
       date: updatedAt,
       tooltip: `Updated: ${format(updatedAt, "EEEE d MMMM yyyy 'at' HH:mm")}`,
+    },
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+      },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
     },
     {
       icon: author.icon,
@@ -79,8 +96,9 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
           <Action
             title="Open PR in Gitpod"
             onAction={() => {
-              open(`https://gitpod.io/#${pullRequest.permalink}`);
+              OpenInGitpod(pullRequest.permalink, "Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="View PR in GitHub"
@@ -88,18 +106,9 @@ export default function PullRequestListItem({ pullRequest, viewer }: PullRequest
               open(pullRequest.permalink);
             }}
           />
+          <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }
     />
   );
-}
-
-{
-  /* <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
-  <Action.Push
-    title="Show Details"
-    icon={Icon.Sidebar}
-    target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
-  />
-</PullRequestActions>; */
 }

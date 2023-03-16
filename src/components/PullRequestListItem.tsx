@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
 
 import { usePromise } from "@raycast/utils";
 
@@ -17,14 +17,18 @@ import {
   getPullRequestStatus,
   getReviewDecision,
 } from "../helpers/pull-request";
+
 import ContextPreferences from "../preferences/context_preferences";
 
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
+  removePullReq?: (PullRequest: PullRequestFieldsFragment) => void;
+  visitPullReq?: (pullRequest: PullRequestFieldsFragment) => void;
+  fromCache?: boolean;
 };
 
-export default function PullRequestListItem({ pullRequest }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, removePullReq, visitPullReq, fromCache }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
   const { push } = useNavigation();
 
@@ -100,6 +104,7 @@ export default function PullRequestListItem({ pullRequest }: PullRequestListItem
           <Action
             title="Open PR in Gitpod"
             onAction={() => {
+              visitPullReq?.(pullRequest)
               OpenInGitpod(pullRequest.permalink, "Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
@@ -110,6 +115,18 @@ export default function PullRequestListItem({ pullRequest }: PullRequestListItem
               open(pullRequest.permalink);
             }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removePullReq?.(pullRequest)
+                await showToast({
+                  title: `Removed PR #${pullRequest.number} of "${pullRequest.repository.name}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
           <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }

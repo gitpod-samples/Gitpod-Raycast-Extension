@@ -2,11 +2,17 @@ import { List, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
+import BranchListItem from "./components/BranchListItem";
+import IssueListItem from "./components/IssueListItem";
+import PullRequestListItem from "./components/PullRequestListItem";
 import RepositoryListEmptyView from "./components/RepositoryListEmptyView";
 import RepositoryListItem from "./components/RepositoryListItem";
 import SearchRepositoryDropdown from "./components/SearchRepositoryDropdown";
 import View from "./components/View";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
+import { useBranchHistory } from "./helpers/branch";
+import { useIssueHistory } from "./helpers/issue";
+import { usePullReqHistory } from "./helpers/pull-request";
 import { useHistory } from "./helpers/repository";
 import { getGitHubClient } from "./helpers/withGithubClient";
 
@@ -15,7 +21,11 @@ function SearchRepositories() {
 
   const [searchText, setSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
-  const { data: history, visitRepository } = useHistory(searchText, searchFilter);
+  const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
+  const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
+  const { history: visitedBranches, removeBranch } = useBranchHistory();
+  const { history: visitedIssues, removeIssue } = useIssueHistory();
+
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
 
@@ -69,6 +79,25 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
+      {searchText == "" && (<List.Section title="Recent Contexts" subtitle={(visitedBranches || visitedPullReqs || visitedIssues) ? String(visitedBranches?.length + visitedPullReqs?.length + visitedIssues?.length) : undefined}>
+        {visitedBranches.map((branchCache, index) => {
+          return (
+            <BranchListItem
+              branch={branchCache.branch}
+              repository={branchCache.repository}
+              key={index}
+              removeBranch={removeBranch}
+              fromCache={true}
+            />
+          )
+        })}
+        {visitedPullReqs.map((pullRequest) => (
+          <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} fromCache={true} removePullReq={removePullReq} />
+        ))}
+        {visitedIssues.map((issue) => (
+          <IssueListItem key={issue.id} issue={issue} fromCache={true} removeIssue={removeIssue} />
+        ))}
+      </List.Section>)}
       <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
         {history.map((repository) => (
           <RepositoryListItem
@@ -77,6 +106,8 @@ function SearchRepositories() {
             repository={repository}
             onVisit={visitRepository}
             mutateList={mutateList}
+            fromCache={true}
+            removeRepository={removeRepository}
           />
         ))}
       </List.Section>

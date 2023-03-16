@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, useNavigation,showToast, Toast  } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -20,9 +20,12 @@ type IssueListItemProps = {
   | MutatePromise<SearchCreatedIssuesQuery | undefined>
   | MutatePromise<SearchOpenIssuesQuery | undefined>
   | MutatePromise<IssueFieldsFragment[] | undefined>;
+  visitIssue?: (issue: IssueFieldsFragment) => void;
+  removeIssue?: (issue: IssueFieldsFragment) => void;
+  fromCache?: boolean;
 };
 
-export default function IssueListItem({ issue }: IssueListItemProps) {
+export default function IssueListItem({ issue, visitIssue, removeIssue, fromCache }: IssueListItemProps) {
   const { push } = useNavigation();
   const updatedAt = new Date(issue.updatedAt);
 
@@ -83,6 +86,7 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
           <Action
             title="Open Issue in Gitpod"
             onAction={() => {
+              visitIssue?.(issue)
               OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title)
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
@@ -93,10 +97,21 @@ export default function IssueListItem({ issue }: IssueListItemProps) {
               open(issue.url);
             }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removeIssue?.(issue)
+                await showToast({
+                  title: `Removed Issue #${issue.number} of "${issue.repository.name}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
           <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} repository={issue.repository.nameWithOwner} type="Issue" context={issue.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }
     />
   );
 }
-

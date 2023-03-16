@@ -33,6 +33,7 @@ export async function getPreferencesForContext(type: "Branch" | "Pull Request" |
 }
 
 export default async function OpenInGitpod(contextUrl: string, type: "Branch" | "Pull Request" | "Issue" | "Repository", repository: string, context?: string) {
+  const defaultPreferences = getPreferenceValues<Preferences>();
   const preferences = await getPreferencesForContext(type, repository, context)
   if (type === "Branch") {
     //visit branch 
@@ -42,7 +43,7 @@ export default async function OpenInGitpod(contextUrl: string, type: "Branch" | 
     //visit issue
   }
 
-  const gitpodUrl = preferences.gitpodUrl ?? "https://gitpod.io";
+  let gitpodUrl = defaultPreferences.gitpodUrl ?? "https://gitpod.io";
 
   try {
     await showToast({

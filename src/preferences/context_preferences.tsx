@@ -5,6 +5,7 @@ type ContextPreferenceProps = {
   repository: string;
   type: "Branch" | "Pull Request" | "Issue";
   context: string
+  revalidate: () => void;
 }
 
 interface Preferences {
@@ -30,7 +31,7 @@ async function getDefaultValue(repository: string, context: string) {
   return defaultPrefValue
 }
 
-export default function ContextPreferences({ repository, type, context }: ContextPreferenceProps) {
+export default function ContextPreferences({ repository, type, context, revalidate }: ContextPreferenceProps) {
   const [defaultPrefValue, setDefaultPrefValue] = useState<Preferences | null>(null)
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function ContextPreferences({ repository, type, context }: Contex
                 title: "Preferences saved successfully",
                 style: Toast.Style.Success,
               });
+              revalidate();
               pop();
             }
             catch (error) {

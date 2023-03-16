@@ -1,10 +1,15 @@
 import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
+
+import { usePromise } from "@raycast/utils";
+
 import { format } from "date-fns";
 import { pull } from "lodash";
 import { useMemo } from "react";
 
+import { UIColors } from "../../constants";
 import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
-import OpenInGitpod from "../helpers/openInGitpod";
+import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
+
 import {
   getCheckStateAccessory,
   getNumberOfComments,
@@ -19,7 +24,7 @@ type PullRequestListItemProps = {
   viewer?: UserFieldsFragment;
 };
 
-export default function PullRequestListItem({ pullRequest}: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
   const { push } = useNavigation();
 
@@ -28,10 +33,27 @@ export default function PullRequestListItem({ pullRequest}: PullRequestListItemP
   const status = getPullRequestStatus(pullRequest);
   const reviewDecision = getReviewDecision(pullRequest.reviewDecision);
 
+  const { data: preferences, revalidate } = usePromise(
+    async () => {
+      const response = await getPreferencesForContext("Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
+      return response;
+    },
+  );
+
   const accessories: List.Item.Accessory[] = [
     {
       date: updatedAt,
       tooltip: `Updated: ${format(updatedAt, "EEEE d MMMM yyyy 'at' HH:mm")}`,
+    },
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+      },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
     },
     {
       icon: author.icon,
@@ -78,7 +100,7 @@ export default function PullRequestListItem({ pullRequest}: PullRequestListItemP
           <Action
             title="Open PR in Gitpod"
             onAction={() => {
-              OpenInGitpod(pullRequest.permalink, "Pull Request", pullRequest.repository.nameWithOwner,pullRequest.title);
+              OpenInGitpod(pullRequest.permalink, "Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
@@ -88,7 +110,7 @@ export default function PullRequestListItem({ pullRequest}: PullRequestListItemP
               open(pullRequest.permalink);
             }}
           />
-          <Action title="Configure Workspace" onAction={()=> push(<ContextPreferences type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title}/>)} shortcut={{ modifiers: ["cmd"], key: "w" }}/>
+          <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }
     />

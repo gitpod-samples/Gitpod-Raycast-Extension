@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 type RepositoryPreferenceProps = {
   repository: string;
+  revalidate: ()=>void;
 }
 
 interface Preferences {
@@ -22,7 +23,7 @@ async function getDefaultValue(repository: string) {
   return defaultPrefValue
 }
 
-export default function RepositoryPreference({ repository }: RepositoryPreferenceProps) {
+export default function RepositoryPreference({ repository ,revalidate}: RepositoryPreferenceProps) {
   const [defaultPrefValue, setDefaultPrefValue] = useState<Preferences | null>(null)
 
   const { pop } = useNavigation();
@@ -49,6 +50,7 @@ export default function RepositoryPreference({ repository }: RepositoryPreferenc
                   title: "Preferences saved successfully",
                   style: Toast.Style.Success,
                 });
+                revalidate();
                 pop();
               }
               catch (error) {

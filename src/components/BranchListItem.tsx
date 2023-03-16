@@ -3,6 +3,7 @@ import { usePromise } from "@raycast/utils";
 
 import { branchStatus, GitpodIcons, UIColors } from "../../constants";
 import { BranchDetailsFragment, UserFieldsFragment } from "../generated/graphql";
+
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import ContextPreferences from "../preferences/context_preferences";
 

@@ -1,11 +1,15 @@
 import { Action, ActionPanel, Icon, List, open, useNavigation } from "@raycast/api";
+
 import { usePromise } from "@raycast/utils";
+
 import { format } from "date-fns";
+import { pull } from "lodash";
 import { useMemo } from "react";
 
 import { UIColors } from "../../constants";
 import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
+
 import {
   getCheckStateAccessory,
   getNumberOfComments,

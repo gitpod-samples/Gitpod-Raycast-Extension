@@ -1,9 +1,9 @@
-import { Color, List, ActionPanel, Action, showToast, Toast, open, useNavigation } from "@raycast/api";
-import { MutatePromise } from "@raycast/utils";
+import { Color, List, ActionPanel, Action, open, useNavigation, Icon } from "@raycast/api";
+import { MutatePromise, usePromise } from "@raycast/utils";
 
-import { GitpodIcons } from "../../constants";
+import { GitpodIcons, UIColors } from "../../constants";
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
-import OpenInGitpod from "../helpers/openInGitpod";
+import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import { getGitHubUser } from "../helpers/users";
 import SearchContext from "../open_repo_context";
 import RepositoryPreference from "../preferences/repository_preferences";
@@ -20,21 +20,28 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit 
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
 
+  const { data: preferences, revalidate } = usePromise(
+    async () => {
+      const response = await getPreferencesForContext("Repository", repository.nameWithOwner);
+      return response;
+    },
+  );
+
   const accessories: List.Item.Accessory[] = [
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+      },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
+    },
     {
       icon: isGitpodified ? GitpodIcons.gitpod_logo_primary : GitpodIcons.gitpod_logo_secondary,
     },
   ];
-
-  const showLaunchToast = async () => {
-    await showToast({
-      title: "Launching your workspace",
-      style: Toast.Style.Success,
-    });
-    setTimeout(() => {
-      open(`https://gitpod.io/#${repository.url}`);
-    }, 1500);
-  };
 
   accessories.unshift(
     {
@@ -67,11 +74,11 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit 
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-            subtitle: {
-              value: `${numberOfStars}`,
-              tooltip: `Number of Stars: ${numberOfStars}`,
-            },
-          }
+          subtitle: {
+            value: `${numberOfStars}`,
+            tooltip: `Number of Stars: ${numberOfStars}`,
+          },
+        }
         : {})}
       accessories={accessories}
       actions={
@@ -83,9 +90,9 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit 
               push(<SearchContext repository={repository} />);
             }}
           />
-          <Action title="Open Repo in GitHub" onAction={()=>open(repository.url)} />
-          <Action title="Trigger Workspace" onAction={()=>OpenInGitpod(repository.url,"Repository",repository.nameWithOwner)} shortcut={{ modifiers: ["cmd"], key: "g" }}/>
-          <Action title="Configure Workspace" onAction={()=> push(<RepositoryPreference repository={repository.nameWithOwner} />)} shortcut={{ modifiers: ["cmd"], key: "w" }}/>
+          <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
+          <Action title="Trigger Workspace" onAction={() => OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)} shortcut={{ modifiers: ["cmd"], key: "g" }} />
+          <Action title="Configure Workspace" onAction={() => push(<RepositoryPreference revalidate={revalidate} repository={repository.nameWithOwner} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }
     />

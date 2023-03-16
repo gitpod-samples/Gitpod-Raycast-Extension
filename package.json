@@ -4,9 +4,10 @@
   "title": "Gitpod (Beta)",
   "description": "A blazingly fast way to work with Gitpod",
   "icon": "logo-mark.svg",
-  "author": "Palanikannan1437",
+  "author": "henit-palani",
   "owner": "gitpod",
   "contributors": [
+    "Palanikannan1437",
     "henitchobisa"
   ],
   "categories": [

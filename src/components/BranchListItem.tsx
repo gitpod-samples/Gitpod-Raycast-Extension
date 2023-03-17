@@ -3,7 +3,6 @@ import { usePromise } from "@raycast/utils";
 
 import { branchStatus, GitpodIcons, UIColors } from "../../constants";
 import { BranchDetailsFragment } from "../generated/graphql";
-
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import ContextPreferences from "../preferences/context_preferences";
 
@@ -14,9 +13,14 @@ type BranchItemProps = {
   visitBranch?: (branch: BranchDetailsFragment, repository: string) => void;
   removeBranch?: (branch: BranchDetailsFragment, repository: string) => void;
   fromCache?: boolean
+  repositoryWithoutOwner: string;
+  repositoryOwner: string;
+  repositoryLogo: string;
+  bodyVisible: boolean;
+  changeBodyVisibility: (state: boolean) => void
 };
 
-export default function BranchListItem({ branch, repository, visitBranch, fromCache, removeBranch }: BranchItemProps) {
+export default function BranchListItem({ branch, repository, repositoryLogo, repositoryWithoutOwner, repositoryOwner, changeBodyVisibility, bodyVisible, visitBranch, fromCache, removeBranch }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
   const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
 
@@ -29,35 +33,42 @@ export default function BranchListItem({ branch, repository, visitBranch, fromCa
 
   const { push } = useNavigation();
 
+  let icon = GitpodIcons.branchAhead
+
   if (branch.compData) {
     if (branch.compData.status) {
       switch (branch.compData.status.toString()) {
         case branchStatus.ahead:
           accessories.unshift({
-            text: branch.compData.aheadBy.toString(),
+            text: bodyVisible ? branch.compData.aheadBy.toString() : "",
             icon: GitpodIcons.branchAhead,
           });
+          icon = GitpodIcons.branchAhead;
           break;
         case branchStatus.behind:
           accessories.unshift({
-            text: branch.compData.aheadBy.toString(),
+            text: bodyVisible ? branch.compData.aheadBy.toString() : "",
             icon: GitpodIcons.branchBehind,
           });
+          icon = GitpodIcons.branchBehind;
           break;
         case branchStatus.diverged:
           accessories.unshift({
-            text: branch.compData.aheadBy.toString(),
+            text: bodyVisible ? branch.compData.aheadBy.toString() : "",
             icon: GitpodIcons.branchDiverged,
           });
+          icon = GitpodIcons.branchDiverged
           break;
         case branchStatus.IDENTICAL:
           accessories.unshift({
             text: "IDN",
             icon: GitpodIcons.branchIdentical,
           });
+          icon = GitpodIcons.branchIdentical
           break;
       }
     }
+  }
 
     accessories.unshift(
       {
@@ -72,23 +83,35 @@ export default function BranchListItem({ branch, repository, visitBranch, fromCa
       },
 
     )
-    if (branch.compData.commits) {
-      accessories.unshift({
-        tag: {
-          value: branch.compData.commits.totalCount.toString(),
-          color: Color.Yellow,
-        },
-        icon: GitpodIcons.commit_icon,
-      });
-    }
+  if (branch.compData && branch.compData.commits && !bodyVisible) {
+    accessories.unshift({
+      tag: {
+        value: branch.compData.commits.totalCount.toString(),
+        color: Color.Yellow,
+      },
+      icon: GitpodIcons.commit_icon,
+    });
   }
 
   return (
     <List.Item
       icon={GitpodIcons.branchIcon}
-      subtitle={repository ?? ""}
+      subtitle={bodyVisible ? repository ?? "" : ""}
       title={branch.branchName}
       accessories={accessories}
+      detail={
+        <List.Item.Detail 
+            markdown={`\n\n![RepositoryOwner](${repositoryLogo})\n# ${repositoryOwner}\n${repositoryWithoutOwner}`}
+            metadata={
+              <List.Item.Detail.Metadata>
+                <List.Item.Detail.Metadata.Label title="Branch Name" icon={GitpodIcons.branchIcon} text={branch.branchName}/>
+                <List.Item.Detail.Metadata.Label title="Parent Branch" icon={GitpodIcons.branchIcon} text={mainBranch}/>
+                <List.Item.Detail.Metadata.Label title="Total Commits" icon={GitpodIcons.commit_icon} text={branch.compData ? branch.compData.commits.totalCount.toString() : "Failed To Load"}/>
+                { branch.compData && <List.Item.Detail.Metadata.Label title="Branch Status" icon={icon} text={branchStatus.IDENTICAL ? "IDN" : branch.compData.aheadBy.toString()}/>}
+              </List.Item.Detail.Metadata>
+            }
+        />
+      }
       actions={
         <ActionPanel>
           <Action
@@ -104,6 +127,20 @@ export default function BranchListItem({ branch, repository, visitBranch, fromCa
             onAction={() => {
               open(branchURL);
             }}
+          />
+          <Action
+            title="Show branch Preview"
+            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+            onAction={() => {
+              changeBodyVisibility(true);
+            }}
+          />
+          <Action
+            title="Hide branch Preview"
+            onAction={() => {
+              changeBodyVisibility(false)
+            }}
+            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
           />
           {fromCache &&
             <Action

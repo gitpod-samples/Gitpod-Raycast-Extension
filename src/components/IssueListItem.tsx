@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation,showToast, Toast  } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, List, open, useNavigation,showToast, Toast  } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -16,6 +16,8 @@ import ContextPreferences from "../preferences/context_preferences";
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
   viewer?: UserFieldsFragment;
+  changeBodyVisibility: (state: boolean) => void;
+  bodyVisible: boolean;
   mutateList?:
   | MutatePromise<SearchCreatedIssuesQuery | undefined>
   | MutatePromise<SearchOpenIssuesQuery | undefined>
@@ -25,7 +27,7 @@ type IssueListItemProps = {
   fromCache?: boolean;
 };
 
-export default function IssueListItem({ issue, visitIssue, removeIssue, fromCache }: IssueListItemProps) {
+export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible, visitIssue, removeIssue, fromCache }: IssueListItemProps) {
   const { push } = useNavigation();
   const updatedAt = new Date(issue.updatedAt);
 
@@ -76,11 +78,12 @@ export default function IssueListItem({ issue, visitIssue, removeIssue, fromCach
   return (
     <List.Item
       key={issue.id}
-      title={issue.title}
+      title={!bodyVisible ? issue.title : ""}
       subtitle={{ value: `#${issue.number}`, tooltip: `Repository: ${issue.repository.nameWithOwner}` }}
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
       accessories={accessories}
+      detail={<List.Item.Detail markdown={`## ${issue.title}\n\n ${issue.body}`} />}
       actions={
         <ActionPanel>
           <Action
@@ -96,6 +99,20 @@ export default function IssueListItem({ issue, visitIssue, removeIssue, fromCach
             onAction={() => {
               open(issue.url);
             }}
+          />
+          <Action
+            title="Show Issue Preview"
+            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+            onAction={() => {
+              changeBodyVisibility(true);
+            }}
+          />
+          <Action
+            title="Hide Issue Preview"
+            onAction={() => {
+              changeBodyVisibility(false)
+            }}
+            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
           />
           {fromCache &&
             <Action

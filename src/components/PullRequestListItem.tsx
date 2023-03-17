@@ -23,12 +23,14 @@ import ContextPreferences from "../preferences/context_preferences";
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
+  changeBodyVisibility: (state: boolean) => void
+  bodyVisible: boolean;
   removePullReq?: (PullRequest: PullRequestFieldsFragment) => void;
   visitPullReq?: (pullRequest: PullRequestFieldsFragment) => void;
   fromCache?: boolean;
 };
 
-export default function PullRequestListItem({ pullRequest, removePullReq, visitPullReq, fromCache }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, removePullReq, visitPullReq, fromCache, changeBodyVisibility, bodyVisible }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
   const { push } = useNavigation();
 
@@ -94,10 +96,13 @@ export default function PullRequestListItem({ pullRequest, removePullReq, visitP
   return (
     <List.Item
       key={pullRequest.id}
-      title={pullRequest.title}
+      title={!bodyVisible ? pullRequest.title : ""}
       subtitle={{ value: `#${pullRequest.number}`, tooltip: `Repository: ${pullRequest.repository.nameWithOwner}` }}
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
+      detail={
+        <List.Item.Detail markdown={"## " + pullRequest.title + "\n" + pullRequest.body}/>
+      }
       accessories={accessories}
       actions={
         <ActionPanel>
@@ -128,6 +133,20 @@ export default function PullRequestListItem({ pullRequest, removePullReq, visitP
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />}
           <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
+          <Action
+            title="Show PR Preview"
+            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+            onAction={() => {
+              changeBodyVisibility(true);
+            }}
+          />
+          <Action
+            title="Hide PR Preview"
+            onAction={() => {
+              changeBodyVisibility(false)
+            }}
+            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
+          />
         </ActionPanel>
       }
     />

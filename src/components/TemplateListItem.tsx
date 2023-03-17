@@ -9,9 +9,9 @@ type RepositoryListItemProps = {
     url: string;
     id: string;
     stargazerCount: number;
-    owner: { name?: string | null; login?: string; avatarUrl: string } 
-    issues: {totalCount: number}
-    pullRequests: {totalCount: number}
+    owner: { name?: string | null; login?: string; avatarUrl: string };
+    issues: { totalCount: number };
+    pullRequests: { totalCount: number };
   };
 };
 

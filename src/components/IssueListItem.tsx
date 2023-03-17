@@ -19,27 +19,32 @@ type IssueListItemProps = {
   changeBodyVisibility?: (state: boolean) => void;
   bodyVisible?: boolean;
   mutateList?:
-  | MutatePromise<SearchCreatedIssuesQuery | undefined>
-  | MutatePromise<SearchOpenIssuesQuery | undefined>
-  | MutatePromise<IssueFieldsFragment[] | undefined>;
+    | MutatePromise<SearchCreatedIssuesQuery | undefined>
+    | MutatePromise<SearchOpenIssuesQuery | undefined>
+    | MutatePromise<IssueFieldsFragment[] | undefined>;
   visitIssue?: (issue: IssueFieldsFragment) => void;
   removeIssue?: (issue: IssueFieldsFragment) => void;
   fromCache?: boolean;
 };
 
-export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible, visitIssue, removeIssue, fromCache }: IssueListItemProps) {
+export default function IssueListItem({
+  issue,
+  changeBodyVisibility,
+  bodyVisible,
+  visitIssue,
+  removeIssue,
+  fromCache,
+}: IssueListItemProps) {
   const { push } = useNavigation();
   const updatedAt = new Date(issue.updatedAt);
 
   const author = getIssueAuthor(issue);
   const status = getIssueStatus(issue);
 
-  const { data: preferences, revalidate } = usePromise(
-    async () => {
-      const response = await getPreferencesForContext("Issue", issue.repository.nameWithOwner, issue.title);
-      return response;
-    },
-  );
+  const { data: preferences, revalidate } = usePromise(async () => {
+    const response = await getPreferencesForContext("Issue", issue.repository.nameWithOwner, issue.title);
+    return response;
+  });
 
   const accessories: List.Item.Accessory[] = [
     {
@@ -54,7 +59,7 @@ export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible
         source: Icon.ComputerChip,
         tintColor: UIColors.gitpod_gold,
       },
-      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `,
     },
     {
       icon: author.icon,
@@ -89,8 +94,8 @@ export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible
           <Action
             title="Open Issue in Gitpod"
             onAction={() => {
-              visitIssue?.(issue)
-              OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title)
+              visitIssue?.(issue);
+              OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title);
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
@@ -105,37 +110,50 @@ export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible
               title="Show Issue Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
               onAction={() => {
-                if(changeBodyVisibility){
+                if (changeBodyVisibility) {
                   changeBodyVisibility(true);
                 }
               }}
-            />)
-          }
+            />
+          )}
           {!fromCache && (
             <Action
               title="Hide Issue Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
               onAction={() => {
                 if (changeBodyVisibility) {
-                  changeBodyVisibility(false)
+                  changeBodyVisibility(false);
                 }
               }}
             />
-          )
-          }
-          {fromCache &&
+          )}
+          {fromCache && (
             <Action
               title="Remove from Recents"
               onAction={async () => {
-                removeIssue?.(issue)
+                removeIssue?.(issue);
                 await showToast({
                   title: `Removed Issue #${issue.number} of "${issue.repository.name}" from recents`,
                   style: Toast.Style.Success,
                 });
               }}
               shortcut={{ modifiers: ["cmd"], key: "d" }}
-            />}
-          <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} repository={issue.repository.nameWithOwner} type="Issue" context={issue.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
+            />
+          )}
+          <Action
+            title="Configure Workspace"
+            onAction={() =>
+              push(
+                <ContextPreferences
+                  revalidate={revalidate}
+                  repository={issue.repository.nameWithOwner}
+                  type="Issue"
+                  context={issue.title}
+                />
+              )
+            }
+            shortcut={{ modifiers: ["cmd"], key: "w" }}
+          />
         </ActionPanel>
       }
     />

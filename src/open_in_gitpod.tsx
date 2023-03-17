@@ -79,25 +79,39 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
-      {searchText == "" && (<List.Section title="Recent Contexts" subtitle={(visitedBranches || visitedPullReqs || visitedIssues) ? String(visitedBranches?.length + visitedPullReqs?.length + visitedIssues?.length) : undefined}>
-        {visitedBranches.map((branchCache, index) => {
-          return (
-            <BranchListItem
-              branch={branchCache.branch}
-              repository={branchCache.repository}
-              key={index}
-              removeBranch={removeBranch}
+      {searchText == "" && (
+        <List.Section
+          title="Recent Contexts"
+          subtitle={
+            visitedBranches || visitedPullReqs || visitedIssues
+              ? String(visitedBranches?.length + visitedPullReqs?.length + visitedIssues?.length)
+              : undefined
+          }
+        >
+          {visitedBranches.map((branchCache, index) => {
+            return (
+              <BranchListItem
+                branch={branchCache.branch}
+                repository={branchCache.repository}
+                key={index}
+                removeBranch={removeBranch}
+                fromCache={true}
+              />
+            );
+          })}
+          {visitedPullReqs.map((pullRequest) => (
+            <PullRequestListItem
+              key={pullRequest.id}
+              pullRequest={pullRequest}
               fromCache={true}
+              removePullReq={removePullReq}
             />
-          )
-        })}
-        {visitedPullReqs.map((pullRequest) => (
-          <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} fromCache={true} removePullReq={removePullReq} />
-        ))}
-        {visitedIssues.map((issue) => (
-          <IssueListItem key={issue.id} issue={issue} fromCache={true} removeIssue={removeIssue} />
-        ))}
-      </List.Section>)}
+          ))}
+          {visitedIssues.map((issue) => (
+            <IssueListItem key={issue.id} issue={issue} fromCache={true} removeIssue={removeIssue} />
+          ))}
+        </List.Section>
+      )}
       <List.Section title="Recent Repositories" subtitle={history ? String(history.length) : undefined}>
         {history.map((repository) => (
           <RepositoryListItem

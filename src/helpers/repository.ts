@@ -39,7 +39,7 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
   }
 
   function removeRepository(repository: ExtendedRepositoryFieldsFragment) {
-    const visitedRepositories = [ ...(history?.filter((item) => item.id !== repository.id) ?? [])];
+    const visitedRepositories = [...(history?.filter((item) => item.id !== repository.id) ?? [])];
     LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
     const nextRepositories = visitedRepositories.slice(0, VISITED_REPOSITORIES_LENGTH);
     setHistory(nextRepositories);

@@ -17,17 +17,21 @@ type RepositoryListItemProps = {
   fromCache?: boolean;
 };
 
-export default function RepositoryListItem({ repository, isGitpodified, onVisit, fromCache, removeRepository }: RepositoryListItemProps) {
+export default function RepositoryListItem({
+  repository,
+  isGitpodified,
+  onVisit,
+  fromCache,
+  removeRepository,
+}: RepositoryListItemProps) {
   const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
 
-  const { data: preferences, revalidate } = usePromise(
-    async () => {
-      const response = await getPreferencesForContext("Repository", repository.nameWithOwner);
-      return response;
-    },
-  );
+  const { data: preferences, revalidate } = usePromise(async () => {
+    const response = await getPreferencesForContext("Repository", repository.nameWithOwner);
+    return response;
+  });
 
   const accessories: List.Item.Accessory[] = [
     {
@@ -38,7 +42,7 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit,
         source: Icon.ComputerChip,
         tintColor: UIColors.gitpod_gold,
       },
-      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `,
     },
     {
       icon: isGitpodified ? GitpodIcons.gitpod_logo_primary : GitpodIcons.gitpod_logo_secondary,
@@ -76,11 +80,11 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit,
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-          subtitle: {
-            value: `${numberOfStars}`,
-            tooltip: `Number of Stars: ${numberOfStars}`,
-          },
-        }
+            subtitle: {
+              value: `${numberOfStars}`,
+              tooltip: `Number of Stars: ${numberOfStars}`,
+            },
+          }
         : {})}
       accessories={accessories}
       actions={
@@ -92,21 +96,32 @@ export default function RepositoryListItem({ repository, isGitpodified, onVisit,
               push(<SearchContext repository={repository} />);
             }}
           />
-          {fromCache &&
+          {fromCache && (
             <Action
               title="Remove from Recents"
               onAction={async () => {
-                removeRepository?.(repository)
+                removeRepository?.(repository);
                 await showToast({
                   title: `Removed "${repository.name}" from recents`,
                   style: Toast.Style.Success,
                 });
               }}
               shortcut={{ modifiers: ["cmd"], key: "d" }}
-            />}
+            />
+          )}
           <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
-          <Action title="Trigger Workspace" onAction={() => OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)} shortcut={{ modifiers: ["cmd"], key: "g" }} />
-          <Action title="Configure Workspace" onAction={() => push(<RepositoryPreference revalidate={revalidate} repository={repository.nameWithOwner} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
+          <Action
+            title="Trigger Workspace"
+            onAction={() => OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
+          />
+          <Action
+            title="Configure Workspace"
+            onAction={() =>
+              push(<RepositoryPreference revalidate={revalidate} repository={repository.nameWithOwner} />)
+            }
+            shortcut={{ modifiers: ["cmd"], key: "w" }}
+          />
         </ActionPanel>
       }
     />

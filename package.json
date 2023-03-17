@@ -3,7 +3,7 @@
   "name": "gitpod",
   "title": "Gitpod (Beta)",
   "description": "A blazingly fast way to work with Gitpod",
-  "icon": "logo-mark.svg",
+  "icon": "logo-mark.png",
   "author": "Henit-Palani",
   "owner": "gitpod",
   "contributors": [

@@ -3,13 +3,13 @@ import { random } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 
 type TemplateRepositoryFieldsFragment = {
-    name: string;
-    url: string;
-    id: string;
-    stargazerCount: number;
-    owner: { name?: string | null; login?: string; avatarUrl: string } 
-    issues: {totalCount: number}
-    pullRequests: {totalCount: number}
+  name: string;
+  url: string;
+  id: string;
+  stargazerCount: number;
+  owner: { name?: string | null; login?: string; avatarUrl: string };
+  issues: { totalCount: number };
+  pullRequests: { totalCount: number };
 };
 
 type TemplateListEmptyViewProps = {

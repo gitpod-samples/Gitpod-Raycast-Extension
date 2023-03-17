@@ -30,7 +30,6 @@ function SearchRepositories() {
   } = useCachedPromise(
     async (query) => {
       const result = await github.searchTemplateRepositories({ query, numberOfItems: 10 });
-      console.log(result.search.repos)
       return result.search.repos?.map((node) => node?.repo as TemplateRepositoryFieldsFragment);
     },
     [query],
@@ -54,7 +53,7 @@ function SearchRepositories() {
     >
       {data?.length && data?.length > 0 ? (
         <List.Section title={"Find your favorite template"} subtitle={`${data.length}`}>
-          {data.map((repository) => {
+          {data.map((repository : TemplateRepositoryFieldsFragment) => {
             return <TemplateListItem key={repository?.id} repository={repository} />;
           })}
         </List.Section>

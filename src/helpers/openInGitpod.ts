@@ -5,38 +5,47 @@ interface Preferences {
   preferredEditor: string;
   useLatest: boolean;
   preferredEditorClass: "g1-standard" | "g1-large";
-  gitpodUrl?: string
+  gitpodUrl?: string;
 }
 
-export async function getPreferencesForContext(type: "Branch" | "Pull Request" | "Issue" | "Repository", repository: string, context?: string) {
+export async function getPreferencesForContext(
+  type: "Branch" | "Pull Request" | "Issue" | "Repository",
+  repository: string,
+  context?: string
+) {
   let preferences = getPreferenceValues<Preferences>();
   if (type === "Branch" || type === "Pull Request" || type === "Issue") {
-    const item = await LocalStorage.getItem<string>(`${repository}%${context}`)
-    const contextPref = item ? await JSON.parse(item) : null
+    const item = await LocalStorage.getItem<string>(`${repository}%${context}`);
+    const contextPref = item ? await JSON.parse(item) : null;
     if (contextPref && contextPref.preferredEditor && contextPref.preferredEditorClass) {
-      preferences = contextPref
+      preferences = contextPref;
     } else {
       const repoItem = await LocalStorage.getItem<string>(`${repository}`);
-      const repoPref = repoItem ? await JSON.parse(repoItem) : null
+      const repoPref = repoItem ? await JSON.parse(repoItem) : null;
       if (repoPref && repoPref.preferredEditor && repoPref.preferredEditorClass) {
-        preferences = repoPref
+        preferences = repoPref;
       }
     }
   } else if (type === "Repository") {
     const item = await LocalStorage.getItem<string>(`${repository}`);
-    const repoPref = item ? await JSON.parse(item) : null
+    const repoPref = item ? await JSON.parse(item) : null;
     if (repoPref && repoPref.preferredEditor && repoPref.preferredEditorClass) {
-      preferences = repoPref
+      preferences = repoPref;
     }
   }
   return preferences;
 }
 
-export default async function OpenInGitpod(contextUrl: string, type: "Branch" | "Pull Request" | "Issue" | "Repository", repository: string, context?: string) {
+export default async function OpenInGitpod(
+  contextUrl: string,
+  type: "Branch" | "Pull Request" | "Issue" | "Repository",
+  repository: string,
+  context?: string
+) {
   const defaultPreferences = getPreferenceValues<Preferences>();
-  const preferences = await getPreferencesForContext(type, repository, context)
+  const preferences = await getPreferencesForContext(type, repository, context);
   if (type === "Branch") {
-    //visit branch 
+    //visit branch
   } else if (type === "Pull Request") {
     //vitit pr
   } else if (type === "Issue") {
@@ -51,7 +60,11 @@ export default async function OpenInGitpod(contextUrl: string, type: "Branch" | 
       style: Toast.Style.Success,
     });
     setTimeout(() => {
-      open(`${gitpodUrl}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${preferences.useLatest ? "-latest" : ""}&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`);
+      open(
+        `${gitpodUrl}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${
+          preferences.useLatest ? "-latest" : ""
+        }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
+      );
     }, 1000);
   } catch (error) {
     await showToast({

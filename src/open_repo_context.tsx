@@ -32,15 +32,15 @@ function SearchContext({ repository }: SearchContextProps) {
   const { visitBranch } = useBranchHistory();
   const { visitIssue } = useIssueHistory();
   const [sections, setSections] = useState(["/b", "/i", "/p"]);
-  const [ bodyVisible, setBodyVisible ] = useState(false)
+  const [bodyVisible, setBodyVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [forAuthor, setForAuthor] = useState(false);
 
   const [firstLoad, setfirstLoad] = useState(true);
 
-  const changeBodyVisibility = (state : boolean) => {
-    setBodyVisible(state)
-  }
+  const changeBodyVisibility = (state: boolean) => {
+    setBodyVisible(state);
+  };
 
   const { data, isLoading: isPRLoading } = usePromise(
     async (searchText, sections) => {
@@ -60,8 +60,9 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/p")) {
         const pullRequest = (
           await github.searchPullRequests({
-            query: `is:pr repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
-              } archived:false ${searchText.trim()}`,
+            query: `is:pr repo:${repository.nameWithOwner} ${
+              forAuthor ? "author:@me" : ""
+            } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
@@ -71,8 +72,9 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/i")) {
         const issues = (
           await github.searchIssues({
-            query: `is:issue repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
-              } archived:false ${searchText.trim()}`,
+            query: `is:issue repo:${repository.nameWithOwner} ${
+              forAuthor ? "author:@me" : ""
+            } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.nodes?.map((node) => node as IssueFieldsFragment);
@@ -192,7 +194,15 @@ function SearchContext({ repository }: SearchContextProps) {
             {JSON.parse(cache.get(repository.nameWithOwner)!).pullRequest.map(
               (pullRequest: PullRequestFieldsFragment) => {
                 if (!pullRequest.closed) {
-                  return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+                  return (
+                    <PullRequestListItem
+                      bodyVisible={bodyVisible}
+                      changeBodyVisibility={changeBodyVisibility}
+                      key={pullRequest.id}
+                      pullRequest={pullRequest}
+                      viewer={viewer}
+                    />
+                  );
                 }
               }
             )}
@@ -208,7 +218,16 @@ function SearchContext({ repository }: SearchContextProps) {
             })}
           >
             {JSON.parse(cache.get(repository.nameWithOwner)!).issues.map((issue: IssueFieldsFragment) => {
-              return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} visitIssue={visitIssue} />;
+              return (
+                <IssueListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  key={issue.id}
+                  issue={issue}
+                  viewer={viewer}
+                  visitIssue={visitIssue}
+                />
+              );
             })}
           </List.Section>
         )}
@@ -258,7 +277,16 @@ function SearchContext({ repository }: SearchContextProps) {
         >
           {data.pullRequest.map((pullRequest) => {
             if (!pullRequest.closed) {
-              return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} visitPullReq={visitPullReq} />;
+              return (
+                <PullRequestListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  key={pullRequest.id}
+                  pullRequest={pullRequest}
+                  viewer={viewer}
+                  visitPullReq={visitPullReq}
+                />
+              );
             }
           })}
         </List.Section>
@@ -271,7 +299,16 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.issues.length, "Issue", { withNumber: true })}
         >
           {data.issues.map((issue) => {
-            return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} visitIssue={visitIssue} />;
+            return (
+              <IssueListItem
+                bodyVisible={bodyVisible}
+                changeBodyVisibility={changeBodyVisibility}
+                key={issue.id}
+                issue={issue}
+                viewer={viewer}
+                visitIssue={visitIssue}
+              />
+            );
           })}
         </List.Section>
       )}

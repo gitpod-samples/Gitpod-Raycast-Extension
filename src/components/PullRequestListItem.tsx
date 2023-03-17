@@ -1,9 +1,15 @@
-import { Action, ActionPanel, Icon, List, open } from "@raycast/api";
-// import { MutatePromise } from "@raycast/utils";
+import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
+
+import { usePromise } from "@raycast/utils";
+
 import { format } from "date-fns";
+import { pull } from "lodash";
 import { useMemo } from "react";
 
-import { MyPullRequestsQuery, PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import { UIColors } from "../../constants";
+import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
+
 import {
   getCheckStateAccessory,
   getNumberOfComments,
@@ -12,29 +18,48 @@ import {
   getReviewDecision,
 } from "../helpers/pull-request";
 
-// import PullRequestActions from "./PullRequestActions";
-// import PullRequestDetail from "./PullRequestDetail";
+import ContextPreferences from "../preferences/context_preferences";
 
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
   changeBodyVisibility: (state: boolean) => void
   bodyVisible: boolean;
-  // mutateList: MutatePromise<MyPullRequestsQuery | undefined> | MutatePromise<PullRequestFieldsFragment[] | undefined>;
+  removePullReq?: (PullRequest: PullRequestFieldsFragment) => void;
+  visitPullReq?: (pullRequest: PullRequestFieldsFragment) => void;
+  fromCache?: boolean;
 };
 
-export default function PullRequestListItem({ pullRequest, viewer, changeBodyVisibility, bodyVisible }: PullRequestListItemProps) {
+export default function PullRequestListItem({ pullRequest, removePullReq, visitPullReq, fromCache, changeBodyVisibility, bodyVisible }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
+  const { push } = useNavigation();
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
   const author = getPullRequestAuthor(pullRequest);
   const status = getPullRequestStatus(pullRequest);
   const reviewDecision = getReviewDecision(pullRequest.reviewDecision);
 
+  const { data: preferences, revalidate } = usePromise(
+    async () => {
+      const response = await getPreferencesForContext("Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
+      return response;
+    },
+  );
+
   const accessories: List.Item.Accessory[] = [
     {
       date: updatedAt,
       tooltip: `Updated: ${format(updatedAt, "EEEE d MMMM yyyy 'at' HH:mm")}`,
+    },
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+      },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
     },
     {
       icon: author.icon,
@@ -84,8 +109,10 @@ export default function PullRequestListItem({ pullRequest, viewer, changeBodyVis
           <Action
             title="Open PR in Gitpod"
             onAction={() => {
-              open(`https://gitpod.io/#${pullRequest.permalink}`);
+              visitPullReq?.(pullRequest)
+              OpenInGitpod(pullRequest.permalink, "Pull Request", pullRequest.repository.nameWithOwner, pullRequest.title);
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="View PR in GitHub"
@@ -93,6 +120,19 @@ export default function PullRequestListItem({ pullRequest, viewer, changeBodyVis
               open(pullRequest.permalink);
             }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removePullReq?.(pullRequest)
+                await showToast({
+                  title: `Removed PR #${pullRequest.number} of "${pullRequest.repository.name}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
+          <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
           <Action
             title="Show PR Preview"
             shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
@@ -111,14 +151,4 @@ export default function PullRequestListItem({ pullRequest, viewer, changeBodyVis
       }
     />
   );
-}
-
-{
-  /* <PullRequestActions pullRequest={pullRequest} viewer={viewer} mutateList={mutateList}>
-  <Action.Push
-    title="Show Details"
-    icon={Icon.Sidebar}
-    target={<PullRequestDetail initialPullRequest={pullRequest} viewer={viewer} mutateList={mutateList} />}
-  />
-</PullRequestActions>; */
 }

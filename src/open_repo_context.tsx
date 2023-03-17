@@ -14,6 +14,9 @@ import {
   PullRequestFieldsFragment,
 } from "./generated/graphql";
 import { pluralize } from "./helpers";
+import { useBranchHistory } from "./helpers/branch";
+import { useIssueHistory } from "./helpers/issue";
+import { usePullReqHistory } from "./helpers/pull-request";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
 
@@ -26,6 +29,9 @@ const cache = new Cache();
 function SearchContext({ repository }: SearchContextProps) {
   const { github } = getGitHubClient();
   const viewer = useViewer();
+  const { visitPullReq } = usePullReqHistory();
+  const { visitBranch } = useBranchHistory();
+  const { visitIssue } = useIssueHistory();
   const [sections, setSections] = useState(["/b", "/i", "/p"]);
   const [ bodyVisible, setBodyVisible ] = useState(false)
   const [searchText, setSearchText] = useState("");
@@ -38,7 +44,7 @@ function SearchContext({ repository }: SearchContextProps) {
   }
 
   const { data, isLoading: isPRLoading } = usePromise(
-    async (searchText) => {
+    async (searchText, sections) => {
       const result: {
         pullRequest?: PullRequestFieldsFragment[] | undefined;
         issues?: IssueFieldsFragment[] | undefined;
@@ -55,9 +61,8 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/p")) {
         const pullRequest = (
           await github.searchPullRequests({
-            query: `is:pr repo:${repository.nameWithOwner} ${
-              forAuthor ? "author:@me" : ""
-            } archived:false ${searchText.trim()}`,
+            query: `is:pr repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
+              } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
@@ -67,9 +72,8 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/i")) {
         const issues = (
           await github.searchIssues({
-            query: `is:issue repo:${repository.nameWithOwner} ${
-              forAuthor ? "author:@me" : ""
-            } archived:false ${searchText.trim()}`,
+            query: `is:issue repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
+              } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.nodes?.map((node) => node as IssueFieldsFragment);
@@ -95,7 +99,7 @@ function SearchContext({ repository }: SearchContextProps) {
 
       return result;
     },
-    [searchText],
+    [searchText, sections],
     {
       onError(error) {
         showToast({
@@ -171,7 +175,7 @@ function SearchContext({ repository }: SearchContextProps) {
                   mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                   repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                   branch={branch}
-                  viewer={viewer}
+                  visitBranch={visitBranch}
                 />
               );
             })}
@@ -186,9 +190,11 @@ function SearchContext({ repository }: SearchContextProps) {
               withNumber: true,
             })}
           >
-            {JSON.parse(cache.get(repository.nameWithOwner)!).pullRequest.map((pullRequest: PullRequestFieldsFragment) => {
-              if (!pullRequest.closed) {
+            {JSON.parse(cache.get(repository.nameWithOwner)!).pullRequest.map(
+              (pullRequest: PullRequestFieldsFragment) => {
+                if (!pullRequest.closed) {
                   return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+                }
               }
             )}
           </List.Section>
@@ -203,7 +209,7 @@ function SearchContext({ repository }: SearchContextProps) {
             })}
           >
             {JSON.parse(cache.get(repository.nameWithOwner)!).issues.map((issue: IssueFieldsFragment) => {
-              return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} />;
+              return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} visitIssue={visitIssue} />;
             })}
           </List.Section>
         )}
@@ -238,7 +244,7 @@ function SearchContext({ repository }: SearchContextProps) {
                 mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                 repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                 branch={branch}
-                viewer={viewer}
+                visitBranch={visitBranch}
               />
             );
           })}
@@ -253,7 +259,7 @@ function SearchContext({ repository }: SearchContextProps) {
         >
           {data.pullRequest.map((pullRequest) => {
             if (!pullRequest.closed) {
-              return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              return <PullRequestListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} visitPullReq={visitPullReq} />;
             }
           })}
         </List.Section>
@@ -266,7 +272,7 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.issues.length, "Issue", { withNumber: true })}
         >
           {data.issues.map((issue) => {
-            return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} />;
+            return <IssueListItem bodyVisible={bodyVisible} changeBodyVisibility={changeBodyVisibility} key={issue.id} issue={issue} viewer={viewer} visitIssue={visitIssue} />;
           })}
         </List.Section>
       )}

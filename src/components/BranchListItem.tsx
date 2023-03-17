@@ -1,13 +1,18 @@
-import { Action, ActionPanel, Color, List, open } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, List, open, useNavigation ,showToast, Toast} from "@raycast/api";
+import { usePromise } from "@raycast/utils";
 
-import { branchStatus, GitpodIcons } from "../../constants";
-import { BranchDetailsFragment, UserFieldsFragment } from "../generated/graphql";
+import { branchStatus, GitpodIcons, UIColors } from "../../constants";
+import { BranchDetailsFragment } from "../generated/graphql";
+import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
+import ContextPreferences from "../preferences/context_preferences";
 
 type BranchItemProps = {
   branch: BranchDetailsFragment;
-  mainBranch: string;
-  viewer?: UserFieldsFragment;
+  mainBranch?: string;
   repository: string;
+  visitBranch?: (branch: BranchDetailsFragment, repository: string) => void;
+  removeBranch?: (branch: BranchDetailsFragment, repository: string) => void;
+  fromCache?: boolean
   repositoryWithoutOwner: string;
   repositoryOwner: string;
   repositoryLogo: string;
@@ -15,9 +20,18 @@ type BranchItemProps = {
   changeBodyVisibility: (state: boolean) => void
 };
 
-export default function BranchListItem({ branch, mainBranch, repository, repositoryLogo, repositoryWithoutOwner, repositoryOwner, changeBodyVisibility, bodyVisible }: BranchItemProps) {
+export default function BranchListItem({ branch, repository, repositoryLogo, repositoryWithoutOwner, repositoryOwner, changeBodyVisibility, bodyVisible, visitBranch, fromCache, removeBranch }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
   const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
+
+  const { data: preferences, revalidate } = usePromise(
+    async () => {
+      const response = await getPreferencesForContext("Branch", repository, branch.branchName);
+      return response;
+    },
+  );
+
+  const { push } = useNavigation();
 
   let icon = GitpodIcons.branchAhead
 
@@ -56,6 +70,19 @@ export default function BranchListItem({ branch, mainBranch, repository, reposit
     }
   }
 
+    accessories.unshift(
+      {
+        text: {
+          value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+        },
+        icon: {
+          source: Icon.ComputerChip,
+          tintColor: UIColors.gitpod_gold,
+        },
+        tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
+      },
+
+    )
   if (branch.compData && branch.compData.commits && !bodyVisible) {
     accessories.unshift({
       tag: {
@@ -69,7 +96,7 @@ export default function BranchListItem({ branch, mainBranch, repository, reposit
   return (
     <List.Item
       icon={GitpodIcons.branchIcon}
-      subtitle={bodyVisible ? mainBranch : ""}
+      subtitle={bodyVisible ? repository ?? "" : ""}
       title={branch.branchName}
       accessories={accessories}
       detail={
@@ -90,8 +117,10 @@ export default function BranchListItem({ branch, mainBranch, repository, reposit
           <Action
             title="Open Branch in Gitpod"
             onAction={() => {
-              open(`https://gitpod.io/#${branchURL}`);
+              visitBranch?.(branch, repository)
+              OpenInGitpod(branchURL, "Branch", repository, branch.branchName)
             }}
+            shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action
             title="Open Branch in GitHub"
@@ -113,6 +142,19 @@ export default function BranchListItem({ branch, mainBranch, repository, reposit
             }}
             shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
           />
+          {fromCache &&
+            <Action
+              title="Remove from Recents"
+              onAction={async () => {
+                removeBranch?.(branch, repository)
+                await showToast({
+                  title: `Removed "${branch.branchName}" of "${repository}" from recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "d" }}
+            />}
+          <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Branch" repository={repository} context={branch.branchName} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
         </ActionPanel>
       }
     />

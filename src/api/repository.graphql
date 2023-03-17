@@ -77,6 +77,30 @@ query searchRepositories($query: String!, $numberOfItems: Int!) {
   }
 }
 
+query searchTemplateRepositories($query: String!, $numberOfItems: Int!) {
+  search(query: $query, first: $numberOfItems, type: REPOSITORY) {
+    repos: edges {
+      repo: node {
+        ... on Repository {
+          name
+          url
+          id
+          issues(states: OPEN) {
+            totalCount
+          }
+          pullRequests(states: OPEN) {
+            totalCount
+          }
+          owner {
+            login
+            avatarUrl(size: 64)
+          }
+        }
+      }
+    }
+  }
+}
+
 query getExistingRepoBranches(
   $orgName: String!
   $repoName: String!

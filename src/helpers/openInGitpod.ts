@@ -43,7 +43,7 @@ export default async function OpenInGitpod(contextUrl: string, type: "Branch" | 
     //visit issue
   }
 
-  let gitpodUrl = defaultPreferences.gitpodUrl ?? "https://gitpod.io";
+  const gitpodUrl = defaultPreferences.gitpodUrl ?? "https://gitpod.io";
 
   try {
     await showToast({

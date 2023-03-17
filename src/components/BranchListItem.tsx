@@ -13,11 +13,11 @@ type BranchItemProps = {
   visitBranch?: (branch: BranchDetailsFragment, repository: string) => void;
   removeBranch?: (branch: BranchDetailsFragment, repository: string) => void;
   fromCache?: boolean
-  repositoryWithoutOwner: string;
-  repositoryOwner: string;
-  repositoryLogo: string;
-  bodyVisible: boolean;
-  changeBodyVisibility: (state: boolean) => void
+  repositoryWithoutOwner?: string;
+  repositoryOwner?: string;
+  repositoryLogo?: string;
+  bodyVisible?: boolean;
+  changeBodyVisibility?: (state: boolean) => void
 };
 
 export default function BranchListItem({ branch, repository, repositoryLogo, repositoryWithoutOwner, repositoryOwner, changeBodyVisibility, mainBranch, bodyVisible, visitBranch, fromCache, removeBranch }: BranchItemProps) {
@@ -133,7 +133,9 @@ export default function BranchListItem({ branch, repository, repositoryLogo, rep
               title="Show branch Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
               onAction={() => {
-                changeBodyVisibility(true);
+                if (changeBodyVisibility) {
+                  changeBodyVisibility(true);
+                }
               }}
             />)
           }
@@ -142,7 +144,9 @@ export default function BranchListItem({ branch, repository, repositoryLogo, rep
               title="Hide branch Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
               onAction={() => {
-                changeBodyVisibility(false)
+                if (changeBodyVisibility) {
+                  changeBodyVisibility(false)
+                }
               }}
             />
           )

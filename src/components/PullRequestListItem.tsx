@@ -18,8 +18,8 @@ import ContextPreferences from "../preferences/context_preferences";
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
   viewer?: UserFieldsFragment;
-  changeBodyVisibility: (state: boolean) => void
-  bodyVisible: boolean;
+  changeBodyVisibility?: (state: boolean) => void
+  bodyVisible?: boolean;
   removePullReq?: (PullRequest: PullRequestFieldsFragment) => void;
   visitPullReq?: (pullRequest: PullRequestFieldsFragment) => void;
   fromCache?: boolean;
@@ -133,7 +133,9 @@ export default function PullRequestListItem({ pullRequest, removePullReq, visitP
               title="Show PR Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
               onAction={() => {
-                changeBodyVisibility(true);
+                if (changeBodyVisibility) {
+                  changeBodyVisibility(true);
+                }
               }}
             />)
           }
@@ -142,7 +144,9 @@ export default function PullRequestListItem({ pullRequest, removePullReq, visitP
               title="Hide PR Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
               onAction={() => {
-                changeBodyVisibility(false)
+                if(changeBodyVisibility){
+                  changeBodyVisibility(false)
+                }
               }}
             />
           )

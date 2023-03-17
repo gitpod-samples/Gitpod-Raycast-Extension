@@ -16,8 +16,8 @@ import ContextPreferences from "../preferences/context_preferences";
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
   viewer?: UserFieldsFragment;
-  changeBodyVisibility: (state: boolean) => void;
-  bodyVisible: boolean;
+  changeBodyVisibility?: (state: boolean) => void;
+  bodyVisible?: boolean;
   mutateList?:
   | MutatePromise<SearchCreatedIssuesQuery | undefined>
   | MutatePromise<SearchOpenIssuesQuery | undefined>
@@ -105,7 +105,9 @@ export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible
               title="Show Issue Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
               onAction={() => {
-                changeBodyVisibility(true);
+                if(changeBodyVisibility){
+                  changeBodyVisibility(true);
+                }
               }}
             />)
           }
@@ -114,7 +116,9 @@ export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible
               title="Hide Issue Preview"
               shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
               onAction={() => {
-                changeBodyVisibility(false)
+                if (changeBodyVisibility) {
+                  changeBodyVisibility(false)
+                }
               }}
             />
           )

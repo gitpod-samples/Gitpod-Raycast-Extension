@@ -5,6 +5,7 @@ fragment IssueFields on Issue {
   number
   closed
   state
+  body
   stateReason
   updatedAt
   author {

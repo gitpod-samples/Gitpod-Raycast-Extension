@@ -1,12 +1,13 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "gitpod",
-  "title": "Gitpod",
+  "title": "Gitpod (Beta)",
   "description": "A blazingly fast way to work with Gitpod",
-  "icon": "logo-mark.svg",
-  "author": "Palanikannan1437",
-  "owner": "raycast",
+  "icon": "logo-mark.png",
+  "author": "Henit-Palani",
+  "owner": "gitpod",
   "contributors": [
+    "Palanikannan1437",
     "henitchobisa"
   ],
   "categories": [
@@ -101,7 +102,7 @@
     {
       "name": "open_in_gitpod",
       "title": "Open in Gitpod",
-      "subtitle": "Gitpod",
+      "subtitle": "Gitpod (Beta)",
       "description": "Open any GitHub Repository's Branch, Pull Request or Issue in Gitpod",
       "mode": "view",
       "keywords": [
@@ -113,7 +114,7 @@
     {
       "name": "open_template",
       "title": "Find Gitpod Templates",
-      "subtitle": "Gitpod Templates",
+      "subtitle": "Gitpod Templates (Beta)",
       "description": "Start your next app with our pre-configured templates",
       "mode": "view",
       "keywords": [
@@ -125,7 +126,7 @@
     {
       "name": "menubar",
       "title": "Recent Repositories",
-      "subtitle": "Gitpod",
+      "subtitle": "Gitpod (Beta)",
       "description": "A Menubar Icon for faster access to recently visited Repositories",
       "mode": "menu-bar",
       "keywords": [

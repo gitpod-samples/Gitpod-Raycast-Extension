@@ -38,11 +38,17 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
     setHistory(nextRepositories);
   }
 
+  function removeRepository(repository: ExtendedRepositoryFieldsFragment) {
+    const visitedRepositories = [...(history?.filter((item) => item.id !== repository.id) ?? [])];
+    LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
+    const nextRepositories = visitedRepositories.slice(0, VISITED_REPOSITORIES_LENGTH);
+    setHistory(nextRepositories);
+  }
   const repositoryFilter = `${searchFilter?.replaceAll(/org:|user:/g, "").replaceAll(" ", "|")}/.*`;
 
   const data = history
     .filter((r) => r.nameWithOwner.includes(searchText ?? ""))
     .filter((r) => r.nameWithOwner.match(repositoryFilter));
 
-  return { data, visitRepository };
+  return { data, visitRepository, removeRepository };
 }

@@ -13,6 +13,9 @@ import {
   PullRequestFieldsFragment,
 } from "./generated/graphql";
 import { pluralize } from "./helpers";
+import { useBranchHistory } from "./helpers/branch";
+import { useIssueHistory } from "./helpers/issue";
+import { usePullReqHistory } from "./helpers/pull-request";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
 
@@ -25,12 +28,19 @@ const cache = new Cache();
 function SearchContext({ repository }: SearchContextProps) {
   const { github } = getGitHubClient();
   const viewer = useViewer();
+  const { visitPullReq } = usePullReqHistory();
+  const { visitBranch } = useBranchHistory();
+  const { visitIssue } = useIssueHistory();
   const [sections, setSections] = useState(["/b", "/i", "/p"]);
-
+  const [bodyVisible, setBodyVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [forAuthor, setForAuthor] = useState(false);
 
   const [firstLoad, setfirstLoad] = useState(true);
+
+  const changeBodyVisibility = (state: boolean) => {
+    setBodyVisible(state);
+  };
 
   const { data, isLoading: isPRLoading } = usePromise(
     async (searchText, sections) => {
@@ -50,8 +60,9 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/p")) {
         const pullRequest = (
           await github.searchPullRequests({
-            query: `is:pr repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
-              } archived:false ${searchText.trim()}`,
+            query: `is:pr repo:${repository.nameWithOwner} ${
+              forAuthor ? "author:@me" : ""
+            } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
@@ -61,8 +72,9 @@ function SearchContext({ repository }: SearchContextProps) {
       if (sections.includes("/i")) {
         const issues = (
           await github.searchIssues({
-            query: `is:issue repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
-              } archived:false ${searchText.trim()}`,
+            query: `is:issue repo:${repository.nameWithOwner} ${
+              forAuthor ? "author:@me" : ""
+            } archived:false ${searchText.trim()}`,
             numberOfItems: n,
           })
         ).search.nodes?.map((node) => node as IssueFieldsFragment);
@@ -141,7 +153,7 @@ function SearchContext({ repository }: SearchContextProps) {
       <List
         searchBarPlaceholder="Filter `/me` for your stuff, `/b` for branches, `/p` for Pull Request, `/i` for issues"
         onSearchTextChange={parseSearchOptions}
-        navigationTitle={repository.nameWithOwner}
+        isShowingDetail={bodyVisible}
         throttle
       >
         {sections.includes("/b") && JSON.parse(cache.get(repository.nameWithOwner)!)?.branches !== undefined && (
@@ -155,11 +167,16 @@ function SearchContext({ repository }: SearchContextProps) {
             {JSON.parse(cache.get(repository.nameWithOwner)!).branches.map((branch: BranchDetailsFragment) => {
               return (
                 <BranchListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  repositoryOwner={repository.owner.login}
+                  repositoryWithoutOwner={repository.name}
                   key={branch.branchName}
+                  repositoryLogo={repository.owner.avatarUrl}
                   mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                   repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                   branch={branch}
-                  viewer={viewer}
+                  visitBranch={visitBranch}
                 />
               );
             })}
@@ -177,7 +194,15 @@ function SearchContext({ repository }: SearchContextProps) {
             {JSON.parse(cache.get(repository.nameWithOwner)!).pullRequest.map(
               (pullRequest: PullRequestFieldsFragment) => {
                 if (!pullRequest.closed) {
-                  return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+                  return (
+                    <PullRequestListItem
+                      bodyVisible={bodyVisible}
+                      changeBodyVisibility={changeBodyVisibility}
+                      key={pullRequest.id}
+                      pullRequest={pullRequest}
+                      viewer={viewer}
+                    />
+                  );
                 }
               }
             )}
@@ -193,7 +218,16 @@ function SearchContext({ repository }: SearchContextProps) {
             })}
           >
             {JSON.parse(cache.get(repository.nameWithOwner)!).issues.map((issue: IssueFieldsFragment) => {
-              return <IssueListItem key={issue.id} issue={issue} viewer={viewer} />;
+              return (
+                <IssueListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  key={issue.id}
+                  issue={issue}
+                  viewer={viewer}
+                  visitIssue={visitIssue}
+                />
+              );
             })}
           </List.Section>
         )}
@@ -203,6 +237,7 @@ function SearchContext({ repository }: SearchContextProps) {
 
   return (
     <List
+      isShowingDetail={bodyVisible}
       isLoading={isPRLoading}
       searchBarPlaceholder="Filter `/me` for your stuff, `/b` for branches, `/p` for Pull Request, `/i` for issues"
       onSearchTextChange={parseSearchOptions}
@@ -218,11 +253,16 @@ function SearchContext({ repository }: SearchContextProps) {
           {data.branches.map((branch) => {
             return (
               <BranchListItem
+                bodyVisible={bodyVisible}
+                changeBodyVisibility={changeBodyVisibility}
                 key={branch.branchName}
+                repositoryLogo={repository.owner.avatarUrl}
+                repositoryOwner={repository.owner.login}
+                repositoryWithoutOwner={repository.name}
                 mainBranch={repository.defaultBranchRef?.defaultBranch ?? ""}
                 repository={forAuthor ? `${viewer?.login}/${repository.name}` : repository.nameWithOwner}
                 branch={branch}
-                viewer={viewer}
+                visitBranch={visitBranch}
               />
             );
           })}
@@ -237,7 +277,16 @@ function SearchContext({ repository }: SearchContextProps) {
         >
           {data.pullRequest.map((pullRequest) => {
             if (!pullRequest.closed) {
-              return <PullRequestListItem key={pullRequest.id} pullRequest={pullRequest} viewer={viewer} />;
+              return (
+                <PullRequestListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  key={pullRequest.id}
+                  pullRequest={pullRequest}
+                  viewer={viewer}
+                  visitPullReq={visitPullReq}
+                />
+              );
             }
           })}
         </List.Section>
@@ -250,7 +299,16 @@ function SearchContext({ repository }: SearchContextProps) {
           subtitle={pluralize(data?.issues.length, "Issue", { withNumber: true })}
         >
           {data.issues.map((issue) => {
-            return <IssueListItem key={issue.id} issue={issue} viewer={viewer} />;
+            return (
+              <IssueListItem
+                bodyVisible={bodyVisible}
+                changeBodyVisibility={changeBodyVisibility}
+                key={issue.id}
+                issue={issue}
+                viewer={viewer}
+                visitIssue={visitIssue}
+              />
+            );
           })}
         </List.Section>
       )}

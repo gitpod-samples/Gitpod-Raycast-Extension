@@ -1,8 +1,6 @@
-import { Color, List, ActionPanel, Action, showToast, Toast, open } from "@raycast/api";
-import { MutatePromise } from "@raycast/utils";
+import { List, ActionPanel, Action, showToast, Toast, open } from "@raycast/api";
 
 import { GitpodIcons } from "../../constants";
-import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 import { getGitHubUser } from "../helpers/users";
 
 type RepositoryListItemProps = {
@@ -11,9 +9,9 @@ type RepositoryListItemProps = {
     url: string;
     id: string;
     stargazerCount: number;
-    owner: { name?: string | null; login?: string; avatarUrl: string } 
-    issues: {totalCount: number}
-    pullRequests: {totalCount: number}
+    owner: { name?: string | null; login?: string; avatarUrl: string };
+    issues: { totalCount: number };
+    pullRequests: { totalCount: number };
   };
 };
 

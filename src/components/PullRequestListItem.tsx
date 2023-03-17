@@ -1,15 +1,11 @@
 import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
-
 import { usePromise } from "@raycast/utils";
-
 import { format } from "date-fns";
-import { pull } from "lodash";
 import { useMemo } from "react";
 
 import { UIColors } from "../../constants";
 import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
-
 import {
   getCheckStateAccessory,
   getNumberOfComments,
@@ -17,7 +13,6 @@ import {
   getPullRequestStatus,
   getReviewDecision,
 } from "../helpers/pull-request";
-
 import ContextPreferences from "../preferences/context_preferences";
 
 type PullRequestListItemProps = {
@@ -101,7 +96,7 @@ export default function PullRequestListItem({ pullRequest, removePullReq, visitP
       icon={{ value: status.icon, tooltip: `Status: ${status.text}` }}
       keywords={keywords}
       detail={
-        <List.Item.Detail markdown={"## " + pullRequest.title + "\n" + pullRequest.body}/>
+        <List.Item.Detail markdown={"## " + pullRequest.title + "\n" + pullRequest.body} />
       }
       accessories={accessories}
       actions={
@@ -133,20 +128,25 @@ export default function PullRequestListItem({ pullRequest, removePullReq, visitP
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />}
           <Action title="Configure Workspace" onAction={() => push(<ContextPreferences revalidate={revalidate} type="Pull Request" repository={pullRequest.repository.nameWithOwner} context={pullRequest.title} />)} shortcut={{ modifiers: ["cmd"], key: "w" }} />
-          <Action
-            title="Show PR Preview"
-            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-            onAction={() => {
-              changeBodyVisibility(true);
-            }}
-          />
-          <Action
-            title="Hide PR Preview"
-            onAction={() => {
-              changeBodyVisibility(false)
-            }}
-            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
-          />
+          {!fromCache && (
+            <Action
+              title="Show PR Preview"
+              shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+              onAction={() => {
+                changeBodyVisibility(true);
+              }}
+            />)
+          }
+          {!fromCache && (
+            <Action
+              title="Hide PR Preview"
+              shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
+              onAction={() => {
+                changeBodyVisibility(false)
+              }}
+            />
+          )
+          }
         </ActionPanel>
       }
     />

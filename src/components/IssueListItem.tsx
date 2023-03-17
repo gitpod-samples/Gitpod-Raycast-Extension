@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Detail, Icon, List, open, useNavigation,showToast, Toast  } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -100,20 +100,25 @@ export default function IssueListItem({ issue, changeBodyVisibility, bodyVisible
               open(issue.url);
             }}
           />
-          <Action
-            title="Show Issue Preview"
-            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-            onAction={() => {
-              changeBodyVisibility(true);
-            }}
-          />
-          <Action
-            title="Hide Issue Preview"
-            onAction={() => {
-              changeBodyVisibility(false)
-            }}
-            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
-          />
+          {!fromCache && (
+            <Action
+              title="Show Issue Preview"
+              shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+              onAction={() => {
+                changeBodyVisibility(true);
+              }}
+            />)
+          }
+          {!fromCache && (
+            <Action
+              title="Hide Issue Preview"
+              shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
+              onAction={() => {
+                changeBodyVisibility(false)
+              }}
+            />
+          )
+          }
           {fromCache &&
             <Action
               title="Remove from Recents"

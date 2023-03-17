@@ -1,6 +1,5 @@
 import { List, Cache, Toast, showToast } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
-
 import { useEffect, useState } from "react";
 
 import BranchListItem from "./components/BranchListItem";

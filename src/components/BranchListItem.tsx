@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Color, Icon, List, open, useNavigation ,showToast, Toast} from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
 import { branchStatus, GitpodIcons, UIColors } from "../../constants";
@@ -20,7 +20,7 @@ type BranchItemProps = {
   changeBodyVisibility: (state: boolean) => void
 };
 
-export default function BranchListItem({ branch, repository, repositoryLogo, repositoryWithoutOwner, repositoryOwner, changeBodyVisibility, bodyVisible, visitBranch, fromCache, removeBranch }: BranchItemProps) {
+export default function BranchListItem({ branch, repository, repositoryLogo, repositoryWithoutOwner, repositoryOwner, changeBodyVisibility, mainBranch, bodyVisible, visitBranch, fromCache, removeBranch }: BranchItemProps) {
   const accessories: List.Item.Accessory[] = [];
   const branchURL = "https://github.com/" + repository + "/tree/" + branch.branchName;
 
@@ -70,19 +70,19 @@ export default function BranchListItem({ branch, repository, repositoryLogo, rep
     }
   }
 
-    accessories.unshift(
-      {
-        text: {
-          value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
-        },
-        icon: {
-          source: Icon.ComputerChip,
-          tintColor: UIColors.gitpod_gold,
-        },
-        tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
+  accessories.unshift(
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
       },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `
+    },
 
-    )
+  )
   if (branch.compData && branch.compData.commits && !bodyVisible) {
     accessories.unshift({
       tag: {
@@ -100,16 +100,16 @@ export default function BranchListItem({ branch, repository, repositoryLogo, rep
       title={branch.branchName}
       accessories={accessories}
       detail={
-        <List.Item.Detail 
-            markdown={`\n\n![RepositoryOwner](${repositoryLogo})\n# ${repositoryOwner}\n${repositoryWithoutOwner}`}
-            metadata={
-              <List.Item.Detail.Metadata>
-                <List.Item.Detail.Metadata.Label title="Branch Name" icon={GitpodIcons.branchIcon} text={branch.branchName}/>
-                <List.Item.Detail.Metadata.Label title="Parent Branch" icon={GitpodIcons.branchIcon} text={mainBranch}/>
-                <List.Item.Detail.Metadata.Label title="Total Commits" icon={GitpodIcons.commit_icon} text={branch.compData ? branch.compData.commits.totalCount.toString() : "Failed To Load"}/>
-                { branch.compData && <List.Item.Detail.Metadata.Label title="Branch Status" icon={icon} text={branchStatus.IDENTICAL ? "IDN" : branch.compData.aheadBy.toString()}/>}
-              </List.Item.Detail.Metadata>
-            }
+        <List.Item.Detail
+          markdown={`\n\n![RepositoryOwner](${repositoryLogo})\n# ${repositoryOwner}\n${repositoryWithoutOwner}`}
+          metadata={
+            <List.Item.Detail.Metadata>
+              <List.Item.Detail.Metadata.Label title="Branch Name" icon={GitpodIcons.branchIcon} text={branch.branchName} />
+              <List.Item.Detail.Metadata.Label title="Parent Branch" icon={GitpodIcons.branchIcon} text={mainBranch} />
+              <List.Item.Detail.Metadata.Label title="Total Commits" icon={GitpodIcons.commit_icon} text={branch.compData ? branch.compData.commits.totalCount.toString() : "Failed To Load"} />
+              {branch.compData && <List.Item.Detail.Metadata.Label title="Branch Status" icon={icon} text={branchStatus.IDENTICAL ? "IDN" : branch.compData.aheadBy.toString()} />}
+            </List.Item.Detail.Metadata>
+          }
         />
       }
       actions={
@@ -128,20 +128,25 @@ export default function BranchListItem({ branch, repository, repositoryLogo, rep
               open(branchURL);
             }}
           />
-          <Action
-            title="Show branch Preview"
-            shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-            onAction={() => {
-              changeBodyVisibility(true);
-            }}
-          />
-          <Action
-            title="Hide branch Preview"
-            onAction={() => {
-              changeBodyVisibility(false)
-            }}
-            shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
-          />
+          {!fromCache && (
+            <Action
+              title="Show branch Preview"
+              shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+              onAction={() => {
+                changeBodyVisibility(true);
+              }}
+            />)
+          }
+          {!fromCache && (
+            <Action
+              title="Hide branch Preview"
+              shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
+              onAction={() => {
+                changeBodyVisibility(false)
+              }}
+            />
+          )
+          }
           {fromCache &&
             <Action
               title="Remove from Recents"

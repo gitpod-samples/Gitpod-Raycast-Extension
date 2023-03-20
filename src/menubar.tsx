@@ -3,9 +3,11 @@ import { MenuBarExtra, open } from "@raycast/api";
 import { GitpodIcons } from "../constants";
 
 import { useHistory } from "./helpers/repository";
+import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 
 export default function Command() {
   const { data } = useHistory("", "");
+  const gitpodEndpoint = getGitpodEndpoint();
 
   return (
     <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary}>
@@ -15,7 +17,7 @@ export default function Command() {
             key={repository.nameWithOwner}
             title={repository.nameWithOwner}
             icon={GitpodIcons.repoIcon}
-            onAction={() => open(`https://gitpod.io#https://github.com/${repository.nameWithOwner}`)}
+            onAction={() => open(`${gitpodEndpoint}#https://github.com/${repository.nameWithOwner}`)}
           />
         ))}
       </MenuBarExtra.Section>

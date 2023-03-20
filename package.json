@@ -93,6 +93,7 @@
       "name": "gitpodUrl",
       "title": "Gitpod's URL Endpoint",
       "placeholder": "https://custom-gitpod-host",
+      "default": "https://gitpod.io",
       "description": "Configure your custom Gitpod URL for Dedicated and Self-Hosted",
       "type": "textfield",
       "required": false

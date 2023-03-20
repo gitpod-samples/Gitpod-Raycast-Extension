@@ -1,11 +1,11 @@
 import { LocalStorage, open, showToast, Toast } from "@raycast/api";
 import { getPreferenceValues } from "@raycast/api";
+import { getGitpodEndpoint } from "../preferences/gitpod_endpoint";
 
 interface Preferences {
   preferredEditor: string;
   useLatest: boolean;
   preferredEditorClass: "g1-standard" | "g1-large";
-  gitpodUrl?: string;
 }
 
 export async function getPreferencesForContext(
@@ -42,7 +42,7 @@ export default async function OpenInGitpod(
   repository: string,
   context?: string
 ) {
-  const defaultPreferences = getPreferenceValues<Preferences>();
+  const gitpodEndpoint = getGitpodEndpoint();
   const preferences = await getPreferencesForContext(type, repository, context);
   if (type === "Branch") {
     //visit branch
@@ -52,8 +52,6 @@ export default async function OpenInGitpod(
     //visit issue
   }
 
-  const gitpodUrl = defaultPreferences.gitpodUrl ?? "https://gitpod.io";
-
   try {
     await showToast({
       title: "Launching your workspace",
@@ -61,7 +59,7 @@ export default async function OpenInGitpod(
     });
     setTimeout(() => {
       open(
-        `${gitpodUrl}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${
+        `${gitpodEndpoint}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${
           preferences.useLatest ? "-latest" : ""
         }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
       );

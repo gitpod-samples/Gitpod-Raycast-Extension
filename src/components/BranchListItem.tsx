@@ -146,9 +146,24 @@ export default function BranchListItem({
           <Action
             title="Open Branch in GitHub"
             onAction={() => {
+              visitBranch?.(branch, repository);
               open(branchURL);
             }}
           />
+          {!fromCache && (
+            <Action
+              title="Add Branch to Recents"
+              onAction={async() => {
+                visitBranch?.(branch, repository);
+                await showToast({
+                  title: `Added "${branch.branchName}" to recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            />
+          )}
+
           {!fromCache && (
             <Action
               title="Show branch Preview"

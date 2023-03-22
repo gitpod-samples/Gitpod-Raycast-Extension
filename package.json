@@ -142,16 +142,17 @@
     },
     {
       "name": "menubar",
-      "title": "Recent Repositories",
+      "title": "Recent Workspaces and Repositories",
       "subtitle": "Gitpod (Beta)",
-      "description": "A Menubar Icon for faster access to recently visited Repositories",
+      "description": "A Menubar Icon for faster access to recently visited workspaces and repositories",
       "interval": "10s",
       "mode": "menu-bar",
       "keywords": [
         "gitpod",
         "gp",
         "recent repositories",
-        "menubar"
+        "menubar",
+        "workspaces"
       ],
       "preferences": [
         {

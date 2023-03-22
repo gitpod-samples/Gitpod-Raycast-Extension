@@ -134,7 +134,7 @@
         "gp",
         "feedback"
       ]
-      },
+    },
     {
       "name": "gitpod_dashboard",
       "title": "List Gitpod Workspaces",
@@ -143,13 +143,14 @@
       "mode": "view",
       "preferences": [
         {
-          "name" : "cookie_token",
+          "name": "cookie_token",
           "title": "Gitpod Session Cookie",
           "placeholder": "Only for Gitpod Beta Testers",
           "description": "Enter Gitpod Session Cookie from Browser",
           "type": "password",
           "required": true
         }
+      ]
     },
     {
       "name": "menubar",
@@ -167,7 +168,7 @@
       ],
       "preferences": [
         {
-          "name" : "cookie_token",
+          "name": "cookie_token",
           "title": "Gitpod Session Cookie",
           "placeholder": "Only for Gitpod Beta Testers",
           "description": "Enter Gitpod Session Cookie from Browser",

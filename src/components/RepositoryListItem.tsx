@@ -96,6 +96,7 @@ export default function RepositoryListItem({
               push(<SearchContext repository={repository} />);
             }}
           />
+          <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
           {fromCache && (
             <Action
               title="Remove from Recents"
@@ -109,7 +110,6 @@ export default function RepositoryListItem({
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />
           )}
-          <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
           <Action
             title="Trigger Workspace"
             onAction={() => OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)}

@@ -1,10 +1,9 @@
 import { Color } from "@raycast/api";
 
-export enum workspaceStatus {
-  workspace_Inactive = "stopped",
-  workspace_active = "running",
-  workspace_progressing = "progressing",
-  workspace_failed = "failed",
+export interface workspaceStatus  {
+  workspace_Inactive : "PHASE_STOPPED",
+  workspace_active : "PHASE_RUNNING",
+  workspace_progressing : "PHASE_CREATED" | "PHASE_INITIALIZING" | "PHASE_STOPPING" | "PHASE_PENDING"
 }
 
 export enum branchStatus {

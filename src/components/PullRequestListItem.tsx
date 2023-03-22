@@ -124,9 +124,23 @@ export default function PullRequestListItem({
           <Action
             title="View PR in GitHub"
             onAction={() => {
+              visitPullReq?.(pullRequest);
               open(pullRequest.permalink);
             }}
           />
+          {!fromCache && (
+            <Action
+              title="Add PR to Recents"
+              onAction={async() => {
+                visitPullReq?.(pullRequest);
+                await showToast({
+                  title: `Added "${pullRequest.title}" to recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            />
+          )}
           {fromCache && (
             <Action
               title="Remove from Recents"

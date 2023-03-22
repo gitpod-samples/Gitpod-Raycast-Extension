@@ -80,11 +80,11 @@ export default function RepositoryListItem({
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-            subtitle: {
-              value: `${numberOfStars}`,
-              tooltip: `Number of Stars: ${numberOfStars}`,
-            },
-          }
+          subtitle: {
+            value: `${numberOfStars}`,
+            tooltip: `Number of Stars: ${numberOfStars}`,
+          },
+        }
         : {})}
       accessories={accessories}
       actions={
@@ -96,6 +96,21 @@ export default function RepositoryListItem({
               push(<SearchContext repository={repository} />);
             }}
           />
+          <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
+          {!fromCache && (
+            <Action
+              title="Add Repo to Recents"
+              onAction={async () => {
+                onVisit(repository);
+                await showToast({
+                  title: `Added "${repository.nameWithOwner}" to recents`,
+                  style: Toast.Style.Success,
+                });
+
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            />
+          )}
           {fromCache && (
             <Action
               title="Remove from Recents"
@@ -109,7 +124,6 @@ export default function RepositoryListItem({
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />
           )}
-          <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
           <Action
             title="Trigger Workspace"
             onAction={() => OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)}

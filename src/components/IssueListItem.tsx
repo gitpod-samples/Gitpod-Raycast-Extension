@@ -19,9 +19,9 @@ type IssueListItemProps = {
   changeBodyVisibility?: (state: boolean) => void;
   bodyVisible?: boolean;
   mutateList?:
-    | MutatePromise<SearchCreatedIssuesQuery | undefined>
-    | MutatePromise<SearchOpenIssuesQuery | undefined>
-    | MutatePromise<IssueFieldsFragment[] | undefined>;
+  | MutatePromise<SearchCreatedIssuesQuery | undefined>
+  | MutatePromise<SearchOpenIssuesQuery | undefined>
+  | MutatePromise<IssueFieldsFragment[] | undefined>;
   visitIssue?: (issue: IssueFieldsFragment) => void;
   removeIssue?: (issue: IssueFieldsFragment) => void;
   fromCache?: boolean;
@@ -102,6 +102,7 @@ export default function IssueListItem({
           <Action
             title="View Issue in GitHub"
             onAction={() => {
+              visitIssue?.(issue);
               open(issue.url);
             }}
           />
@@ -125,6 +126,19 @@ export default function IssueListItem({
                   changeBodyVisibility(false);
                 }
               }}
+            />
+          )}
+          {!fromCache && (
+            <Action
+              title="Add Issue to Recents"
+              onAction={async() => {
+                visitIssue?.(issue);
+                await showToast({
+                  title: `Added "${issue.title}" to recents`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
             />
           )}
           {fromCache && (

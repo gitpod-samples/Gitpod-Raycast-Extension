@@ -124,16 +124,60 @@
       ]
     },
     {
+      "name": "gitpod_dashboard",
+      "title": "List Gitpod Workspaces",
+      "subtitle": "List Workspaces",
+      "description": "List All Workspaces on your gitpod Dashboard",
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "access_token",
+          "title": "Gitpod Personal Access Token",
+          "placeholder": "Only for Gitpod Beta Testers",
+          "description": "Enter Gitpod Personal Access Token from Gitpod",
+          "type": "password",
+          "required": true
+        },
+        {
+          "name" : "cookie_token",
+          "title": "Gitpod Session Cookie",
+          "placeholder": "Only for Gitpod Beta Testers",
+          "description": "Enter Gitpod Session Cookie from Browser",
+          "type": "password",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "menubar",
       "title": "Recent Repositories",
       "subtitle": "Gitpod (Beta)",
       "description": "A Menubar Icon for faster access to recently visited Repositories",
+      "interval": "10s",
       "mode": "menu-bar",
       "keywords": [
         "gitpod",
         "gp",
         "recent repositories",
         "menubar"
+      ],
+      "preferences": [
+        {
+          "name": "access_token",
+          "title": "Gitpod Personal Access Token",
+          "placeholder": "Only for Gitpod Beta Testers",
+          "description": "Enter Gitpod Personal Access Token from Gitpod",
+          "type": "password",
+          "required": false
+        },
+        {
+          "name" : "cookie_token",
+          "title": "Gitpod Session Cookie",
+          "placeholder": "Only for Gitpod Beta Testers",
+          "description": "Enter Gitpod Session Cookie from Browser",
+          "type": "password",
+          "required": false
+        }
       ]
     }
   ],
@@ -147,7 +191,8 @@
     "graphql-request": "^5.1.0",
     "lodash": "^4.17.21",
     "node-fetch": "^3.3.0",
-    "octokit": "^2.0.10"
+    "octokit": "^2.0.10",
+    "ws": "^8.11.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",

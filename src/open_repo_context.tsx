@@ -1,4 +1,4 @@
-import { List, Cache, Toast, showToast } from "@raycast/api";
+import { List, Cache, Toast, showToast, LocalStorage } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -94,8 +94,10 @@ function SearchContext({ repository }: SearchContextProps) {
         result.branches = branches;
       }
 
-      if (n == 2) {
-        cache.set(repository.nameWithOwner, JSON.stringify(result));
+      if (n == 2) { 
+        if (!cache.has(repository.nameWithOwner)){
+          cache.set(repository.nameWithOwner, JSON.stringify(result));
+        }
       }
 
       return result;

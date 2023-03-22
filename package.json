@@ -16,79 +16,79 @@
   ],
   "license": "MIT",
   "preferences": [
-		{
-			"name": "preferredEditor",
-			"title": "Default Workspace Editor",
-			"description": "Choose your Preferred editor for Gitpod",
-			"type": "dropdown",
-			"data": [
-				{
-					"title": "VS Code Browser",
-					"value": "code"
-				},
-				{
-					"title": "VS Code Desktop",
-					"value": "code-desktop"
-				},
-				{
-					"title": "IntelliJ",
-					"value": "intellij"
-				},
-				{
-					"title": "GoLand",
-					"value": "goland"
-				},
-				{
-					"title": "PhpStorm",
-					"value": "phpstorm"
-				},
-				{
-					"title": "PyCharm",
-					"value": "pycharm"
-				},
-				{
-					"title": "RubyMine",
-					"value": "rubymine"
-				},
-				{
-					"title": "WebStorm",
-					"value": "webstorm"
-				},
-				{
-					"title": "Rider",
-					"value": "rider"
-				},
-				{
-					"title": "CLion",
-					"value": "clion"
-				}
-			],
-			"required": true 
-		},
-		{
-			"name": "useLatest",
-			"label": "Latest Release (Unstable)",
-			"description": "Use the latest version for each editor. Insiders for VS Code, EAP for JetBrains IDEs.",
-			"type": "checkbox",
-			"required": true
-		},
-		{
-			"name": "preferredEditorClass",
-			"title": "Default Workspace Class",
-			"description": "Up to 4 cores, 8GB RAM, 30GB storage in Standard and Up to 8 cores, 16GB RAM, 50GB storage in Large",
-			"type": "dropdown",
-			"data": [
-				{
-					"title": "Standard",
-					"value": "g1-standard"
-				},
-				{
-					"title": "Large",
-					"value": "g1-large"
-				}
-			],
-			"required": true 
-		},
+    {
+      "name": "preferredEditor",
+      "title": "Default Workspace Editor",
+      "description": "Choose your Preferred editor for Gitpod",
+      "type": "dropdown",
+      "data": [
+        {
+          "title": "VS Code Browser",
+          "value": "code"
+        },
+        {
+          "title": "VS Code Desktop",
+          "value": "code-desktop"
+        },
+        {
+          "title": "IntelliJ",
+          "value": "intellij"
+        },
+        {
+          "title": "GoLand",
+          "value": "goland"
+        },
+        {
+          "title": "PhpStorm",
+          "value": "phpstorm"
+        },
+        {
+          "title": "PyCharm",
+          "value": "pycharm"
+        },
+        {
+          "title": "RubyMine",
+          "value": "rubymine"
+        },
+        {
+          "title": "WebStorm",
+          "value": "webstorm"
+        },
+        {
+          "title": "Rider",
+          "value": "rider"
+        },
+        {
+          "title": "CLion",
+          "value": "clion"
+        }
+      ],
+      "required": true
+    },
+    {
+      "name": "useLatest",
+      "label": "Latest Release (Unstable)",
+      "description": "Use the latest version for each editor. Insiders for VS Code, EAP for JetBrains IDEs.",
+      "type": "checkbox",
+      "required": true
+    },
+    {
+      "name": "preferredEditorClass",
+      "title": "Default Workspace Class",
+      "description": "Up to 4 cores, 8GB RAM, 30GB storage in Standard and Up to 8 cores, 16GB RAM, 50GB storage in Large",
+      "type": "dropdown",
+      "data": [
+        {
+          "title": "Standard",
+          "value": "g1-standard"
+        },
+        {
+          "title": "Large",
+          "value": "g1-large"
+        }
+      ],
+      "required": true
+    },
     {
       "name": "gitpodUrl",
       "title": "Gitpod's URL Endpoint",
@@ -97,7 +97,7 @@
       "type": "textfield",
       "required": false
     }
-	],
+  ],
   "commands": [
     {
       "name": "open_in_gitpod",
@@ -124,6 +124,18 @@
       ]
     },
     {
+      "name": "feedback_form",
+      "title": "Feedback",
+      "subtitle": "Gitpod Templates (Beta)",
+      "description": "We'd love your valuable feedback",
+      "mode": "view",
+      "keywords": [
+        "gitpod",
+        "gp",
+        "feedback"
+      ]
+    },
+    {
       "name": "menubar",
       "title": "Recent Repositories",
       "subtitle": "Gitpod (Beta)",
@@ -146,7 +158,7 @@
     "date-fns": "^2.29.3",
     "graphql-request": "^5.1.0",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.3.0",
+    "node-fetch": "^3.3.1",
     "octokit": "^2.0.10"
   },
   "devDependencies": {

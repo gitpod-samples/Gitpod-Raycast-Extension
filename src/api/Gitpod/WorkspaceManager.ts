@@ -33,7 +33,7 @@ export class WorkspaceManager extends EventEmitter {
             return;
         }
         try {
-            WorkspaceManager.workspaces = await IWorkspace.fetchAll(WorkspaceManager.token);
+            WorkspaceManager.workspaces = await IWorkspace.fetchAll(WorkspaceManager.user_id);
         } catch (e) {
             throw new Error("Failed to fetch workspaces\n" + e);
         }

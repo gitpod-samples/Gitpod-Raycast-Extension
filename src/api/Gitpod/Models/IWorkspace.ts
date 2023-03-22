@@ -128,7 +128,6 @@ export class IWorkspace implements GitpodDataModel {
 
   public start (api: GitpodAPI) {
     const workspaceParam: StartWorkspace = {
-        
         method: "startWorkspace",
         params: this.workspaceId
     }
@@ -145,7 +144,8 @@ export class IWorkspace implements GitpodDataModel {
       method: "GET",
       headers: {
         "content-type": "application/json",
-        Authorization: `Bearer ${this.token}`,
+        // Authorization: `Bearer ${this.token}`,
+        "cookie" : `_gitpod_io_v2_=${this.token}`,
       },
       body: JSON.stringify({ workspaceID }),
     });
@@ -160,9 +160,10 @@ export class IWorkspace implements GitpodDataModel {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
+        "cookie" : `_gitpod_io_v2_=${token}`
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({}),
     })
 
     const json = await response.json() as any ;
@@ -181,7 +182,8 @@ export class IWorkspace implements GitpodDataModel {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.token}`,
+        // Authorization: `Bearer ${this.token}`,
+        "cookie" : `_gitpod_io_v2_=${this.token}`
       },
       body: JSON.stringify({ workspaceId: this.workspaceId }),
     });

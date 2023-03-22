@@ -131,14 +131,6 @@
       "mode": "view",
       "preferences": [
         {
-          "name": "access_token",
-          "title": "Gitpod Personal Access Token",
-          "placeholder": "Only for Gitpod Beta Testers",
-          "description": "Enter Gitpod Personal Access Token from Gitpod",
-          "type": "password",
-          "required": true
-        },
-        {
           "name" : "cookie_token",
           "title": "Gitpod Session Cookie",
           "placeholder": "Only for Gitpod Beta Testers",
@@ -162,14 +154,6 @@
         "menubar"
       ],
       "preferences": [
-        {
-          "name": "access_token",
-          "title": "Gitpod Personal Access Token",
-          "placeholder": "Only for Gitpod Beta Testers",
-          "description": "Enter Gitpod Personal Access Token from Gitpod",
-          "type": "password",
-          "required": false
-        },
         {
           "name" : "cookie_token",
           "title": "Gitpod Session Cookie",

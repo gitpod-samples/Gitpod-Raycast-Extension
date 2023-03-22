@@ -10,7 +10,7 @@ import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import View from "./components/View";
 
 export interface dashboardPreferences {
-  access_token: string;
+  // access_token: string;
   cookie_token: string;
 }
 
@@ -18,7 +18,7 @@ function ListWorkspaces() {
 
   const preferences = getPreferenceValues<dashboardPreferences>();
   const workspaceManager = new WorkspaceManager(
-    preferences.access_token,
+    "",
     preferences.cookie_token
   );
 

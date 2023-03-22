@@ -9,7 +9,7 @@ import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { useHistory } from "./helpers/repository";
 
 interface menuBarPreferences {
-  access_token?: string
+  // access_token?: string
   cookie_token?: string
 }
 
@@ -20,20 +20,20 @@ export default function command() {
   const { data } = useHistory("", "");
 
   const workspaceManager = new WorkspaceManager(
-    preferences.access_token ?? "",
+    "",
     preferences.cookie_token ?? "",
   );
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
 
   const { isLoading } = usePromise(async () => {
-    if (preferences.access_token && preferences.cookie_token){
+    if (preferences.cookie_token){
       await workspaceManager.init();
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     }
   });
 
-  if (preferences.access_token && preferences.cookie_token){
+  if (preferences.cookie_token){
     useEffect(() => {
       workspaceManager.on("workspaceUpdated", async () => {
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
@@ -57,7 +57,7 @@ export default function command() {
 
   return (
     <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary} isLoading={isLoading}>
-      { (preferences.access_token && preferences.cookie_token) && <MenuBarExtra.Section title="Active Workspaces">
+      { preferences.cookie_token && <MenuBarExtra.Section title="Active Workspaces">
         { activeWorkspaces.map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
@@ -81,7 +81,7 @@ export default function command() {
           />
         ))}
       </MenuBarExtra.Section> }
-      { (preferences.access_token && preferences.cookie_token) && <MenuBarExtra.Section title="Recent Workspaces">
+      { preferences.cookie_token && <MenuBarExtra.Section title="Recent Workspaces">
         {recentWorkspaces.slice(0, 7).map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}

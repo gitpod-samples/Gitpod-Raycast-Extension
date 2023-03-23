@@ -7,6 +7,7 @@ import { GitpodIcons } from "../constants";
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { useHistory } from "./helpers/repository";
+import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 
 interface menuBarPreferences {
   // access_token?: string
@@ -18,6 +19,7 @@ export default function command() {
   const preferences = getPreferenceValues<menuBarPreferences>();
 
   const { data } = useHistory("", "");
+  const gitpodEndpoint = getGitpodEndpoint();
 
   const workspaceManager = new WorkspaceManager(
     "",
@@ -100,7 +102,7 @@ export default function command() {
             key={repository.nameWithOwner}
             title={repository.nameWithOwner}
             icon={GitpodIcons.repoIcon}
-            onAction={() => open(`https://gitpod.io#https://github.com/${repository.nameWithOwner}`)}
+            onAction={() => open(`${gitpodEndpoint}#https://github.com/${repository.nameWithOwner}`)}
           />
         ))}
       </MenuBarExtra.Section>

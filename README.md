@@ -40,6 +40,15 @@ A _BLAZINGLY FAST_ way to work with Gitpod 🍊
    
 3. By default you can see the latest visited Repository to start with! 
 
+## Contributions
+
+Visit our [WIP section](#wip) or [Open Issues](https://github.com/gitpod-samples/Gitpod-Raycast-Extension/issues) to contribute. Feel free to explore the project and open new issues or pull requests.
+
+<div align='center' width='100%'>
+   <a href="https://www.middlewarehq.com/" target="_blank">
+      <img src="https://open-source-assets.middlewarehq.com/svgs/gitpod-samples-Gitpod-Raycast-Extension-contributor-metrics-dark-widget.svg"></img>
+   </a>
+</div>
 
 ### WIP
 

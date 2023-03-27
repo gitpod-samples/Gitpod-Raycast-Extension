@@ -1,10 +1,11 @@
-import { getPreferenceValues, MenuBarExtra, open } from "@raycast/api";
+import { getPreferenceValues, MenuBarExtra, open, showHUD, showToast, Toast } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
 import { GitpodIcons } from "../constants";
 
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
+import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { useHistory } from "./helpers/repository";
 import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
@@ -31,7 +32,6 @@ export default function command() {
   const { isLoading } = usePromise(async () => {
     if (preferences.cookie_token){
       await workspaceManager.init();
-      setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     }
   });
 
@@ -39,6 +39,14 @@ export default function command() {
     useEffect(() => {
       workspaceManager.on("workspaceUpdated", async () => {
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
+      })
+      workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
+        console.log(e);
+        if (e.code === 401){
+          showHUD("Cookie Expired, Kindly Update Session Cookie.")
+        } else {
+          showHUD(e.message)
+        }
       })
     }, [])
   }

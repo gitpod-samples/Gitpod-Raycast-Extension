@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, showHUD } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -6,6 +6,7 @@ import { GitpodIcons } from "../constants";
 import sinceTime from "../utils/sinceTime";
 
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
+import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import View from "./components/View";
 
@@ -26,13 +27,25 @@ function ListWorkspaces() {
 
   const { isLoading } = usePromise(async () => {
     await workspaceManager.init();
-    setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
   });
 
   useEffect(() => {
     workspaceManager.on("workspaceUpdated", () => {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
+    workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
+      if (e.code === 401){
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Cookie Expired, Kindly Update Session Cookie."
+        })
+      } else {
+        showToast({
+          style: Toast.Style.Failure,
+          title: e.message
+        })
+      }
+    })
   }, []);
 
   return (

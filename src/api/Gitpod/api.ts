@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 
 import WebSocket from 'ws';
 
+import { NewIWorkspaceErrorObject } from "./Models/IWorkspaceError";
 import { NewIWorkspaceUpdateObject } from "./Models/IWorkspaceUpdate";
 
 export interface StartWorkspace {
@@ -14,7 +15,7 @@ export interface StopWorkspace {
     params: string;
 }
 
-export type APIEvents = "WorkspaceUpdate" | "getWorkspace" | "instanceUpdated"
+export type APIEvents = "errorOccured" | "instanceUpdated"
 export type WorkspaceMethods = StartWorkspace | StopWorkspace
 
 export class GitpodAPI extends EventEmitter {
@@ -59,20 +60,15 @@ export class GitpodAPI extends EventEmitter {
 
     GitpodAPI.webSocket.on("message", (message) => {
         const jsonObj = JSON.parse(message.toString());
+        console.log(jsonObj)
         if (jsonObj.method){
-            // method for the changing instance of the workspaces
             if (jsonObj.method == "onInstanceUpdate"){
                 this.emit("instanceUpdated", NewIWorkspaceUpdateObject(jsonObj));
             }
         }
-    })
-
-    GitpodAPI.webSocket.on("error", (error) => {
-        // todo: Handle the necessary errors
-    })
-
-    GitpodAPI.webSocket.on("open", () => {
-        // todo: Handle the open operation
+        if (jsonObj.error){
+          this.emit("errorOccured", NewIWorkspaceErrorObject(jsonObj.error))
+        }
     })
   }
 

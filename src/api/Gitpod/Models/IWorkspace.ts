@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 
 import { GitpodAPI, StartWorkspace, StopWorkspace } from "../api";
 
+import { IWorkspaceError } from './IWorkspaceError';
 import { GitpodDataModel } from "./Model";
 
 type IWorkspaceParams = {
@@ -165,9 +166,19 @@ export class IWorkspace implements GitpodDataModel {
       },
       body: JSON.stringify({}),
     })
+    const workspaceMap = new Map<string, IWorkspace>();
+
+    if (response.status != 200){
+      const error : IWorkspaceError = {
+        name: "WorkspaceFetchError",
+        code: response.status,
+        message: response.statusText
+      }
+      throw error
+    }
 
     const json = await response.json() as any ;
-    const workspaceMap = new Map<string, IWorkspace>();
+    
 
     json.result.map((workspace: any) => {
         const space =  new IWorkspace(workspace, token);
@@ -177,23 +188,23 @@ export class IWorkspace implements GitpodDataModel {
     return workspaceMap
   }
 
-  public delete = async () => {
-    const response = await fetch(workspaceURLs.deleteWorkspace, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${this.token}`,
-        "cookie" : `_gitpod_io_v2_=${this.token}`
-      },
-      body: JSON.stringify({ workspaceId: this.workspaceId }),
-    });
-    const result = await response.json();
-    if (response.status !== 200) {
-    //   throw new Error(`Failed to delete workspace: ${result.message}`);
-    }
+  // public delete = async () => {
+  //   const response = await fetch(workspaceURLs.deleteWorkspace, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       // Authorization: `Bearer ${this.token}`,
+  //       "cookie" : `_gitpod_io_v2_=${this.token}`
+  //     },
+  //     body: JSON.stringify({ workspaceId: this.workspaceId }),
+  //   });
+  //   const result = await response.json();
+  //   if (response.status !== 200) {
+  //   //   throw new Error(`Failed to delete workspace: ${result.message}`);
+  //   }
 
-    this.dispose();
-  };
+  //   this.dispose();
+  // };
 
   async stop(api: GitpodAPI): Promise<void> {
     const workspaceParam: StopWorkspace = {

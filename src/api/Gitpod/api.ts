@@ -60,7 +60,6 @@ export class GitpodAPI extends EventEmitter {
 
     GitpodAPI.webSocket.on("message", (message) => {
         const jsonObj = JSON.parse(message.toString());
-        console.log(jsonObj)
         if (jsonObj.method){
             if (jsonObj.method == "onInstanceUpdate"){
                 this.emit("instanceUpdated", NewIWorkspaceUpdateObject(jsonObj));

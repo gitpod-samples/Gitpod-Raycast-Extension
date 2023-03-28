@@ -1,4 +1,4 @@
-import { List, Color, Icon } from "@raycast/api";
+import { List, Color, Icon, clearLocalStorage } from "@raycast/api";
 import { LocalStorage } from "@raycast/api";
 import { useCachedState } from "@raycast/utils";
 import { uniqBy } from "lodash";
@@ -46,6 +46,7 @@ export function usePullReqHistory() {
     const nextPullReq = visitedPullReq.slice(0, VISITED_PULL_REQ_LENGTH);
     setHistory(nextPullReq);
   }
+
 
   function removePullReq(pullRequest: PullRequestFieldsFragment) {
     const visitedPullReq = [...(history?.filter((item) => item.id !== pullRequest.id) ?? [])];

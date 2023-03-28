@@ -67,7 +67,7 @@ export default function IssueListItem({
     },
   ];
 
-  if (issue.comments.totalCount > 0) {
+  if (issue.comments.totalCount > 0 && !bodyVisible) {
     accessories.unshift({
       text: `${issue.comments.totalCount}`,
       icon: Icon.Bubble,
@@ -134,7 +134,7 @@ export default function IssueListItem({
               onAction={async() => {
                 visitIssue?.(issue);
                 await showToast({
-                  title: `Added "${issue.title}" to recents`,
+                  title: `Added Issue "#${issue.number}" to Recents`,
                   style: Toast.Style.Success,
                 });
               }}
@@ -147,7 +147,7 @@ export default function IssueListItem({
               onAction={async () => {
                 removeIssue?.(issue);
                 await showToast({
-                  title: `Removed Issue #${issue.number} of "${issue.repository.name}" from recents`,
+                  title: `Removed Issue #${issue.number} from Recents`,
                   style: Toast.Style.Success,
                 });
               }}

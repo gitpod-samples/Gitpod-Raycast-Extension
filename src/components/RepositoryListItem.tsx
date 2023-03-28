@@ -103,7 +103,7 @@ export default function RepositoryListItem({
               onAction={async () => {
                 onVisit(repository);
                 await showToast({
-                  title: `Added "${repository.nameWithOwner}" to recents`,
+                  title: `Added "${repository.nameWithOwner}" to Recents`,
                   style: Toast.Style.Success,
                 });
 
@@ -117,7 +117,7 @@ export default function RepositoryListItem({
               onAction={async () => {
                 removeRepository?.(repository);
                 await showToast({
-                  title: `Removed "${repository.name}" from recents`,
+                  title: `Removed "${repository.nameWithOwner}" from Recents`,
                   style: Toast.Style.Success,
                 });
               }}

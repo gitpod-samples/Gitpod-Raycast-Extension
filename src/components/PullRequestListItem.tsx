@@ -71,24 +71,27 @@ export default function PullRequestListItem({
     },
   ];
 
-  if (reviewDecision) {
-    accessories.unshift(reviewDecision);
-  }
-
-  if (numberOfComments > 0) {
-    accessories.unshift({
-      text: `${numberOfComments}`,
-      icon: Icon.Bubble,
-    });
-  }
-
-  if (pullRequest.commits.nodes) {
-    const checkState = pullRequest.commits.nodes[0]?.commit.statusCheckRollup?.state;
-    const checkStateAccessory = checkState ? getCheckStateAccessory(checkState) : null;
-
-    if (checkStateAccessory) {
-      accessories.unshift(checkStateAccessory);
+  if (!bodyVisible) {
+    if (reviewDecision) {
+      accessories.unshift(reviewDecision);
     }
+
+    if (numberOfComments > 0) {
+      accessories.unshift({
+        text: `${numberOfComments}`,
+        icon: Icon.Bubble,
+      });
+    }
+
+    if (pullRequest.commits.nodes) {
+      const checkState = pullRequest.commits.nodes[0]?.commit.statusCheckRollup?.state;
+      const checkStateAccessory = checkState ? getCheckStateAccessory(checkState) : null;
+
+      if (checkStateAccessory) {
+        accessories.unshift(checkStateAccessory);
+      }
+    }
+
   }
 
   const keywords = [`${pullRequest.number}`];
@@ -131,10 +134,10 @@ export default function PullRequestListItem({
           {!fromCache && (
             <Action
               title="Add PR to Recents"
-              onAction={async() => {
+              onAction={async () => {
                 visitPullReq?.(pullRequest);
                 await showToast({
-                  title: `Added "${pullRequest.title}" to recents`,
+                  title: `Added PR "#${pullRequest.number}" to Recents`,
                   style: Toast.Style.Success,
                 });
               }}
@@ -147,7 +150,7 @@ export default function PullRequestListItem({
               onAction={async () => {
                 removePullReq?.(pullRequest);
                 await showToast({
-                  title: `Removed PR #${pullRequest.number} of "${pullRequest.repository.name}" from recents`,
+                  title: `Removed PR #${pullRequest.number} from Recents`,
                   style: Toast.Style.Success,
                 });
               }}

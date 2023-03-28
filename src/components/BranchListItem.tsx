@@ -103,7 +103,7 @@ export default function BranchListItem({
   return (
     <List.Item
       icon={GitpodIcons.branchIcon}
-      subtitle={bodyVisible ? repository ?? "" : ""}
+      subtitle={!bodyVisible ? (fromCache ? repository ?? "" : mainBranch) : ""}
       title={branch.branchName}
       accessories={accessories}
       detail={
@@ -153,10 +153,10 @@ export default function BranchListItem({
           {!fromCache && (
             <Action
               title="Add Branch to Recents"
-              onAction={async() => {
+              onAction={async () => {
                 visitBranch?.(branch, repository);
                 await showToast({
-                  title: `Added "${branch.branchName}" to recents`,
+                  title: `Added "${branch.branchName}" to Recents`,
                   style: Toast.Style.Success,
                 });
               }}
@@ -192,7 +192,7 @@ export default function BranchListItem({
               onAction={async () => {
                 removeBranch?.(branch, repository);
                 await showToast({
-                  title: `Removed "${branch.branchName}" of "${repository}" from recents`,
+                  title: `Removed "${branch.compData}" from Recents`,
                   style: Toast.Style.Success,
                 });
               }}

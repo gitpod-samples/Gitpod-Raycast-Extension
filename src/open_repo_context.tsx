@@ -163,6 +163,7 @@ function SearchContext({ repository }: SearchContextProps) {
         isLoading={isPRLoading}
         onSearchTextChange={parseSearchOptions}
         isShowingDetail={bodyVisible}
+        navigationTitle={repository.nameWithOwner}
         throttle
       >
         {cachedRepo.contexts.branches &&
@@ -209,6 +210,7 @@ function SearchContext({ repository }: SearchContextProps) {
                   key={pullRequest.id}
                   pullRequest={pullRequest}
                   viewer={viewer}
+                  visitPullReq={visitPullReq}
                 />
               )
             })}

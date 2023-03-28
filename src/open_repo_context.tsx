@@ -1,4 +1,4 @@
-import { List, Toast, showToast } from "@raycast/api";
+import { List, Toast, showToast,Cache } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -23,6 +23,8 @@ import { useViewer } from "./hooks/useViewer";
 type SearchContextProps = {
   repository: ExtendedRepositoryFieldsFragment;
 };
+
+const cache = new Cache();
 
 function SearchContext({ repository }: SearchContextProps) {
   const { history: cachedContexts, addRepoContext } = useContextHistory();
@@ -107,6 +109,7 @@ function SearchContext({ repository }: SearchContextProps) {
     [searchText, sections, cachedRepo, firstLoad],
     {
       onError(error) {
+        cache.clear();
         showToast({
           title: error.message,
           style: Toast.Style.Failure,

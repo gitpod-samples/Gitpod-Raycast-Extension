@@ -1,4 +1,4 @@
-import { List, Cache, Toast, showToast, LocalStorage } from "@raycast/api";
+import { List, Toast, showToast } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -16,6 +16,7 @@ import { pluralize } from "./helpers";
 import { useBranchHistory } from "./helpers/branch";
 import { useIssueHistory } from "./helpers/issue";
 import { usePullReqHistory } from "./helpers/pull-request";
+import { useContextHistory } from "./helpers/recent";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { useViewer } from "./hooks/useViewer";
 
@@ -23,9 +24,10 @@ type SearchContextProps = {
   repository: ExtendedRepositoryFieldsFragment;
 };
 
-const cache = new Cache();
-
 function SearchContext({ repository }: SearchContextProps) {
+  const { history: cachedContexts, addRepoContext } = useContextHistory();
+  const cachedRepo = cachedContexts.find(ctx => ctx.repoName === repository.nameWithOwner)
+
   const { github } = getGitHubClient();
   const viewer = useViewer();
   const { visitPullReq } = usePullReqHistory();
@@ -43,66 +45,66 @@ function SearchContext({ repository }: SearchContextProps) {
   };
 
   const { data, isLoading: isPRLoading } = usePromise(
-    async (searchText, sections) => {
-      const result: {
-        pullRequest?: PullRequestFieldsFragment[] | undefined;
-        issues?: IssueFieldsFragment[] | undefined;
-        branches?: BranchDetailsFragment[] | undefined;
-      } = {};
+    async (searchText, sections, cachedRepo, firstLoad) => {
+      if (!cachedRepo || !firstLoad) {
+        const result: {
+          pullRequest?: PullRequestFieldsFragment[] | undefined;
+          issues?: IssueFieldsFragment[] | undefined;
+          branches?: BranchDetailsFragment[] | undefined;
+        } = {};
 
-      let n = 2;
-      if (sections.length == 1) {
-        n = 10;
-      } else if (sections.length == 2) {
-        n = 3;
-      }
-
-      if (sections.includes("/p")) {
-        const pullRequest = (
-          await github.searchPullRequests({
-            query: `is:pr repo:${repository.nameWithOwner} ${
-              forAuthor ? "author:@me" : ""
-            } archived:false ${searchText.trim()}`,
-            numberOfItems: n,
-          })
-        ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
-        result.pullRequest = pullRequest;
-      }
-
-      if (sections.includes("/i")) {
-        const issues = (
-          await github.searchIssues({
-            query: `is:issue repo:${repository.nameWithOwner} ${
-              forAuthor ? "author:@me" : ""
-            } archived:false ${searchText.trim()}`,
-            numberOfItems: n,
-          })
-        ).search.nodes?.map((node) => node as IssueFieldsFragment);
-        result.issues = issues;
-      }
-
-      if (sections.includes("/b")) {
-        const branches = (
-          await github.getExistingRepoBranches({
-            orgName: forAuthor && viewer?.login ? viewer.login : repository.owner.login,
-            repoName: repository.name,
-            branchQuery: searchText.trim(),
-            defaultBranch: repository.defaultBranchRef?.defaultBranch ?? "main",
-            numberOfItems: n,
-          })
-        ).repository?.refs?.edges?.map((edge) => edge?.node as BranchDetailsFragment);
-        result.branches = branches;
-      }
-
-      if (n == 2) { 
-        if (!cache.has(repository.nameWithOwner)){
-          cache.set(repository.nameWithOwner, JSON.stringify(result));
+        let n = 2;
+        if (sections.length == 1) {
+          n = 10;
+        } else if (sections.length == 2) {
+          n = 3;
         }
-      }
 
-      return result;
+        if (sections.includes("/p")) {
+          const pullRequest = (
+            await github.searchPullRequests({
+              query: `is:pr repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
+                } archived:false ${searchText.trim()}`,
+              numberOfItems: n,
+            })
+          ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
+          result.pullRequest = pullRequest;
+        }
+
+        if (sections.includes("/i")) {
+          const issues = (
+            await github.searchIssues({
+              query: `is:issue repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
+                } archived:false ${searchText.trim()}`,
+              numberOfItems: n,
+            })
+          ).search.nodes?.map((node) => node as IssueFieldsFragment);
+          result.issues = issues;
+        }
+
+        if (sections.includes("/b")) {
+          const branches = (
+            await github.getExistingRepoBranches({
+              orgName: forAuthor && viewer?.login ? viewer.login : repository.owner.login,
+              repoName: repository.name,
+              branchQuery: searchText.trim(),
+              defaultBranch: repository.defaultBranchRef?.defaultBranch ?? "main",
+              numberOfItems: n,
+            })
+          ).repository?.refs?.edges?.map((edge) => edge?.node as BranchDetailsFragment);
+          result.branches = branches;
+        }
+
+        if (searchText !== "") {
+          addRepoContext({ repoName: repository.nameWithOwner, contexts: result });
+        } else if (!cachedRepo) {
+          addRepoContext({ repoName: repository.nameWithOwner, contexts: result });
+        }
+
+        return result;
+      }
     },
-    [searchText, sections],
+    [searchText, sections, cachedRepo, firstLoad],
     {
       onError(error) {
         showToast({
@@ -145,28 +147,31 @@ function SearchContext({ repository }: SearchContextProps) {
   };
 
   useEffect(() => {
-    if (firstLoad && !isPRLoading) {
+    if (firstLoad && searchText !== "") {
       setfirstLoad(false);
     }
-  }, [isPRLoading]);
+  }, [searchText]);
 
-  if (firstLoad && isPRLoading && cache.has(repository.nameWithOwner)) {
+
+  if (firstLoad && cachedRepo?.contexts) {
     return (
       <List
         searchBarPlaceholder="Filter `/me` for your stuff, `/b` for branches, `/p` for Pull Request, `/i` for issues"
+        isLoading={isPRLoading}
         onSearchTextChange={parseSearchOptions}
         isShowingDetail={bodyVisible}
         throttle
       >
-        {sections.includes("/b") && JSON.parse(cache.get(repository.nameWithOwner)!)?.branches !== undefined && (
+        {cachedRepo.contexts.branches &&
           <List.Section
             key={"Branches"}
             title={"Branches"}
-            subtitle={pluralize(JSON.parse(cache.get(repository.nameWithOwner)!)?.branches.length, "Branch", {
+            subtitle={pluralize(cachedRepo.contexts.branches.length, "Branch", {
               withNumber: true,
             })}
+
           >
-            {JSON.parse(cache.get(repository.nameWithOwner)!).branches.map((branch: BranchDetailsFragment) => {
+            {cachedRepo.contexts.branches.map(branch => {
               return (
                 <BranchListItem
                   bodyVisible={bodyVisible}
@@ -180,46 +185,41 @@ function SearchContext({ repository }: SearchContextProps) {
                   branch={branch}
                   visitBranch={visitBranch}
                 />
-              );
+              )
             })}
           </List.Section>
-        )}
-
-        {sections.includes("/p") && JSON.parse(cache.get(repository.nameWithOwner)!)?.pullRequest !== undefined && (
+        }
+        {cachedRepo.contexts.pullRequest &&
           <List.Section
-            key={"Pulls"}
+            key={"Pull Requests"}
             title={"Pull Requests"}
-            subtitle={pluralize(JSON.parse(cache.get(repository.nameWithOwner)!)?.pullRequest.length, "Pull Request", {
+            subtitle={pluralize(cachedRepo.contexts.pullRequest.length, "Pull Request", {
               withNumber: true,
             })}
-          >
-            {JSON.parse(cache.get(repository.nameWithOwner)!).pullRequest.map(
-              (pullRequest: PullRequestFieldsFragment) => {
-                if (!pullRequest.closed) {
-                  return (
-                    <PullRequestListItem
-                      bodyVisible={bodyVisible}
-                      changeBodyVisibility={changeBodyVisibility}
-                      key={pullRequest.id}
-                      pullRequest={pullRequest}
-                      viewer={viewer}
-                    />
-                  );
-                }
-              }
-            )}
-          </List.Section>
-        )}
 
-        {sections.includes("/i") && JSON.parse(cache.get(repository.nameWithOwner)!)?.issues !== undefined && (
+          >
+            {cachedRepo.contexts.pullRequest.map(pullRequest => {
+              return (
+                <PullRequestListItem
+                  bodyVisible={bodyVisible}
+                  changeBodyVisibility={changeBodyVisibility}
+                  key={pullRequest.id}
+                  pullRequest={pullRequest}
+                  viewer={viewer}
+                />
+              )
+            })}
+          </List.Section>
+        }
+        {cachedRepo.contexts.issues &&
           <List.Section
             key={"Issues"}
             title={"Issues"}
-            subtitle={pluralize(JSON.parse(cache.get(repository.nameWithOwner)!)?.issues.length, "Issue", {
+            subtitle={pluralize(cachedRepo.contexts.issues.length, "Issue", {
               withNumber: true,
             })}
           >
-            {JSON.parse(cache.get(repository.nameWithOwner)!).issues.map((issue: IssueFieldsFragment) => {
+            {cachedRepo.contexts.issues.map(issue => {
               return (
                 <IssueListItem
                   bodyVisible={bodyVisible}
@@ -229,12 +229,12 @@ function SearchContext({ repository }: SearchContextProps) {
                   viewer={viewer}
                   visitIssue={visitIssue}
                 />
-              );
+              )
             })}
           </List.Section>
-        )}
+        }
       </List>
-    );
+    )
   }
 
   return (

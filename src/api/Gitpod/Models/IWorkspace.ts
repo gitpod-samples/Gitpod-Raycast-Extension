@@ -21,6 +21,7 @@ export class IWorkspace implements GitpodDataModel {
   private workspaceId: string;
   private ownerId: string;
   private projectId: string;
+  private ideURL: string;
   private context: {
     contextURL: string;
     git: {
@@ -33,6 +34,14 @@ export class IWorkspace implements GitpodDataModel {
   private status: {
     phase: string;
   };
+
+  getIDEURL(){
+    return this.ideURL
+  }
+
+  setIDEURL(url: string){
+    this.ideURL = url;
+  }
 
   setStatus(status : { phase: string }): IWorkspace {
     this.status = status;
@@ -92,6 +101,7 @@ export class IWorkspace implements GitpodDataModel {
     this.instanceId = workspace.status.instance.instanceId
     this.initialized = true;
     this.createdAt = workspace.status.instance.createdAt
+    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : '';
   }
 
   parse(json: string): IWorkspace {
@@ -111,6 +121,7 @@ export class IWorkspace implements GitpodDataModel {
     this.status = {
       phase: data.result.status.instance.status.phase,
     };
+    this.ideURL = data.result.status.instance ? data.result.status.instance.status.url : ''
 
     this.createdAt = data.result.status.instance.createdAt
 
@@ -157,6 +168,7 @@ export class IWorkspace implements GitpodDataModel {
   };
 
   public static fetchAll = async (token: string): Promise<Map<string, IWorkspace>> => {
+  
     const response = await fetch(workspaceURLs.getAllWorkspaces, {
       method: "POST",
       headers: {

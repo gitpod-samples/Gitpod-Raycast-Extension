@@ -23,44 +23,12 @@
       "type": "dropdown",
       "data": [
         {
-          "title": "VS Code Browser",
-          "value": "code"
-        },
-        {
           "title": "VS Code Desktop",
           "value": "code-desktop"
         },
         {
-          "title": "IntelliJ",
-          "value": "intellij"
-        },
-        {
-          "title": "GoLand",
-          "value": "goland"
-        },
-        {
-          "title": "PhpStorm",
-          "value": "phpstorm"
-        },
-        {
-          "title": "PyCharm",
-          "value": "pycharm"
-        },
-        {
-          "title": "RubyMine",
-          "value": "rubymine"
-        },
-        {
-          "title": "WebStorm",
-          "value": "webstorm"
-        },
-        {
-          "title": "Rider",
-          "value": "rider"
-        },
-        {
-          "title": "CLion",
-          "value": "clion"
+          "title": "VS Code Browser",
+          "value": "code"
         }
       ],
       "required": true
@@ -97,6 +65,14 @@
       "description": "Configure your custom Gitpod URL for Dedicated and Self-Hosted",
       "type": "textfield",
       "required": false
+    },
+    {
+      "name": "cookie_token",
+      "title": "Gitpod Session Cookie",
+      "placeholder": "Only for Gitpod Beta Testers",
+      "description": "Enter Gitpod Session Cookie from Browser",
+      "type": "password",
+      "required": true
     }
   ],
   "commands": [
@@ -141,17 +117,7 @@
       "title": "List Gitpod Workspaces",
       "subtitle": "List Workspaces",
       "description": "List All Workspaces on your gitpod Dashboard",
-      "mode": "view",
-      "preferences": [
-        {
-          "name": "cookie_token",
-          "title": "Gitpod Session Cookie",
-          "placeholder": "Only for Gitpod Beta Testers",
-          "description": "Enter Gitpod Session Cookie from Browser",
-          "type": "password",
-          "required": true
-        }
-      ]
+      "mode": "view"
     },
     {
       "name": "menubar",
@@ -166,16 +132,6 @@
         "recent repositories",
         "menubar",
         "workspaces"
-      ],
-      "preferences": [
-        {
-          "name": "cookie_token",
-          "title": "Gitpod Session Cookie",
-          "placeholder": "Only for Gitpod Beta Testers",
-          "description": "Enter Gitpod Session Cookie from Browser",
-          "type": "password",
-          "required": false
-        }
       ]
     }
   ],

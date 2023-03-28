@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, showHUD } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, getApplications } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -9,24 +9,38 @@ import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import View from "./components/View";
-
-export interface dashboardPreferences {
-  // access_token: string;
-  cookie_token: string;
-}
+import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
+import { dashboardPreferences } from "./preferences/dashboard_preferences";
+import {  Preferences } from "./preferences/repository_preferences";
 
 function ListWorkspaces() {
 
-  const preferences = getPreferenceValues<dashboardPreferences>();
+  const CookiePreferences = getPreferenceValues<dashboardPreferences>();
+  const EditorPreferences = getPreferenceValues<Preferences>();
+
   const workspaceManager = new WorkspaceManager(
     "",
-    preferences.cookie_token
+    CookiePreferences.cookie_token
   );
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
 
   const { isLoading } = usePromise(async () => {
     await workspaceManager.init();
+    const apps = await getApplications();
+    
+
+    // checking if vsCode is present in all the apps with its bundle id
+    const vsCodePresent = apps.filter((app) => {
+      if (app.bundleId && app.bundleId == "com.microsoft.VSCode"){
+        return true;
+      }
+    });
+
+    // Modifying the editor preferences if vsCode is selected and is not present
+    if (EditorPreferences.preferredEditor === "code-desktop" && !vsCodePresent){
+      EditorPreferences.preferredEditor = "code";
+    }
   });
 
   useEffect(() => {
@@ -34,7 +48,7 @@ function ListWorkspaces() {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
     workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-      if (e.code === 401){
+      if (e.code === 401) {
         showToast({
           style: Toast.Style.Failure,
           title: "Cookie Expired, Kindly Update Session Cookie."
@@ -52,28 +66,31 @@ function ListWorkspaces() {
     <List isLoading={isLoading}>
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
-        "Active Workspaces"
+        "Active Workspaces",
+        EditorPreferences
       )}
       {renderWorkspaces(
         workspaces.filter(
           (workspace) =>
             workspace.getStatus().phase != "PHASE_RUNNING" && workspace.getStatus().phase != "PHASE_STOPPED"
         ),
-        "Progressing Workspaces"
+        "Progressing Workspaces",
+        EditorPreferences
       )}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_STOPPED"),
-        "Inactive Workspaces"
+        "Inactive Workspaces",
+        EditorPreferences
       )}
     </List>
   );
 }
 
-function renderWorkspaces(workspaces: IWorkspace[], title: string) {
-  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace))}</List.Section>;
+function renderWorkspaces(workspaces: IWorkspace[], title: string, EditorPreferences: Preferences) {
+  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences))}</List.Section>;
 }
 
-function renderWorkspaceListItem(workspace: IWorkspace) {
+function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences) {
   return (
     <List.Item
       title={workspace.getDescription()}
@@ -86,24 +103,30 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
             <Action
               title="Open Workspace"
               onAction={async () => {
-                await showToast({
-                  title: "Launching your workspace",
-                  style: Toast.Style.Animated,
-                });
+              
+                if (EditorPreferences.preferredEditor === "code-desktop"){
+                  const toast = await showToast({
+                    title: "Launching your workspace in VSCode Desktop",
+                    style: Toast.Style.Animated,
+                  });
 
-                const data = {
-                  instanceId: workspace.instanceId,
-                  workspaceId: workspace.getWorkspaceId(),
-                  gitpodHost: "https://gitpod.io",
-                };
-                const vsCodeURI =
-                  "vscode://gitpod.gitpod-desktop/workspace/" +
-                  workspace.getDescription().split(" ")[0].split("/")[1] +
-                  `?` +
-                  encodeURIComponent(JSON.stringify(data));
-                setTimeout(() => {
-                  open(vsCodeURI);
-                }, 1500);
+                  const vsCodeURI = getCodeEncodedURI(workspace)
+                  setTimeout(() => {
+                    open(vsCodeURI, "com.microsoft.VSCode");
+                    toast.hide();
+                  }, 1500);
+                }
+
+                else if (EditorPreferences.preferredEditor === "code"){
+                  const toast = await showToast({
+                    title: "Launching your workspace in VSCode Web",
+                    style: Toast.Style.Animated,
+                  });
+                  if (workspace.getIDEURL() !== ''){
+                    open(workspace.getIDEURL());
+                    toast.hide();
+                  }
+                }
               }}
             />
           )}
@@ -148,8 +171,8 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
             workspace.getStatus().phase === "PHASE_RUNNING"
               ? GitpodIcons.running_icon
               : workspace.getStatus().phase === "PHASE_STOPPED"
-              ? GitpodIcons.stopped_icon
-              : GitpodIcons.progressing_icon,
+                ? GitpodIcons.stopped_icon
+                : GitpodIcons.progressing_icon,
         },
       ]}
     />

@@ -3,7 +3,6 @@ import {
   Form,
   Action,
   LocalStorage,
-  showHUD,
   useNavigation,
   showToast,
   Toast,
@@ -16,13 +15,13 @@ type RepositoryPreferenceProps = {
   revalidate: () => void;
 };
 
-interface Preferences {
+export interface Preferences {
   preferredEditor: string;
   useLatest: boolean;
   preferredEditorClass: "g1-standard" | "g1-large";
 }
 
-async function getDefaultValue(repository: string) {
+export async function getDefaultValue(repository: string) {
   let defaultPrefValue: Preferences = getPreferenceValues<Preferences>();
 
   const item = await LocalStorage.getItem<string>(`${repository}`);
@@ -83,14 +82,6 @@ export default function RepositoryPreference({ repository, revalidate }: Reposit
         >
           <Form.Dropdown.Item value="code" title="VS Code Browser" />
           <Form.Dropdown.Item value="code-desktop" title="VS Code Desktop" />
-          <Form.Dropdown.Item value="intellij" title="IntelliJ" />
-          <Form.Dropdown.Item value="goland" title="GoLand" />
-          <Form.Dropdown.Item value="phpstorm" title="PhpStorm" />
-          <Form.Dropdown.Item value="pycharm" title="PyCharm" />
-          <Form.Dropdown.Item value="rubymine" title="RubyMine" />
-          <Form.Dropdown.Item value="webstorm" title="WebStorm" />
-          <Form.Dropdown.Item value="rider" title="Rider" />
-          <Form.Dropdown.Item value="clion" title="CLion" />
         </Form.Dropdown>
         <Form.Checkbox
           id="useLatest"

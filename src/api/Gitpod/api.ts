@@ -6,13 +6,13 @@ import { NewIWorkspaceErrorObject } from "./Models/IWorkspaceError";
 import { NewIWorkspaceUpdateObject } from "./Models/IWorkspaceUpdate";
 
 export interface StartWorkspace {
-    method: "startWorkspace";
-    params: string;
+  method: "startWorkspace";
+  params: string;
 }
 
 export interface StopWorkspace {
-    method: "stopWorkspace";
-    params: string;
+  method: "stopWorkspace";
+  params: string;
 }
 
 export type APIEvents = "errorOccured" | "instanceUpdated"
@@ -21,54 +21,73 @@ export type WorkspaceMethods = StartWorkspace | StopWorkspace
 export class GitpodAPI extends EventEmitter {
   private static instance: GitpodAPI;
   private static webSocket: WebSocket;
+  private static connected = false;
+  private static error: WebSocket.ErrorEvent;
   public static token: string
 
   constructor(token: string, cookie: string) {
     super();
-    GitpodAPI.token = token;
-    GitpodAPI.webSocket  = new WebSocket('wss://gitpod.io/api/gitpod', {
+    try {
+      GitpodAPI.token = token;
+      GitpodAPI.webSocket = new WebSocket('wss://gitpod.io/api/gitpod', {
         headers: {
-        Cookie: `_gitpod_io_v2_=${cookie}`
+          Cookie: `_gitpod_io_v2_=${cookie}`
+        }
+      });
+      GitpodAPI.webSocket.onopen = (_) => {
+        this.registerWebSocketEvents();
+        GitpodAPI.connected = true
+      };
+
+      GitpodAPI.webSocket.onerror = (error) => {
+        this.emit("errorOccured", NewIWorkspaceErrorObject(error))
+        GitpodAPI.error = error;
+      }
+    } catch (e){
+      this.emit("errorOccured", NewIWorkspaceErrorObject(e))
     }
-    });
-    this.registerWebSocketEvents();
+    
   }
 
   public static getInstance(): GitpodAPI {
     if (!GitpodAPI.instance) {
-        throw new Error("GitpodAPI Class not initialized yet.")
+      throw new Error("GitpodAPI Class not initialized yet.")
     }
-    return GitpodAPI.instance;    
+    return GitpodAPI.instance;
   }
 
-  public on(event: APIEvents, listener: (event: any) => void){
+  public on(event: APIEvents, listener: (event: any) => void) {
     return super.on(event, listener);
   }
 
-  public execute( method: WorkspaceMethods ){
-    const data = {
-      "jsonrpc": "2.0",
-      "id" : Math.round(Math.random() * 1000),
-      ...method
+  public execute(method: WorkspaceMethods) {
+    if (GitpodAPI.connected == true) {
+      const data = {
+        "jsonrpc": "2.0",
+        "id": Math.round(Math.random() * 1000),
+        ...method
+      }
+      GitpodAPI.webSocket.send(JSON.stringify(data))
+    } else {
+      this.emit("errorOccured", NewIWorkspaceErrorObject(GitpodAPI.error))
     }
-    GitpodAPI.webSocket.send(JSON.stringify(data))
   }
 
-  private registerWebSocketEvents(){
+  private registerWebSocketEvents() {
     // here I have to parse all the messages and then emit according to the type of message that has been occured
     // Currently let's go for start only
 
     GitpodAPI.webSocket.on("message", (message) => {
-        const jsonObj = JSON.parse(message.toString());
-        console.log(jsonObj)
-        if (jsonObj.method){
-            if (jsonObj.method == "onInstanceUpdate"){
-                this.emit("instanceUpdated", NewIWorkspaceUpdateObject(jsonObj));
-            }
+      const jsonObj = JSON.parse(message.toString());
+      console.log(jsonObj)
+      if (jsonObj.method) {
+        if (jsonObj.method == "onInstanceUpdate") {
+          this.emit("instanceUpdated", NewIWorkspaceUpdateObject(jsonObj));
         }
-        if (jsonObj.error){
-          this.emit("errorOccured", NewIWorkspaceErrorObject(jsonObj.error))
-        }
+      }
+      if (jsonObj.error) {
+        this.emit("errorOccured", NewIWorkspaceErrorObject(jsonObj.error))
+      }
     })
   }
 

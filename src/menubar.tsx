@@ -8,16 +8,13 @@ import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { useHistory } from "./helpers/repository";
+import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 
-interface menuBarPreferences {
-  // access_token?: string
-  cookie_token?: string
-}
 
 export default function command() {
 
-  const preferences = getPreferenceValues<menuBarPreferences>();
+  const preferences = getPreferenceValues<dashboardPreferences>();
 
   const { data } = useHistory("", "");
   const gitpodEndpoint = getGitpodEndpoint();
@@ -41,7 +38,6 @@ export default function command() {
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
       })
       workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-        console.log(e);
         if (e.code === 401){
           showHUD("Cookie Expired, Kindly Update Session Cookie.")
         } else {

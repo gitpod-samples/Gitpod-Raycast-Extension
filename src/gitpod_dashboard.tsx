@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, getApplications } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications, openExtensionPreferences } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -24,22 +24,19 @@ function ListWorkspaces() {
   );
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
+  const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
 
   const { isLoading } = usePromise(async () => {
     await workspaceManager.init();
     const apps = await getApplications();
-    
 
     // checking if vsCode is present in all the apps with its bundle id
-    const vsCodePresent = apps.filter((app) => {
-      if (app.bundleId && app.bundleId == "com.microsoft.VSCode"){
-        return true;
-      }
+    const CodePresent = apps.find((app) => {
+      return app.bundleId && app.bundleId === "com.microsoft.VSCode"
     });
 
-    // Modifying the editor preferences if vsCode is selected and is not present
-    if (EditorPreferences.preferredEditor === "code-desktop" && !vsCodePresent){
-      EditorPreferences.preferredEditor = "code";
+    if (CodePresent !== undefined){
+      setVSCodePresent(true);
     }
   });
 
@@ -53,6 +50,7 @@ function ListWorkspaces() {
           style: Toast.Style.Failure,
           title: "Cookie Expired, Kindly Update Session Cookie."
         })
+        openExtensionPreferences();
       } else {
         showToast({
           style: Toast.Style.Failure,
@@ -67,7 +65,8 @@ function ListWorkspaces() {
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
         "Active Workspaces",
-        EditorPreferences
+        EditorPreferences,
+        vsCodePresent,
       )}
       {renderWorkspaces(
         workspaces.filter(
@@ -75,22 +74,24 @@ function ListWorkspaces() {
             workspace.getStatus().phase != "PHASE_RUNNING" && workspace.getStatus().phase != "PHASE_STOPPED"
         ),
         "Progressing Workspaces",
-        EditorPreferences
+        EditorPreferences,
+        vsCodePresent,
       )}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_STOPPED"),
         "Inactive Workspaces",
-        EditorPreferences
+        EditorPreferences,
+        vsCodePresent,
       )}
     </List>
   );
 }
 
-function renderWorkspaces(workspaces: IWorkspace[], title: string, EditorPreferences: Preferences) {
-  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences))}</List.Section>;
+function renderWorkspaces(workspaces: IWorkspace[], title: string, EditorPreferences: Preferences, CodePresent: boolean) {
+  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent))}</List.Section>;
 }
 
-function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences) {
+function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences, CodePresent: boolean) {
   return (
     <List.Item
       title={workspace.getDescription()}
@@ -104,7 +105,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               title="Open Workspace"
               onAction={async () => {
               
-                if (EditorPreferences.preferredEditor === "code-desktop"){
+                if (CodePresent && EditorPreferences.preferredEditor === "code-desktop"){
                   const toast = await showToast({
                     title: "Launching your workspace in VSCode Desktop",
                     style: Toast.Style.Animated,
@@ -117,14 +118,16 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                   }, 1500);
                 }
 
-                else if (EditorPreferences.preferredEditor === "code"){
-                  const toast = await showToast({
-                    title: "Launching your workspace in VSCode Web",
-                    style: Toast.Style.Animated,
-                  });
+                else {
+
                   if (workspace.getIDEURL() !== ''){
-                    open(workspace.getIDEURL());
-                    toast.hide();
+                    if (EditorPreferences.preferredEditor === "code-desktop"){
+                      showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
+                    }
+                    setTimeout(() => {
+                      open(workspace.getIDEURL());
+                    }, 1500)
+                    
                   }
                 }
               }}

@@ -1,5 +1,6 @@
 import { LocalStorage, open, showToast, Toast } from "@raycast/api";
 import { getPreferenceValues } from "@raycast/api";
+
 import { getGitpodEndpoint } from "../preferences/gitpod_endpoint";
 
 interface Preferences {

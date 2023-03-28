@@ -1,4 +1,4 @@
-import { getPreferenceValues, MenuBarExtra, open, showHUD, showToast, Toast } from "@raycast/api";
+import { getPreferenceValues, MenuBarExtra, open, showHUD, showToast, Toast, getApplications } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -7,14 +7,17 @@ import { GitpodIcons } from "../constants";
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
+import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { useHistory } from "./helpers/repository";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
+import {  Preferences } from "./preferences/repository_preferences";
 
 
 export default function command() {
 
   const preferences = getPreferenceValues<dashboardPreferences>();
+  const EditorPreferences = getPreferenceValues<Preferences>();
 
   const { data } = useHistory("", "");
   const gitpodEndpoint = getGitpodEndpoint();
@@ -25,10 +28,21 @@ export default function command() {
   );
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
+  const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
 
   const { isLoading } = usePromise(async () => {
     if (preferences.cookie_token){
       await workspaceManager.init();
+      const apps = await getApplications();
+
+      // checking if vsCode is present in all the apps with its bundle id
+      const CodePresent = apps.find((app) => {
+        return app.bundleId && app.bundleId === "com.microsoft.VSCode"
+      });
+
+      if (CodePresent !== undefined){
+        setVSCodePresent(true);
+      } 
     }
   });
 
@@ -37,13 +51,15 @@ export default function command() {
       workspaceManager.on("workspaceUpdated", async () => {
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
       })
-      workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-        if (e.code === 401){
-          showHUD("Cookie Expired, Kindly Update Session Cookie.")
-        } else {
-          showHUD(e.message)
-        }
-      })
+
+      // Note: As menu bar has background refresh, it can lead to the menu-bar yelling the HUD on the desktop.
+      // workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
+      //   if (e.code === 401){
+      //     showHUD("Cookie Expired, Kindly Update Session Cookie.")
+      //   } else {
+      //     showHUD(e.message)
+      //   }
+      // })
     }, [])
   }
 
@@ -75,13 +91,19 @@ export default function command() {
             title={workspace.getDescription()}
             onAction={() => {
               if (workspace.getStatus().phase === "PHASE_RUNNING") {
-                const data = {
-                  instanceId : workspace.instanceId,
-                  workspaceId : workspace.getWorkspaceId(),
-                  gitpodHost: "https://gitpod.io"
+                if (vsCodePresent && EditorPreferences.preferredEditor === "code-desktop"){
+
+                  const vsCodeURI = getCodeEncodedURI(workspace)
+                  open(vsCodeURI, "com.microsoft.VSCode");
                 }
-                const vsCodeURI = "vscode://gitpod.gitpod-desktop/workspace/" + (workspace.getDescription().split(" ")[0]).split("/")[1] + `?`+ encodeURIComponent(JSON.stringify(data))
-                open(vsCodeURI)
+                else {
+                  if (workspace.getIDEURL() !== ''){
+                    if (EditorPreferences.preferredEditor === "code-desktop"){
+                      showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
+                    }
+                    open(workspace.getIDEURL());
+                  }
+                }
               }
             }}
           />

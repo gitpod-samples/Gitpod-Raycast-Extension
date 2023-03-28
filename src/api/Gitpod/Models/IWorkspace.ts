@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 import { GitpodAPI, StartWorkspace, StopWorkspace } from "../api";
 
-import { IWorkspaceError } from './IWorkspaceError';
+import { IWorkspaceError, NewIWorkspaceErrorObject } from './IWorkspaceError';
 import { GitpodDataModel } from "./Model";
 
 type IWorkspaceParams = {
@@ -151,7 +151,7 @@ export class IWorkspace implements GitpodDataModel {
     params: IWorkspaceParams
   ): Promise<IWorkspace> => {
     const { workspaceID } = params;
-
+    
     const response = await fetch(workspaceURLs.getWorkspace, {
       method: "GET",
       headers: {
@@ -168,35 +168,38 @@ export class IWorkspace implements GitpodDataModel {
   };
 
   public static fetchAll = async (token: string): Promise<Map<string, IWorkspace>> => {
-  
-    const response = await fetch(workspaceURLs.getAllWorkspaces, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        // Authorization: `Bearer ${token}`,
-        "cookie" : `_gitpod_io_v2_=${token}`
-      },
-      body: JSON.stringify({}),
-    })
     const workspaceMap = new Map<string, IWorkspace>();
 
-    if (response.status != 200){
-      const error : IWorkspaceError = {
-        name: "WorkspaceFetchError",
-        code: response.status,
-        message: response.statusText
+    try {
+      const response = await fetch(workspaceURLs.getAllWorkspaces, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          // Authorization: `Bearer ${token}`,
+          "cookie" : `_gitpod_io_v2_=${token}`
+        },
+        body: JSON.stringify({}),
+      })
+      if (response.status != 200){
+        const error : IWorkspaceError = {
+          name: "WorkspaceFetchError",
+          code: response.status,
+          message: response.statusText
+        }
+        throw error
       }
-      throw error
+  
+      const json = await response.json() as any ;
+      
+      json.result.map((workspace: any) => {
+          const space =  new IWorkspace(workspace, token);
+          workspaceMap.set(space.workspaceId, space);
+      })
+
+    } catch (e) {
+      throw NewIWorkspaceErrorObject(e);
     }
-
-    const json = await response.json() as any ;
     
-
-    json.result.map((workspace: any) => {
-        const space =  new IWorkspace(workspace, token);
-        workspaceMap.set(space.workspaceId, space);
-    })
-
     return workspaceMap
   }
 

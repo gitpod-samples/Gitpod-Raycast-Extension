@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, showHUD } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, useNavigation } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -9,9 +9,17 @@ import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import View from "./components/View";
+import WorkspacePreference from "./preferences/workspace_preferences";
 
 export interface dashboardPreferences {
   // access_token: string;
+  preferredEditor: string;
+  cookie_token: string;
+}
+
+export interface dashboardState {
+  // access_token: string;
+  preferredEditor: string;
   cookie_token: string;
 }
 
@@ -34,7 +42,7 @@ function ListWorkspaces() {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
     workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-      if (e.code === 401){
+      if (e.code === 401) {
         showToast({
           style: Toast.Style.Failure,
           title: "Cookie Expired, Kindly Update Session Cookie."
@@ -74,6 +82,15 @@ function renderWorkspaces(workspaces: IWorkspace[], title: string) {
 }
 
 function renderWorkspaceListItem(workspace: IWorkspace) {
+  const preferences = getPreferenceValues<dashboardPreferences>();
+  function splitUrl(url: string) {
+    const urlWithoutProtocol = url.replace(/^https?:\/\//, '');
+    const parts = urlWithoutProtocol.split('.');
+
+    return parts[0] + ".ssh." + parts[1] + "." + parts[2] + "." + parts[3];
+  }
+  const { push } = useNavigation();
+
   return (
     <List.Item
       title={workspace.getDescription()}
@@ -94,17 +111,27 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
                 const data = {
                   instanceId: workspace.instanceId,
                   workspaceId: workspace.getWorkspaceId(),
-                  gitpodHost: "https://gitpod.io",
-                };
-                const vsCodeURI =
-                  "vscode://gitpod.gitpod-desktop/workspace/" +
-                  workspace.getDescription().split(" ")[0].split("/")[1] +
-                  `?` +
-                  encodeURIComponent(JSON.stringify(data));
-                setTimeout(() => {
-                  open(vsCodeURI);
-                }, 1500);
+                  gitpodHost: "https://gitpod.io"
+                }
+                if (preferences.preferredEditor === "vim") {
+                  const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.status.url);
+                  open(terminalURL)
+                } else if (preferences.preferredEditor === "code-desktop") {
+                  const vsCodeURI = "vscode://gitpod.gitpod-desktop/workspace/" + (workspace.getDescription().split(" ")[0]).split("/")[1] + `?` + encodeURIComponent(JSON.stringify(data))
+                  open(vsCodeURI)
+                }
               }}
+            />
+          )}
+
+
+          {workspace.getStatus().phase === "PHASE_RUNNING" && (
+            <Action
+              title="Configure Workspace"
+              onAction={() => {
+                push(<WorkspacePreference workspace={workspace.instanceId} />)
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "w" }}
             />
           )}
 
@@ -148,8 +175,8 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
             workspace.getStatus().phase === "PHASE_RUNNING"
               ? GitpodIcons.running_icon
               : workspace.getStatus().phase === "PHASE_STOPPED"
-              ? GitpodIcons.stopped_icon
-              : GitpodIcons.progressing_icon,
+                ? GitpodIcons.stopped_icon
+                : GitpodIcons.progressing_icon,
         },
       ]}
     />

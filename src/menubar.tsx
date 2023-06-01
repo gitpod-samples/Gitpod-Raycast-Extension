@@ -11,7 +11,7 @@ import { useHistory } from "./helpers/repository";
 import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 
 interface menuBarPreferences {
-  // access_token?: string
+  preferredEditor: string;
   cookie_token?: string
 }
 
@@ -30,26 +30,27 @@ export default function command() {
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
 
   const { isLoading } = usePromise(async () => {
-    if (preferences.cookie_token){
+    if (preferences.cookie_token) {
       await workspaceManager.init();
     }
   });
 
-  if (preferences.cookie_token){
-    useEffect(() => {
+  useEffect(() => {
+    if (preferences.cookie_token) {
       workspaceManager.on("workspaceUpdated", async () => {
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
       })
       workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
         console.log(e);
-        if (e.code === 401){
-          showHUD("Cookie Expired, Kindly Update Session Cookie.")
-        } else {
-          showHUD(e.message)
-        }
+        // if (e.code === 401) {
+        //   showHUD("Cookie Expired, Kindly Update Session Cookie.")
+        //
+        // } else {
+        //   showHUD(e.message)
+        // }
       })
-    }, [])
-  }
+    }
+  }, [preferences.cookie_token])
 
   if (isLoading) {
     return <MenuBarExtra isLoading={true}></MenuBarExtra>;
@@ -58,17 +59,25 @@ export default function command() {
   const activeWorkspaces = workspaces.filter(
     (workspace) =>
       workspace.getStatus().phase === "PHASE_RUNNING" ||
-      workspace.getStatus().phase !== "PHASE_STOPPED" 
+      workspace.getStatus().phase !== "PHASE_STOPPED"
   );
 
   const recentWorkspaces = workspaces.filter(
     (workspace) => workspace.getStatus().phase === "PHASE_STOPPED"
   );
 
+  function splitUrl(url: string) {
+    const urlWithoutProtocol = url.replace(/^https?:\/\//, '');
+    const parts = urlWithoutProtocol.split('.');
+
+    return parts[0] + ".ssh." + parts[1] + "." + parts[2] + "." + parts[3];
+  }
+
+
   return (
     <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary} isLoading={isLoading}>
-      { preferences.cookie_token && <MenuBarExtra.Section title="Active Workspaces">
-        { activeWorkspaces.map((workspace) => (
+      {preferences.cookie_token && <MenuBarExtra.Section title="Active Workspaces">
+        {activeWorkspaces.map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
             icon={
@@ -80,22 +89,27 @@ export default function command() {
             onAction={() => {
               if (workspace.getStatus().phase === "PHASE_RUNNING") {
                 const data = {
-                  instanceId : workspace.instanceId,
-                  workspaceId : workspace.getWorkspaceId(),
+                  instanceId: workspace.instanceId,
+                  workspaceId: workspace.getWorkspaceId(),
                   gitpodHost: "https://gitpod.io"
                 }
-                const vsCodeURI = "vscode://gitpod.gitpod-desktop/workspace/" + (workspace.getDescription().split(" ")[0]).split("/")[1] + `?`+ encodeURIComponent(JSON.stringify(data))
-                open(vsCodeURI)
+                if (preferences.preferredEditor === "vim") {
+                  const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.status.url);
+                  open(terminalURL)
+                } else if (preferences.preferredEditor === "code-desktop") {
+                  const vsCodeURI = "vscode://gitpod.gitpod-desktop/workspace/" + (workspace.getDescription().split(" ")[0]).split("/")[1] + `?` + encodeURIComponent(JSON.stringify(data))
+                  open(vsCodeURI)
+                }
               }
             }}
           />
         ))}
-      </MenuBarExtra.Section> }
-      { preferences.cookie_token && <MenuBarExtra.Section title="Recent Workspaces">
+      </MenuBarExtra.Section>}
+      {preferences.cookie_token && <MenuBarExtra.Section title="Recent Workspaces">
         {recentWorkspaces.slice(0, 7).map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
-            icon={ GitpodIcons.stopped_icon_menubar }
+            icon={GitpodIcons.stopped_icon_menubar}
             title={workspace.getDescription()}
             onAction={() => {
               workspace.start(WorkspaceManager.api)
@@ -104,8 +118,8 @@ export default function command() {
           />
         ))}
       </MenuBarExtra.Section>}
-             <MenuBarExtra.Section title="Recent Repositories">
-         {data.slice(0, 7).map((repository) => (
+      <MenuBarExtra.Section title="Recent Repositories">
+        {data.slice(0, 7).map((repository) => (
           <MenuBarExtra.Item
             key={repository.nameWithOwner}
             title={repository.nameWithOwner}

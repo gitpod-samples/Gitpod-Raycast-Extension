@@ -12,7 +12,7 @@ type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
   isGitpodified: boolean;
   onVisit: (repository: ExtendedRepositoryFieldsFragment) => void;
-  removeRepository?: (repository: ExtendedRepositoryFieldsFragment) => void;
+  removeRepository?: (repository: ExtendedRepositoryFieldsFragment) => Promise<void>;
   mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
   fromCache?: boolean;
 };
@@ -96,7 +96,10 @@ export default function RepositoryListItem({
               push(<SearchContext repository={repository} />);
             }}
           />
-          <Action title="Open Repo in GitHub" onAction={() => open(repository.url)} />
+          <Action title="Open Repo in GitHub" onAction={() => {
+            onVisit(repository);
+            open(repository.url)
+          }} />
           {!fromCache && (
             <Action
               title="Add Repo to Recents"
@@ -115,7 +118,11 @@ export default function RepositoryListItem({
             <Action
               title="Remove from Recents"
               onAction={async () => {
-                removeRepository?.(repository);
+                await showToast({
+                  title: `Removing "${repository.nameWithOwner}" from Recents`,
+                  style: Toast.Style.Animated,
+                });
+                await removeRepository?.(repository);
                 await showToast({
                   title: `Removed "${repository.nameWithOwner}" from Recents`,
                   style: Toast.Style.Success,
@@ -126,7 +133,10 @@ export default function RepositoryListItem({
           )}
           <Action
             title="Trigger Workspace"
-            onAction={() => OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)}
+            onAction={() => {
+              onVisit(repository);
+              OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)
+            }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
           <Action

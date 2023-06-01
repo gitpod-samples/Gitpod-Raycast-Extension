@@ -10,15 +10,13 @@ import {
 } from "@raycast/api";
 import { useEffect, useState } from "react";
 
-type RepositoryPreferenceProps = {
-  repository: string;
-  revalidate: () => void;
+type WorkspacePreferenceProps = {
+  workspace: string;
+  revalidate?: () => void;
 };
 
 interface Preferences {
   preferredEditor: string;
-  useLatest: boolean;
-  preferredEditorClass: "g1-standard" | "g1-large";
 }
 
 async function getDefaultValue(repository: string) {
@@ -32,14 +30,14 @@ async function getDefaultValue(repository: string) {
   return defaultPrefValue;
 }
 
-export default function RepositoryPreference({ repository, revalidate }: RepositoryPreferenceProps) {
+export default function WorkspacePreference({ workspace }: WorkspacePreferenceProps) {
   const [defaultPrefValue, setDefaultPrefValue] = useState<Preferences | null>(null);
 
   const { pop } = useNavigation();
 
   useEffect(() => {
     const loadDefaultValues = async () => {
-      const res = await getDefaultValue(repository);
+      const res = await getDefaultValue(workspace);
       setDefaultPrefValue(res);
     };
 
@@ -49,19 +47,18 @@ export default function RepositoryPreference({ repository, revalidate }: Reposit
   return (
     defaultPrefValue && (
       <Form
-        navigationTitle={`${repository}`}
+        navigationTitle={`${workspace}`}
         actions={
           <ActionPanel>
             <Action.SubmitForm
-              title="Set Repository Preferences"
+              title="Set Workspace Preferences"
               onSubmit={async (values: Preferences) => {
                 try {
-                  await LocalStorage.setItem(`${repository}`, JSON.stringify(values));
+                  await LocalStorage.setItem(`${workspace}`, JSON.stringify(values));
                   await showToast({
                     title: "Preferences saved successfully",
                     style: Toast.Style.Success,
                   });
-                  revalidate();
                   pop();
                 } catch (error) {
                   await showToast({
@@ -78,33 +75,11 @@ export default function RepositoryPreference({ repository, revalidate }: Reposit
           id="preferredEditor"
           title="Preferred Editor"
           defaultValue={defaultPrefValue.preferredEditor}
-          info={`Pick your favorite Editor for ${repository}`}
+          info={`Pick your favorite Editor`}
         >
           <Form.Dropdown.Item value="code" title="VS Code Browser" />
           <Form.Dropdown.Item value="code-desktop" title="VS Code Desktop" />
-          <Form.Dropdown.Item value="intellij" title="IntelliJ" />
-          <Form.Dropdown.Item value="goland" title="GoLand" />
-          <Form.Dropdown.Item value="phpstorm" title="PhpStorm" />
-          <Form.Dropdown.Item value="pycharm" title="PyCharm" />
-          <Form.Dropdown.Item value="rubymine" title="RubyMine" />
-          <Form.Dropdown.Item value="webstorm" title="WebStorm" />
-          <Form.Dropdown.Item value="rider" title="Rider" />
-          <Form.Dropdown.Item value="clion" title="CLion" />
-        </Form.Dropdown>
-        <Form.Checkbox
-          id="useLatest"
-          info="Use the latest version for each editor. Insiders for VS Code, EAP for JetBrains IDEs."
-          label="Latest Release (Unstable)"
-          defaultValue={defaultPrefValue.useLatest}
-        />
-        <Form.Dropdown
-          id="preferredEditorClass"
-          title="Workspace Class"
-          info="Up to 4 cores, 8GB RAM, 30GB storage in Standard & Up to 8 cores, 16GB RAM, 50GB storage in Large"
-          defaultValue={defaultPrefValue.preferredEditorClass}
-        >
-          <Form.Dropdown.Item value="g1-standard" title="Standard" />
-          <Form.Dropdown.Item value="g1-large" title="Large" />
+          <Form.Dropdown.Item value="vim" title="Vim" />
         </Form.Dropdown>
       </Form>
     )

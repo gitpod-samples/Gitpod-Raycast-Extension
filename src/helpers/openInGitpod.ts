@@ -1,5 +1,6 @@
 import { LocalStorage, open, showToast, Toast } from "@raycast/api";
 import { getPreferenceValues } from "@raycast/api";
+
 import { getGitpodEndpoint } from "../preferences/gitpod_endpoint";
 
 interface Preferences {
@@ -7,6 +8,7 @@ interface Preferences {
   useLatest: boolean;
   preferredEditorClass: "g1-standard" | "g1-large";
 }
+
 
 export async function getPreferencesForContext(
   type: "Branch" | "Pull Request" | "Issue" | "Repository",
@@ -44,13 +46,6 @@ export default async function OpenInGitpod(
 ) {
   const gitpodEndpoint = getGitpodEndpoint();
   const preferences = await getPreferencesForContext(type, repository, context);
-  if (type === "Branch") {
-    //visit branch
-  } else if (type === "Pull Request") {
-    //vitit pr
-  } else if (type === "Issue") {
-    //visit issue
-  }
 
   try {
     await showToast({
@@ -58,11 +53,19 @@ export default async function OpenInGitpod(
       style: Toast.Style.Success,
     });
     setTimeout(() => {
-      open(
-        `${gitpodEndpoint}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${
-          preferences.useLatest ? "-latest" : ""
-        }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
-      );
+      console.log(preferences.preferredEditor);
+      if (preferences.preferredEditor === "vim") {
+        // TODO: Add a check if dotsh files are loaded in future
+        open(
+          `${gitpodEndpoint}/?useLatest=${preferences.useLatest}&editor=${"code"}${preferences.useLatest ? "-latest" : ""
+          }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
+        );
+      } else {
+        open(
+          `${gitpodEndpoint}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${preferences.useLatest ? "-latest" : ""
+          }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
+        );
+      }
     }, 1000);
   } catch (error) {
     await showToast({

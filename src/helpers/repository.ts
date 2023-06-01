@@ -4,6 +4,8 @@ import { useEffect } from "react";
 
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 
+import { useContextHistory } from "./recent";
+
 const VISITED_REPOSITORIES_KEY = "VISITED_REPOSITORIES";
 const VISITED_REPOSITORIES_LENGTH = 25;
 
@@ -22,6 +24,7 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
   const [history, setHistory] = useCachedState<ExtendedRepositoryFieldsFragment[]>("history", []);
   const [migratedHistory, setMigratedHistory] = useCachedState<boolean>("migratedHistory", false);
 
+  const { removeRepoContext } = useContextHistory();
   useEffect(() => {
     if (!migratedHistory) {
       loadVisitedRepositories().then((repositories) => {
@@ -31,19 +34,21 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
     }
   }, [migratedHistory]);
 
-  function visitRepository(repository: ExtendedRepositoryFieldsFragment) {
+  async function visitRepository(repository: ExtendedRepositoryFieldsFragment) {
     const visitedRepositories = [repository, ...(history?.filter((item) => item.id !== repository.id) ?? [])];
-    LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
+    await LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
     const nextRepositories = visitedRepositories.slice(0, VISITED_REPOSITORIES_LENGTH);
     setHistory(nextRepositories);
   }
 
-  function removeRepository(repository: ExtendedRepositoryFieldsFragment) {
+  async function removeRepository(repository: ExtendedRepositoryFieldsFragment) {
     const visitedRepositories = [...(history?.filter((item) => item.id !== repository.id) ?? [])];
-    LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
+    await LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
+    await removeRepoContext({ repoName: repository.nameWithOwner })
     const nextRepositories = visitedRepositories.slice(0, VISITED_REPOSITORIES_LENGTH);
     setHistory(nextRepositories);
   }
+
   const repositoryFilter = `${searchFilter?.replaceAll(/org:|user:/g, "").replaceAll(" ", "|")}/.*`;
 
   const data = history

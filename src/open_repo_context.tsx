@@ -1,4 +1,4 @@
-import { List, Toast, showToast,Cache } from "@raycast/api";
+import { List, Toast, showToast, Cache } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 

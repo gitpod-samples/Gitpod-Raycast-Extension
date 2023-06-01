@@ -9,9 +9,19 @@ import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import View from "./components/View";
-import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
-import { dashboardPreferences } from "./preferences/dashboard_preferences";
-import {  Preferences } from "./preferences/repository_preferences";
+import WorkspacePreference from "./preferences/workspace_preferences";
+
+export interface dashboardPreferences {
+  // access_token: string;
+  preferredEditor: string;
+  cookie_token: string;
+}
+
+export interface dashboardState {
+  // access_token: string;
+  preferredEditor: string;
+  cookie_token: string;
+}
 
 function ListWorkspaces() {
 
@@ -91,7 +101,16 @@ function renderWorkspaces(workspaces: IWorkspace[], title: string, EditorPrefere
   return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent))}</List.Section>;
 }
 
-function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences, CodePresent: boolean) {
+function renderWorkspaceListItem(workspace: IWorkspace) {
+  const preferences = getPreferenceValues<dashboardPreferences>();
+  function splitUrl(url: string) {
+    const urlWithoutProtocol = url.replace(/^https?:\/\//, '');
+    const parts = urlWithoutProtocol.split('.');
+
+    return parts[0] + ".ssh." + parts[1] + "." + parts[2] + "." + parts[3];
+  }
+  const { push } = useNavigation();
+
   return (
     <List.Item
       title={workspace.getDescription()}
@@ -111,26 +130,30 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                     style: Toast.Style.Animated,
                   });
 
-                  const vsCodeURI = getCodeEncodedURI(workspace)
-                  setTimeout(() => {
-                    open(vsCodeURI, "com.microsoft.VSCode");
-                    toast.hide();
-                  }, 1500);
+                const data = {
+                  instanceId: workspace.instanceId,
+                  workspaceId: workspace.getWorkspaceId(),
+                  gitpodHost: "https://gitpod.io"
                 }
-
-                else {
-
-                  if (workspace.getIDEURL() !== ''){
-                    if (EditorPreferences.preferredEditor === "code-desktop"){
-                      showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
-                    }
-                    setTimeout(() => {
-                      open(workspace.getIDEURL());
-                    }, 1500)
-                    
-                  }
+                if (preferences.preferredEditor === "vim") {
+                  const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.status.url);
+                  open(terminalURL)
+                } else if (preferences.preferredEditor === "code-desktop") {
+                  const vsCodeURI = "vscode://gitpod.gitpod-desktop/workspace/" + (workspace.getDescription().split(" ")[0]).split("/")[1] + `?` + encodeURIComponent(JSON.stringify(data))
+                  open(vsCodeURI)
                 }
               }}
+            />
+          )}
+
+
+          {workspace.getStatus().phase === "PHASE_RUNNING" && (
+            <Action
+              title="Configure Workspace"
+              onAction={() => {
+                push(<WorkspacePreference workspace={workspace.instanceId} />)
+              }}
+              shortcut={{ modifiers: ["cmd"], key: "w" }}
             />
           )}
 

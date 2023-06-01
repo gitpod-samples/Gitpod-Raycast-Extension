@@ -31,6 +31,10 @@
           "value": "code-desktop"
         },
         {
+          "title": "Vim",
+          "value": "vim"
+        },
+        {
           "title": "IntelliJ",
           "value": "intellij"
         },

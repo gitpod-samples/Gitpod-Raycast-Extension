@@ -1,8 +1,6 @@
 import fetch from 'node-fetch';
 
-import { GitpodAPI, StartWorkspace, StopWorkspace } from "../api";
-
-import { IWorkspaceError, NewIWorkspaceErrorObject } from './IWorkspaceError';
+import { IWorkspaceError } from './IWorkspaceError';
 import { GitpodDataModel } from "./Model";
 
 type IWorkspaceParams = {
@@ -13,6 +11,8 @@ const workspaceURLs = {
   getWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/GetWorkspace",
   getAllWorkspaces: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/ListWorkspaces",
   deleteWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/DeleteWorkspace",
+  startWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StartWorkspace",
+  stopWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StopWorkspace"
 };
 
 export class IWorkspace implements GitpodDataModel {
@@ -35,15 +35,15 @@ export class IWorkspace implements GitpodDataModel {
     phase: string;
   };
 
-  getIDEURL(){
+  getIDEURL() {
     return this.ideURL
   }
 
-  setIDEURL(url: string){
+  setIDEURL(url: string) {
     this.ideURL = url;
   }
 
-  setStatus(status : { phase: string }): IWorkspace {
+  setStatus(status: { phase: string }): IWorkspace {
     this.status = status;
     return this;
   }
@@ -138,29 +138,75 @@ export class IWorkspace implements GitpodDataModel {
     this.status = { phase: "" };
   }
 
-  public start (api: GitpodAPI) {
-    const workspaceParam: StartWorkspace = {
-        method: "startWorkspace",
-        params: this.workspaceId
+  public start: (params: IWorkspaceParams) => Promise<IWorkspace> | never = async (params: IWorkspaceParams) => {
+    const { workspaceID } = params;
+    const response = await fetch(workspaceURLs.startWorkspace, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "Authorization": `Bearer ${this.token}`,
+      },
+      body: JSON.stringify({ workspaceId: workspaceID }),
+    });
+    const json = await response.json();
+    if (response.status !== 200) {
+      const errorState = json as { code?: string, message?: string }
+      const error: IWorkspaceError = {
+        name: "WorkspaceStartError",
+        code: response.status,
+        message: errorState.message && errorState.message.startsWith("You cannot run more than 4 workspaces at the same time") ? errorState.message : "Error Occured in Starting Workspace"
+      }
+      throw error
     }
-
-    api.execute(workspaceParam)
+    const workspace = this.parse(JSON.stringify(json));
+    return workspace;
   }
 
-  public fetch: (params: IWorkspaceParams) => Promise<IWorkspace> = async (
-    params: IWorkspaceParams
-  ): Promise<IWorkspace> => {
+  public stop: (params: IWorkspaceParams) => void = async (params: IWorkspaceParams) => {
     const { workspaceID } = params;
-    
+
+    const response = await fetch(workspaceURLs.stopWorkspace, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "Authorization": `Bearer ${this.token}`,
+      },
+      body: JSON.stringify({ workspaceId: workspaceID }),
+    });
+
+    if (response.status !== 200) {
+      const error: IWorkspaceError = {
+        name: "WorkspaceStartError",
+        code: response.status,
+        message: "Error Occured in Stopping Workspace"
+      }
+      throw error
+    }
+  }
+
+  public fetch: (params: IWorkspaceParams) => Promise<IWorkspace> | never = async (
+    params: IWorkspaceParams
+  ) => {
+    const { workspaceID } = params;
+
     const response = await fetch(workspaceURLs.getWorkspace, {
       method: "GET",
       headers: {
         "content-type": "application/json",
-        // Authorization: `Bearer ${this.token}`,
-        "cookie" : `_gitpod_io_v2_=${this.token}`,
+        "Authorization": `Bearer ${this.token}`,
       },
       body: JSON.stringify({ workspaceID }),
     });
+
+    if (response.status != 200) {
+      const error: IWorkspaceError = {
+        name: "WorkspaceFetchError",
+        code: response.status,
+        message: response.statusText
+      }
+      throw error
+    }
+
     const json = await response.json();
 
     const workspace = this.parse(JSON.stringify(json));
@@ -169,37 +215,29 @@ export class IWorkspace implements GitpodDataModel {
 
   public static fetchAll = async (token: string): Promise<Map<string, IWorkspace>> => {
     const workspaceMap = new Map<string, IWorkspace>();
-
-    try {
-      const response = await fetch(workspaceURLs.getAllWorkspaces, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          // Authorization: `Bearer ${token}`,
-          "cookie" : `_gitpod_io_v2_=${token}`
-        },
-        body: JSON.stringify({}),
-      })
-      if (response.status != 200){
-        const error : IWorkspaceError = {
-          name: "WorkspaceFetchError",
-          code: response.status,
-          message: response.statusText
-        }
-        throw error
+    const response = await fetch(workspaceURLs.getAllWorkspaces, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({}),
+    })
+    if (response.status != 200) {
+      const error: IWorkspaceError = {
+        name: "WorkspaceFetchError",
+        code: response.status,
+        message: response.statusText
       }
-  
-      const json = await response.json() as any ;
-      
-      json.result.map((workspace: any) => {
-          const space =  new IWorkspace(workspace, token);
-          workspaceMap.set(space.workspaceId, space);
-      })
-
-    } catch (e) {
-      throw NewIWorkspaceErrorObject(e);
+      throw error
     }
-    
+
+    const json = await response.json() as any;
+
+    json.result.map((workspace: unknown) => {
+      const space = new IWorkspace(workspace, token);
+      workspaceMap.set(space.workspaceId, space);
+    })
     return workspaceMap
   }
 
@@ -208,26 +246,15 @@ export class IWorkspace implements GitpodDataModel {
   //     method: "GET",
   //     headers: {
   //       "Content-Type": "application/json",
-  //       // Authorization: `Bearer ${this.token}`,
-  //       "cookie" : `_gitpod_io_v2_=${this.token}`
+  // Authorization: `Bearer ${this.token}`,
   //     },
   //     body: JSON.stringify({ workspaceId: this.workspaceId }),
   //   });
   //   const result = await response.json();
   //   if (response.status !== 200) {
-  //   //   throw new Error(`Failed to delete workspace: ${result.message}`);
+  //   throw new Error(`Failed to delete workspace: ${result.message}`);
   //   }
 
   //   this.dispose();
   // };
-
-  async stop(api: GitpodAPI): Promise<void> {
-    const workspaceParam: StopWorkspace = {
-        
-      method: "stopWorkspace",
-      params: this.workspaceId
-  }
-
-    api.execute(workspaceParam)
-  }
 }

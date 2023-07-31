@@ -67,12 +67,12 @@
       "required": false
     },
     {
-      "name": "cookie_token",
-      "title": "Gitpod Session Cookie",
-      "placeholder": "Only for Gitpod Beta Testers",
-      "description": "Enter Gitpod Session Cookie from Browser",
+      "name": "access_token",
+      "title": "Gitpod Access Token",
+      "placeholder": "Gitpod Access Token",
+      "description": "Generate and Enter a Gitpod Access Token from Gitpod with Full Access.",
       "type": "password",
-      "required": true
+      "required": false
     }
   ],
   "commands": [
@@ -136,6 +136,9 @@
     }
   ],
   "dependencies": {
+    "@bufbuild/connect": "^0.8.6",
+    "@bufbuild/connect-node": "^0.8.6",
+    "@bufbuild/protobuf": "^1.2.0",
     "@graphql-codegen/cli": "^2.16.2",
     "@graphql-codegen/typescript-graphql-request": "^4.5.8",
     "@graphql-codegen/typescript-operations": "^2.5.11",

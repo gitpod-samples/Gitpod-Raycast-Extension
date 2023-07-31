@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications, openExtensionPreferences } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -11,17 +11,17 @@ import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import View from "./components/View";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
-import {  Preferences } from "./preferences/repository_preferences";
+import { Preferences } from "./preferences/repository_preferences";
 
 function ListWorkspaces() {
 
-  const CookiePreferences = getPreferenceValues<dashboardPreferences>();
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
   const EditorPreferences = getPreferenceValues<Preferences>();
 
   const workspaceManager = new WorkspaceManager(
-    "",
-    CookiePreferences.cookie_token
+    dashboardPreferences.access_token ?? ""
   );
+
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
@@ -35,7 +35,7 @@ function ListWorkspaces() {
       return app.bundleId && app.bundleId === "com.microsoft.VSCode"
     });
 
-    if (CodePresent !== undefined){
+    if (CodePresent !== undefined) {
       setVSCodePresent(true);
     }
   });
@@ -44,19 +44,11 @@ function ListWorkspaces() {
     workspaceManager.on("workspaceUpdated", () => {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
-    workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-      if (e.code === 401) {
-        showToast({
-          style: Toast.Style.Failure,
-          title: "Cookie Expired, Kindly Update Session Cookie."
-        })
-        openExtensionPreferences();
-      } else {
-        showToast({
-          style: Toast.Style.Failure,
-          title: e.message
-        })
-      }
+    workspaceManager.on("errorOccured", () => {
+      showToast({
+        style: Toast.Style.Failure,
+        title: "Unable to perform this action, please check your network, your token expiry or try again later.",
+      })
     })
   }, []);
 
@@ -104,8 +96,8 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
             <Action
               title="Open Workspace"
               onAction={async () => {
-              
-                if (CodePresent && EditorPreferences.preferredEditor === "code-desktop"){
+
+                if (CodePresent && EditorPreferences.preferredEditor === "code-desktop") {
                   const toast = await showToast({
                     title: "Launching your workspace in VSCode Desktop",
                     style: Toast.Style.Animated,
@@ -120,14 +112,14 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
 
                 else {
 
-                  if (workspace.getIDEURL() !== ''){
-                    if (EditorPreferences.preferredEditor === "code-desktop"){
+                  if (workspace.getIDEURL() !== '') {
+                    if (EditorPreferences.preferredEditor === "code-desktop") {
                       showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
                     }
                     setTimeout(() => {
                       open(workspace.getIDEURL());
                     }, 1500)
-                    
+
                   }
                 }
               }}
@@ -142,7 +134,11 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                   title: "Stopping your workspace",
                   style: Toast.Style.Failure,
                 });
-                workspace.stop(WorkspaceManager.api);
+                try {
+                  workspace.stop({ workspaceID: workspace.getWorkspaceId()});
+                } catch (e){
+                  await showHUD("Failed to stop your workspace, check your network, your token, or try later.")
+                }
               }}
               shortcut={{ modifiers: ["cmd"], key: "s" }}
             />
@@ -156,7 +152,12 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                   title: "Starting your workspace",
                   style: Toast.Style.Success,
                 });
-                workspace.start(WorkspaceManager.api);
+                try {
+                  await workspace.start({ workspaceID: workspace.getWorkspaceId() })
+                } catch (error) {
+                  const workspaceError: IWorkspaceError = error as IWorkspaceError
+                  showHUD(workspaceError.message)
+                }
               }}
             />
           )}

@@ -2,6 +2,7 @@ import {
   ActionPanel,
   Form,
   Action,
+  showHUD,
 } from "@raycast/api";
 import fetch from "node-fetch";
 
@@ -15,14 +16,15 @@ function FeedbackForm() {
         <ActionPanel>
           <Action.SubmitForm title="Submit Feedback"
             onSubmit={async (values) => {
-              console.log(values)
-              const res = await fetch(`https://raycast-extension-feedback.vercel.app/api-v1`, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({...values,tags:values.tags.join(",")})
-              })
-              const data = await res.json();
-              console.log("resp",data)
+              try {
+                await fetch(`https://raycast-extension-feedback.vercel.app/api-v1`, {
+                  method: "POST",
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ...values, tags: values.tags.join(",") })
+                })
+              } catch (e) {
+                showHUD("Failed to submit form data. Please try again.")
+              }
             }} />
         </ActionPanel>
       }

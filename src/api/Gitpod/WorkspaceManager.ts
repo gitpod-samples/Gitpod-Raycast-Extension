@@ -3,27 +3,28 @@ import { EventEmitter } from "stream";
 import { IWorkspace } from "./Models/IWorkspace";
 import { IWorkspaceError } from "./Models/IWorkspaceError";
 import { IWorkspaceUpdate } from "./Models/IWorkspaceUpdate";
-import { GitpodAPI } from "./api";
+import { WorkspaceStreamer } from "./WorkspaceStreamer";
 
 export class WorkspaceManager extends EventEmitter {
     private static instance: WorkspaceManager
     public static workspaces: Map<string, IWorkspace>
-    public static api: GitpodAPI
-    private static token: string
+    public static api: WorkspaceStreamer
+
+    // Gitpod PAT Token
+    static token: string
+
     private static user_id: string
 
-    constructor(token: string, user_id: string){
+    constructor(token: string) {
         super();
         if (!WorkspaceManager.api){
-            WorkspaceManager.api = new GitpodAPI(token, user_id);
+            WorkspaceManager.api = new WorkspaceStreamer(token);
         }
-        WorkspaceManager.token = token;
-        WorkspaceManager.user_id = user_id;
-    }
+        WorkspaceManager.token = token;    }
 
-    static getInstance(token: string, user_id: string){
+    static getInstance(token: string){
         if (!WorkspaceManager.instance){
-            WorkspaceManager.instance = new WorkspaceManager(token, user_id)
+            WorkspaceManager.instance = new WorkspaceManager(token)
         }
         return WorkspaceManager.instance
     }
@@ -34,7 +35,7 @@ export class WorkspaceManager extends EventEmitter {
             return;
         }
         try {
-            WorkspaceManager.workspaces = await IWorkspace.fetchAll(WorkspaceManager.user_id);
+            WorkspaceManager.workspaces = await IWorkspace.fetchAll(WorkspaceManager.token);
             this.emit("workspaceUpdated", WorkspaceManager.workspaces) 
         } catch (e: any) {
             this.emit("errorOccured", e as IWorkspaceError)

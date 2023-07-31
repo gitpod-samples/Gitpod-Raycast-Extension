@@ -23,15 +23,14 @@ export default function command() {
   const gitpodEndpoint = getGitpodEndpoint();
 
   const workspaceManager = new WorkspaceManager(
-    "",
-    preferences.cookie_token ?? "",
+    preferences.access_token ?? "",
   );
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
 
   const { isLoading } = usePromise(async () => {
-    if (preferences.cookie_token){
+    if (preferences.access_token){
       await workspaceManager.init();
       const apps = await getApplications();
 
@@ -46,7 +45,7 @@ export default function command() {
     }
   });
 
-  if (preferences.cookie_token){
+  if (preferences.access_token){
     useEffect(() => {
       workspaceManager.on("workspaceUpdated", async () => {
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
@@ -54,11 +53,7 @@ export default function command() {
 
       // Note: As menu bar has background refresh, it can lead to the menu-bar yelling the HUD on the desktop.
       // workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-      //   if (e.code === 401){
-      //     showHUD("Cookie Expired, Kindly Update Session Cookie.")
-      //   } else {
-      //     showHUD(e.message)
-      //   }
+      //   showHUD("Unable to fetch workspaces")
       // })
     }, [])
   }
@@ -79,7 +74,7 @@ export default function command() {
 
   return (
     <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary} isLoading={isLoading}>
-      { preferences.cookie_token && <MenuBarExtra.Section title="Active Workspaces">
+      { preferences.access_token && <MenuBarExtra.Section title="Active Workspaces">
         { activeWorkspaces.map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
@@ -109,14 +104,19 @@ export default function command() {
           />
         ))}
       </MenuBarExtra.Section> }
-      { preferences.cookie_token && <MenuBarExtra.Section title="Recent Workspaces">
+      { preferences.access_token && <MenuBarExtra.Section title="Recent Workspaces">
         {recentWorkspaces.slice(0, 7).map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
             icon={ GitpodIcons.stopped_icon_menubar }
             title={workspace.getDescription()}
-            onAction={() => {
-              workspace.start(WorkspaceManager.api)
+            onAction={async () => {
+              try {
+                await workspace.start({workspaceID: workspace.getWorkspaceId()})
+              } catch (error){
+                const workspaceError: IWorkspaceError = error as IWorkspaceError
+                showHUD(workspaceError.message)
+              }
             }
             }
           />

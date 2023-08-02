@@ -89,18 +89,6 @@
       ]
     },
     {
-      "name": "open_template",
-      "title": "Find Gitpod Templates",
-      "subtitle": "Gitpod Templates (Beta)",
-      "description": "Start your next app with our pre-configured templates",
-      "mode": "view",
-      "keywords": [
-        "gitpod",
-        "gp",
-        "template"
-      ]
-    },
-    {
       "name": "feedback_form",
       "title": "Feedback",
       "subtitle": "Gitpod Templates (Beta)",

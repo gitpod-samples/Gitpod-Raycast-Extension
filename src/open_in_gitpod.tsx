@@ -1,6 +1,8 @@
-import { List, showToast, Toast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
-import { useState, useMemo } from "react";
+import { Action, ActionPanel, Icon, List, showToast, Toast, useNavigation } from "@raycast/api";
+import { useCachedPromise, usePromise } from "@raycast/utils";
+import { useMemo, useState } from "react";
+
+import { GitpodIcons, UIColors } from "../constants";
 
 import BranchListItem from "./components/BranchListItem";
 import IssueListItem from "./components/IssueListItem";
@@ -12,15 +14,19 @@ import View from "./components/View";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
 import { useBranchHistory } from "./helpers/branch";
 import { useIssueHistory } from "./helpers/issue";
+import OpenInGitpod, { getPreferencesForContext } from "./helpers/openInGitpod";
 import { usePullReqHistory } from "./helpers/pull-request";
 import { useHistory } from "./helpers/repository";
 import { getGitHubClient } from "./helpers/withGithubClient";
+import RepositoryPreference from "./preferences/repository_preferences";
+
 
 function SearchRepositories() {
   const { github } = getGitHubClient();
 
   const [searchText, setSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
+
   const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
   const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
   const { history: visitedBranches, removeBranch } = useBranchHistory();
@@ -72,6 +78,29 @@ function SearchRepositories() {
     return found;
   }, [data]);
 
+  const { data: preferences, revalidate } = usePromise(async () => {
+    const response = await getPreferencesForContext("Repository", "gitpod-io/empty");
+    return response;
+  });
+
+  const { push } = useNavigation();
+
+  const accessoriesEmptyRepo: List.Item.Accessory[] = [
+    {
+      text: {
+        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
+      },
+      icon: {
+        source: Icon.ComputerChip,
+        tintColor: UIColors.gitpod_gold,
+      },
+      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `,
+    },
+    {
+      icon: GitpodIcons.gitpod_logo_primary,
+    },
+  ];
+
   return (
     <List
       isLoading={isLoading}
@@ -80,6 +109,23 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
+      <List.Item title={"Empty Workspace"} accessories={accessoriesEmptyRepo} icon={"https://avatars.githubusercontent.com/u/37021919?s=64&v=4"} actions={
+        <ActionPanel>
+          <Action
+            title="Start an Empty Workspace"
+            onAction={() => {
+              OpenInGitpod("https://github.com/gitpod-io/empty", "Repository", "gitpod-io/empty")
+            }}
+          />
+          <Action
+            title="Configure Workspace"
+            onAction={() =>
+              push(<RepositoryPreference revalidate={revalidate} repository={"gitpod-io/empty"} />)
+            }
+            shortcut={{ modifiers: ["cmd"], key: "w" }}
+          />
+        </ActionPanel>
+      } />
       {searchText == "" && (
         <List.Section
           title="Recent Contexts"

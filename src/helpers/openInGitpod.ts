@@ -50,19 +50,18 @@ export default async function OpenInGitpod(
   try {
     await showToast({
       title: "Launching your workspace",
-      style: Toast.Style.Success,
+      style: Toast.Style.Animated,
     });
     setTimeout(() => {
-      console.log(preferences.preferredEditor);
       if (preferences.preferredEditor === "vim") {
         // TODO: Add a check if dotsh files are loaded in future
         open(
-          `${gitpodEndpoint}/?useLatest=${preferences.useLatest}&editor=${"code"}${preferences.useLatest ? "-latest" : ""
+          `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${"code"}${preferences.useLatest ? "-latest" : ""
           }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
         );
       } else {
         open(
-          `${gitpodEndpoint}/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${preferences.useLatest ? "-latest" : ""
+          `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${preferences.useLatest ? "-latest" : ""
           }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
         );
       }

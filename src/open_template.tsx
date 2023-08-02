@@ -1,10 +1,8 @@
-import { List, showToast, Toast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { List, showToast, Toast } from "@raycast/api"; import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
 import TemplateListEmptyView from "./components/TemplateListEmptyView";
 import TemplateListItem from "./components/TemplateListItem";
-import View from "./components/View";
 import { getGitHubClient } from "./helpers/withGithubClient";
 
 type TemplateRepositoryFieldsFragment = {
@@ -17,7 +15,7 @@ type TemplateRepositoryFieldsFragment = {
   pullRequests: { totalCount: number }
 };
 
-function SearchRepositories() {
+export default function SearchTemplateRepositories() {
   const { github } = getGitHubClient();
 
   const [searchText, setSearchText] = useState("");
@@ -60,13 +58,5 @@ function SearchRepositories() {
       ) : null}
       <TemplateListEmptyView searchText={searchText} isLoading={isLoading} sampleRepositories={data} />
     </List>
-  );
-}
-
-export default function Command() {
-  return (
-    <View>
-      <SearchRepositories />
-    </View>
   );
 }

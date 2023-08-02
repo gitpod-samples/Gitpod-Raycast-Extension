@@ -24,8 +24,6 @@ type SearchContextProps = {
   repository: ExtendedRepositoryFieldsFragment;
 };
 
-const cache = new Cache();
-
 function SearchContext({ repository }: SearchContextProps) {
   const { history: cachedContexts, addRepoContext } = useContextHistory();
   const cachedRepo = cachedContexts.find(ctx => ctx.repoName === repository.nameWithOwner)
@@ -109,7 +107,6 @@ function SearchContext({ repository }: SearchContextProps) {
     [searchText, sections, cachedRepo, firstLoad],
     {
       onError(error) {
-        cache.clear();
         showToast({
           title: error.message,
           style: Toast.Style.Failure,

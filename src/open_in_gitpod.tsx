@@ -1,9 +1,10 @@
-import { Action, ActionPanel, Icon, List, showToast, Toast, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, getPreferenceValues, Icon, List, showToast, Toast, useNavigation } from "@raycast/api";
 import { useCachedPromise, usePromise } from "@raycast/utils";
 import { useMemo, useState } from "react";
 
 import { GitpodIcons, UIColors } from "../constants";
 
+import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import BranchListItem from "./components/BranchListItem";
 import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
@@ -18,6 +19,7 @@ import OpenInGitpod, { getPreferencesForContext } from "./helpers/openInGitpod";
 import { usePullReqHistory } from "./helpers/pull-request";
 import { useHistory } from "./helpers/repository";
 import { getGitHubClient } from "./helpers/withGithubClient";
+import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import RepositoryPreference from "./preferences/repository_preferences";
 
 
@@ -34,6 +36,10 @@ function SearchRepositories() {
 
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
+  const workspaceManager = new WorkspaceManager(
+    dashboardPreferences.access_token ?? ""
+  );
 
   const {
     data,
@@ -41,6 +47,7 @@ function SearchRepositories() {
     mutate: mutateList,
   } = useCachedPromise(
     async (query) => {
+      await workspaceManager.init();
       const result = await github.searchRepositories({ query, numberOfItems: 10 });
       return result.search.nodes?.map((node) => node as ExtendedRepositoryFieldsFragment);
     },

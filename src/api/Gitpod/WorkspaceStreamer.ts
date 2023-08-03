@@ -15,8 +15,17 @@ import { NewIWorkspaceUpdateObject } from "./Models/IWorkspaceUpdate";
 //   params: string;
 // }
 
+export interface CreateWorkspace {
+  method: "createWorkspace";
+  params: {
+    contextUrl : string;
+    organizationId : string;
+  }
+} 
+
 export type APIEvents = "errorOccured" | "instanceUpdated"
 // export type WorkspaceMethods = StartWorkspace | StopWorkspace
+export type WorkspaceMethods = CreateWorkspace
 
 export class WorkspaceStreamer extends EventEmitter {
   private static instance: WorkspaceStreamer;
@@ -68,19 +77,19 @@ export class WorkspaceStreamer extends EventEmitter {
     return super.on(event, listener);
   }
 
-  // public execute(method: WorkspaceMethods) {
+  public execute(method: WorkspaceMethods) {
     // EXECUTOR OR EMITTER
-  //   if (GitpodAPI.connected == true) {
-  //     const data = {
-  //       "jsonrpc": "2.0",
-  //       "id": Math.round(Math.random() * 1000),
-  //       ...method
-  //     }
-  //     GitpodAPI.webSocket.send(JSON.stringify(data))
-  //   } else {
-  //     this.emit("errorOccured", NewIWorkspaceErrorObject(GitpodAPI.error))
-  //   }
-  // }
+    if (WorkspaceStreamer.connected == true) {
+      const data = {
+        "jsonrpc": "2.0",
+        "id": Math.round(Math.random() * 1000),
+        ...method
+      }
+      WorkspaceStreamer.webSocket.send(JSON.stringify(data))
+    } else {
+      this.emit("errorOccured", NewIWorkspaceErrorObject(WorkspaceStreamer.error))
+    }
+  }
 
   private registerWebSocketEvents() {
     // LISTENER

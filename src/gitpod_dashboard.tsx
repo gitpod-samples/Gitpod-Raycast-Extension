@@ -173,7 +173,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               }}
             />
           )}
-          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
+          { (workspace.getStatus().phase === "PHASE_RUNNING" || workspace.getStatus().phase === "PHASE_STOPPED") && <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>}
         </ActionPanel>
       }
       accessories={[

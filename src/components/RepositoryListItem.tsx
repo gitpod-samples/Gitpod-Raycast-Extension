@@ -1,12 +1,17 @@
-import { Color, List, ActionPanel, Action, open, useNavigation, Icon, showToast, Toast } from "@raycast/api";
+import { Color, List, ActionPanel, Action, open, useNavigation, Icon, showToast, Toast, getPreferenceValues, LocalStorage} from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 
 import { GitpodIcons, UIColors } from "../../constants";
+import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
 import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
+import createWorksapceFromContext from "../helpers/createWorkspaceFromContext";
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import { getGitHubUser } from "../helpers/users";
 import SearchContext from "../open_repo_context";
+import { dashboardPreferences } from "../preferences/dashboard_preferences";
 import RepositoryPreference from "../preferences/repository_preferences";
+
+import DefaultOrgForm from "./DefaultOrgForm";
 
 type RepositoryListItemProps = {
   repository: ExtendedRepositoryFieldsFragment;
@@ -27,6 +32,7 @@ export default function RepositoryListItem({
   const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
   const numberOfStars = repository.stargazerCount;
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
 
   const { data: preferences, revalidate } = usePromise(async () => {
     const response = await getPreferencesForContext("Repository", repository.nameWithOwner);
@@ -133,9 +139,18 @@ export default function RepositoryListItem({
           )}
           <Action
             title="Trigger Workspace"
-            onAction={() => {
+            onAction={async () => {
               onVisit(repository);
-              OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)
+              if (dashboardPreferences.access_token !== undefined) {
+                const defaultOrg = await LocalStorage.getItem("default_organization");
+                if (defaultOrg !== undefined && WorkspaceManager.api) {
+                  createWorksapceFromContext(defaultOrg.toString(),repository.url);
+                } else {
+                  push(<DefaultOrgForm />)
+                }
+              } else {
+                OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)
+              }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />

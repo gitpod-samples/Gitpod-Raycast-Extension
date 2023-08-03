@@ -1,10 +1,12 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 import { useMemo } from "react";
 
 import { UIColors } from "../../constants";
+import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
 import { PullRequestFieldsFragment, UserFieldsFragment } from "../generated/graphql";
+import createWorksapceFromContext from "../helpers/createWorkspaceFromContext";
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import {
   getCheckStateAccessory,
@@ -14,6 +16,9 @@ import {
   getReviewDecision,
 } from "../helpers/pull-request";
 import ContextPreferences from "../preferences/context_preferences";
+import { dashboardPreferences } from "../preferences/dashboard_preferences";
+
+import DefaultOrgForm from "./DefaultOrgForm";
 
 type PullRequestListItemProps = {
   pullRequest: PullRequestFieldsFragment;
@@ -35,6 +40,7 @@ export default function PullRequestListItem({
 }: PullRequestListItemProps) {
   const updatedAt = new Date(pullRequest.updatedAt);
   const { push } = useNavigation();
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
 
   const numberOfComments = useMemo(() => getNumberOfComments(pullRequest), []);
   const author = getPullRequestAuthor(pullRequest);
@@ -113,14 +119,25 @@ export default function PullRequestListItem({
         <ActionPanel>
           <Action
             title="Open PR in Gitpod"
-            onAction={() => {
+            onAction={async () => {
               visitPullReq?.(pullRequest);
-              OpenInGitpod(
-                pullRequest.permalink,
-                "Pull Request",
-                pullRequest.repository.nameWithOwner,
-                pullRequest.title
-              );
+              if (dashboardPreferences.access_token !== undefined) {
+                const defaultOrg = await LocalStorage.getItem("default_organization");
+                if (defaultOrg !== undefined && WorkspaceManager.api) {
+                  createWorksapceFromContext(defaultOrg.toString(), pullRequest.permalink);
+                } else {
+                  push(<DefaultOrgForm />)
+                }
+              } else {
+                OpenInGitpod(
+                  pullRequest.permalink,
+                  "Pull Request",
+                  pullRequest.repository.nameWithOwner,
+                  pullRequest.title
+                );
+              }
+              
+              
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />

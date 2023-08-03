@@ -1,10 +1,15 @@
-import { Action, ActionPanel, Color, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, List, open, useNavigation, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
 import { branchStatus, GitpodIcons, UIColors } from "../../constants";
+import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
 import { BranchDetailsFragment } from "../generated/graphql";
+import createWorksapceFromContext from "../helpers/createWorkspaceFromContext";
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import ContextPreferences from "../preferences/context_preferences";
+import { dashboardPreferences } from "../preferences/dashboard_preferences";
+
+import DefaultOrgForm from "./DefaultOrgForm";
 
 type BranchItemProps = {
   branch: BranchDetailsFragment;
@@ -41,6 +46,7 @@ export default function BranchListItem({
     return response;
   });
 
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
   const { push } = useNavigation();
 
   let icon = GitpodIcons.branchAhead;
@@ -137,9 +143,18 @@ export default function BranchListItem({
         <ActionPanel>
           <Action
             title="Open Branch in Gitpod"
-            onAction={() => {
+            onAction={async () => {
               visitBranch?.(branch, repository);
-              OpenInGitpod(branchURL, "Branch", repository, branch.branchName);
+              if (dashboardPreferences.access_token !== undefined) {
+                const defaultOrg = await LocalStorage.getItem("default_organization");
+                if (defaultOrg !== undefined && WorkspaceManager.api) {
+                  createWorksapceFromContext(defaultOrg.toString(),branchURL);
+                } else {
+                  push(<DefaultOrgForm />)
+                }
+              } else {
+                OpenInGitpod(branchURL, "Branch", repository, branch.branchName);
+              }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />

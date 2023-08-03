@@ -1,4 +1,4 @@
-import { getPreferenceValues, MenuBarExtra, open, showHUD,  getApplications, LocalStorage, launchCommand, LaunchType } from "@raycast/api";
+import { getPreferenceValues, MenuBarExtra, open, showHUD, getApplications, LocalStorage, launchCommand, LaunchType } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -9,7 +9,7 @@ import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
-import {  Preferences } from "./preferences/repository_preferences";
+import { Preferences } from "./preferences/repository_preferences";
 
 
 export default function command() {
@@ -25,7 +25,7 @@ export default function command() {
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
 
   const { isLoading } = usePromise(async () => {
-    if (preferences.access_token){
+    if (preferences.access_token) {
       await workspaceManager.init();
       const apps = await getApplications();
 
@@ -34,15 +34,18 @@ export default function command() {
         return app.bundleId && app.bundleId === "com.microsoft.VSCode"
       });
 
-      if (CodePresent !== undefined){
+      if (CodePresent !== undefined) {
         setVSCodePresent(true);
-      } 
+      }
     }
   });
 
-  if (preferences.access_token){
+  if (preferences.access_token) {
     useEffect(() => {
       workspaceManager.on("workspaceUpdated", async () => {
+        // if (targetWorkspace.getStatus().phase === "PHASE_INITIALIZING") {
+        //   showHUD("Workspace " + targetWorkspace.getDescription() + " has started ✅")
+        // }
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
       })
 
@@ -60,7 +63,7 @@ export default function command() {
   const activeWorkspaces = workspaces.filter(
     (workspace) =>
       workspace.getStatus().phase === "PHASE_RUNNING" ||
-      workspace.getStatus().phase !== "PHASE_STOPPED" 
+      workspace.getStatus().phase !== "PHASE_STOPPED"
   );
 
   const recentWorkspaces = workspaces.filter(
@@ -69,8 +72,8 @@ export default function command() {
 
   return (
     <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary} isLoading={isLoading}>
-      { preferences.access_token && <MenuBarExtra.Section title="Active Workspaces">
-        { activeWorkspaces.map((workspace) => (
+      {preferences.access_token && <MenuBarExtra.Section title="Active Workspaces">
+        {activeWorkspaces.map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
             icon={
@@ -81,14 +84,14 @@ export default function command() {
             title={workspace.getDescription()}
             onAction={() => {
               if (workspace.getStatus().phase === "PHASE_RUNNING") {
-                if (vsCodePresent && EditorPreferences.preferredEditor === "code-desktop"){
+                if (vsCodePresent && EditorPreferences.preferredEditor === "code-desktop") {
 
                   const vsCodeURI = getCodeEncodedURI(workspace)
                   open(vsCodeURI, "com.microsoft.VSCode");
                 }
                 else {
-                  if (workspace.getIDEURL() !== ''){
-                    if (EditorPreferences.preferredEditor === "code-desktop"){
+                  if (workspace.getIDEURL() !== '') {
+                    if (EditorPreferences.preferredEditor === "code-desktop") {
                       showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
                     }
                     open(workspace.getIDEURL());
@@ -98,17 +101,17 @@ export default function command() {
             }}
           />
         ))}
-      </MenuBarExtra.Section> }
-      { preferences.access_token && <MenuBarExtra.Section title="Recent Workspaces">
+      </MenuBarExtra.Section>}
+      {preferences.access_token && <MenuBarExtra.Section title="Recent Workspaces">
         {recentWorkspaces.slice(0, 7).map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
-            icon={ GitpodIcons.stopped_icon_menubar }
+            icon={GitpodIcons.stopped_icon_menubar}
             title={workspace.getDescription()}
             onAction={async () => {
               try {
-                await workspace.start({workspaceID: workspace.getWorkspaceId()})
-              } catch (error){
+                await workspace.start({ workspaceID: workspace.getWorkspaceId() })
+              } catch (error) {
                 const workspaceError: IWorkspaceError = error as IWorkspaceError
                 showHUD(workspaceError.message)
               }
@@ -124,8 +127,7 @@ export default function command() {
           key={"Launch New Empty Workspace"}
           onAction={async () => {
             const item = await LocalStorage.getItem("default_organization")
-            console.log(item);
-            if (item !== undefined){
+            if (item !== undefined) {
               IWorkspace.create(WorkspaceManager.api, {
                 contextUrl: "https://github.com/gitpod-io/empty",
                 organizationId: item.toString()

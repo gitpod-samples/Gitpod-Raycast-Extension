@@ -1,17 +1,23 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
 import { UIColors } from "../../constants";
+import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
 import {
   IssueFieldsFragment,
   SearchCreatedIssuesQuery,
   SearchOpenIssuesQuery,
   UserFieldsFragment,
 } from "../generated/graphql";
+import createWorksapceFromContext from "../helpers/createWorkspaceFromContext";
 import { getIssueAuthor, getIssueStatus } from "../helpers/issue";
 import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod";
 import ContextPreferences from "../preferences/context_preferences";
+import { dashboardPreferences } from "../preferences/dashboard_preferences";
+
+import DefaultOrgForm from "./DefaultOrgForm";
+
 
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
@@ -37,6 +43,8 @@ export default function IssueListItem({
 }: IssueListItemProps) {
   const { push } = useNavigation();
   const updatedAt = new Date(issue.updatedAt);
+
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
 
   const author = getIssueAuthor(issue);
   const status = getIssueStatus(issue);
@@ -93,9 +101,18 @@ export default function IssueListItem({
         <ActionPanel>
           <Action
             title="Open Issue in Gitpod"
-            onAction={() => {
+            onAction={async () => {
               visitIssue?.(issue);
-              OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title);
+              if (dashboardPreferences.access_token !== undefined) {
+                const defaultOrg = await LocalStorage.getItem("default_organization");
+                if (defaultOrg !== undefined && WorkspaceManager.api) {
+                  createWorksapceFromContext(defaultOrg.toString(),issue.url);
+                } else {
+                  push(<DefaultOrgForm />)
+                }
+              } else {
+                OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title);
+              }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />

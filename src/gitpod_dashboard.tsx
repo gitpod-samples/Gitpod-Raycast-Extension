@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications, LocalStorage } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -8,6 +8,7 @@ import sinceTime from "../utils/sinceTime";
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
+import DefaultOrgForm from "./components/DefaultOrgForm";
 import View from "./components/View";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
@@ -25,10 +26,15 @@ function ListWorkspaces() {
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
+  const [ defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
 
   const { isLoading } = usePromise(async () => {
     await workspaceManager.init();
     const apps = await getApplications();
+    const defaultOrg = await LocalStorage.getItem("default_organization");
+    if ( defaultOrg !== undefined){
+      setDefaultOrganization( defaultOrg.toString() )
+    }
 
     // checking if vsCode is present in all the apps with its bundle id
     const CodePresent = apps.find((app) => {
@@ -53,6 +59,7 @@ function ListWorkspaces() {
   }, []);
 
   return (
+    defaultOrganization === undefined ? <DefaultOrgForm /> : 
     <List isLoading={isLoading}>
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),

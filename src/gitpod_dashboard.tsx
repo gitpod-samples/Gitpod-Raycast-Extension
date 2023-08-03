@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, open, showToast, Toast, getPreferenceValues, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications, LocalStorage } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -8,89 +8,89 @@ import sinceTime from "../utils/sinceTime";
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
+import DefaultOrgForm from "./components/DefaultOrgForm";
 import View from "./components/View";
-import WorkspacePreference from "./preferences/workspace_preferences";
-
-export interface dashboardPreferences {
-  // access_token: string;
-  preferredEditor: string;
-  cookie_token: string;
-}
-
-export interface dashboardState {
-  // access_token: string;
-  preferredEditor: string;
-  cookie_token: string;
-}
+import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
+import { dashboardPreferences } from "./preferences/dashboard_preferences";
+import { Preferences } from "./preferences/repository_preferences";
 
 function ListWorkspaces() {
 
-  const preferences = getPreferenceValues<dashboardPreferences>();
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
+  const EditorPreferences = getPreferenceValues<Preferences>();
+
   const workspaceManager = new WorkspaceManager(
-    "",
-    preferences.cookie_token
+    dashboardPreferences.access_token ?? ""
   );
 
+
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
+  const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
+  const [ defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
 
   const { isLoading } = usePromise(async () => {
     await workspaceManager.init();
+    const apps = await getApplications();
+    const defaultOrg = await LocalStorage.getItem("default_organization");
+    if ( defaultOrg !== undefined){
+      setDefaultOrganization( defaultOrg.toString() )
+    }
+
+    // checking if vsCode is present in all the apps with its bundle id
+    const CodePresent = apps.find((app) => {
+      return app.bundleId && app.bundleId === "com.microsoft.VSCode"
+    });
+
+    if (CodePresent !== undefined) {
+      setVSCodePresent(true);
+    }
   });
 
   useEffect(() => {
     workspaceManager.on("workspaceUpdated", () => {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
-    workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-      if (e.code === 401) {
-        showToast({
-          style: Toast.Style.Failure,
-          title: "Cookie Expired, Kindly Update Session Cookie."
-        })
-      } else {
-        showToast({
-          style: Toast.Style.Failure,
-          title: e.message
-        })
-      }
+    workspaceManager.on("errorOccured", () => {
+      showToast({
+        style: Toast.Style.Failure,
+        title: "Unable to perform this action, please check your network, your token expiry or try again later.",
+      })
     })
   }, []);
 
   return (
+    defaultOrganization === undefined ? <DefaultOrgForm /> : 
     <List isLoading={isLoading}>
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
-        "Active Workspaces"
+        "Active Workspaces",
+        EditorPreferences,
+        vsCodePresent,
       )}
       {renderWorkspaces(
         workspaces.filter(
           (workspace) =>
             workspace.getStatus().phase != "PHASE_RUNNING" && workspace.getStatus().phase != "PHASE_STOPPED"
         ),
-        "Progressing Workspaces"
+        "Progressing Workspaces",
+        EditorPreferences,
+        vsCodePresent,
       )}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_STOPPED"),
-        "Inactive Workspaces"
+        "Inactive Workspaces",
+        EditorPreferences,
+        vsCodePresent,
       )}
     </List>
   );
 }
 
-function renderWorkspaces(workspaces: IWorkspace[], title: string) {
-  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace))}</List.Section>;
+function renderWorkspaces(workspaces: IWorkspace[], title: string, EditorPreferences: Preferences, CodePresent: boolean) {
+  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent))}</List.Section>;
 }
 
-function renderWorkspaceListItem(workspace: IWorkspace) {
-  const preferences = getPreferenceValues<dashboardPreferences>();
-  function splitUrl(url: string) {
-    const urlWithoutProtocol = url.replace(/^https?:\/\//, '');
-    const parts = urlWithoutProtocol.split('.');
-
-    return parts[0] + ".ssh." + parts[1] + "." + parts[2] + "." + parts[3];
-  }
-  const { push } = useNavigation();
-
+function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences, CodePresent: boolean) {
   return (
     <List.Item
       title={workspace.getDescription()}
@@ -103,35 +103,33 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
             <Action
               title="Open Workspace"
               onAction={async () => {
-                await showToast({
-                  title: "Launching your workspace",
-                  style: Toast.Style.Animated,
-                });
 
-                const data = {
-                  instanceId: workspace.instanceId,
-                  workspaceId: workspace.getWorkspaceId(),
-                  gitpodHost: "https://gitpod.io"
+                if (CodePresent && EditorPreferences.preferredEditor === "code-desktop") {
+                  const toast = await showToast({
+                    title: "Launching your workspace in VSCode Desktop",
+                    style: Toast.Style.Animated,
+                  });
+
+                  const vsCodeURI = getCodeEncodedURI(workspace)
+                  setTimeout(() => {
+                    open(vsCodeURI, "com.microsoft.VSCode");
+                    toast.hide();
+                  }, 1500);
                 }
-                if (preferences.preferredEditor === "vim") {
-                  const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.status.url);
-                  open(terminalURL)
-                } else if (preferences.preferredEditor === "code-desktop") {
-                  const vsCodeURI = "vscode://gitpod.gitpod-desktop/workspace/" + (workspace.getDescription().split(" ")[0]).split("/")[1] + `?` + encodeURIComponent(JSON.stringify(data))
-                  open(vsCodeURI)
+
+                else {
+
+                  if (workspace.getIDEURL() !== '') {
+                    if (EditorPreferences.preferredEditor === "code-desktop") {
+                      showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
+                    }
+                    setTimeout(() => {
+                      open(workspace.getIDEURL());
+                    }, 1500)
+
+                  }
                 }
               }}
-            />
-          )}
-
-
-          {workspace.getStatus().phase === "PHASE_RUNNING" && (
-            <Action
-              title="Configure Workspace"
-              onAction={() => {
-                push(<WorkspacePreference workspace={workspace.instanceId} />)
-              }}
-              shortcut={{ modifiers: ["cmd"], key: "w" }}
             />
           )}
 
@@ -143,7 +141,11 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
                   title: "Stopping your workspace",
                   style: Toast.Style.Failure,
                 });
-                workspace.stop(WorkspaceManager.api);
+                try {
+                  workspace.stop({ workspaceID: workspace.getWorkspaceId()});
+                } catch (e){
+                  await showHUD("Failed to stop your workspace, check your network, your token, or try later.")
+                }
               }}
               shortcut={{ modifiers: ["cmd"], key: "s" }}
             />
@@ -157,7 +159,12 @@ function renderWorkspaceListItem(workspace: IWorkspace) {
                   title: "Starting your workspace",
                   style: Toast.Style.Success,
                 });
-                workspace.start(WorkspaceManager.api);
+                try {
+                  await workspace.start({ workspaceID: workspace.getWorkspaceId() })
+                } catch (error) {
+                  const workspaceError: IWorkspaceError = error as IWorkspaceError
+                  showHUD(workspaceError.message)
+                }
               }}
             />
           )}

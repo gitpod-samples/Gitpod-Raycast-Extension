@@ -48,7 +48,6 @@ function SearchRepositories() {
     {
       keepPreviousData: true,
       onError(error) {
-        console.log(error)
         showToast({
           title: error.message,
           style: Toast.Style.Failure,

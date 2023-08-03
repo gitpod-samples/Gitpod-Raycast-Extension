@@ -77,6 +77,7 @@ export const GitpodIcons = {
   },
 
   info_icon: { source: "Icons/info1.svg", tintColor: UIColors.red},
+  link_icon: { source: "Icons/link.svg", tintColor: UIColors.gitpod_gold},
 
   commit_icon: {source: "Icons/git-commit.svg", tintColor: UIColors.gitpod_gold},
 

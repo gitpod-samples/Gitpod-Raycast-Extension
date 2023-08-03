@@ -210,6 +210,7 @@ export default function PullRequestListItem({
               }}
             />
           )}
+          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
     />

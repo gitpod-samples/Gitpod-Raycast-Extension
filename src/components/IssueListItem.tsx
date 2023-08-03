@@ -185,6 +185,7 @@ export default function IssueListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "w" }}
           />
+          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
     />

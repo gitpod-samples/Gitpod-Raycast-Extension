@@ -161,6 +161,7 @@ export default function RepositoryListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "w" }}
           />
+          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
     />

@@ -1,4 +1,4 @@
-import { getPreferenceValues, MenuBarExtra, open, showHUD, showToast, Toast, getApplications } from "@raycast/api";
+import { getPreferenceValues, MenuBarExtra, open, showHUD,  getApplications, useNavigation, LocalStorage, launchCommand, LaunchType } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -8,9 +8,7 @@ import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
-import { useHistory } from "./helpers/repository";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
-import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 import {  Preferences } from "./preferences/repository_preferences";
 
 
@@ -18,9 +16,6 @@ export default function command() {
 
   const preferences = getPreferenceValues<dashboardPreferences>();
   const EditorPreferences = getPreferenceValues<Preferences>();
-
-  const { data } = useHistory("", "");
-  const gitpodEndpoint = getGitpodEndpoint();
 
   const workspaceManager = new WorkspaceManager(
     preferences.access_token ?? "",
@@ -122,15 +117,27 @@ export default function command() {
           />
         ))}
       </MenuBarExtra.Section>}
-             <MenuBarExtra.Section title="Recent Repositories">
-         {data.slice(0, 7).map((repository) => (
-          <MenuBarExtra.Item
-            key={repository.nameWithOwner}
-            title={repository.nameWithOwner}
-            icon={GitpodIcons.repoIcon}
-            onAction={() => open(`${gitpodEndpoint}#https://github.com/${repository.nameWithOwner}`)}
-          />
-        ))}
+      <MenuBarExtra.Section>
+        <MenuBarExtra.Item
+          title="Launch New Empty Workspace"
+          icon={GitpodIcons.gitpod_logo_primary}
+          key={"Launch New Empty Workspace"}
+          onAction={async () => {
+            const item = await LocalStorage.getItem("default_organization")
+            console.log(item);
+            if (item !== undefined){
+              IWorkspace.create(WorkspaceManager.api, {
+                contextUrl: "https://github.com/gitpod-io/empty",
+                organizationId: item.toString()
+              })
+            } else {
+              launchCommand({
+                name: "gitpod_dashboard",
+                type: LaunchType.UserInitiated
+              })
+            }
+          }}
+        />
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

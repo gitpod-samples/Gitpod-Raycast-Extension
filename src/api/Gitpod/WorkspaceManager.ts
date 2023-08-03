@@ -51,11 +51,7 @@ export class WorkspaceManager extends EventEmitter {
             if (targetWorkspace == undefined || targetWorkspace.getStatus().phase == updateInstance.status.phase){
                 return;
             }
-
-            if (targetWorkspace.getStatus().phase === "PHASE_INITIALIZING" && targetWorkspace.getStatus().phase !== updateInstance.status.phase){
-                showHUD("Workspace " + targetWorkspace.getWorkspaceId() + " has started ✅")
-            }
-
+            
             // update when the workspace is not in the state
             targetWorkspace.setStatus(updateInstance.status)
             WorkspaceManager.workspaces = WorkspaceManager.workspaces.set(updateInstance.workspaceId, targetWorkspace);

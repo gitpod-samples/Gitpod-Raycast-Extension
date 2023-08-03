@@ -76,6 +76,8 @@ export const GitpodIcons = {
     tintColor: statusColors.progressing
   },
 
+  info_icon: { source: "Icons/info1.svg", tintColor: UIColors.red},
+
   commit_icon: {source: "Icons/git-commit.svg", tintColor: UIColors.gitpod_gold},
 
   branch_icon: {

@@ -26,14 +26,17 @@ function ListWorkspaces() {
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
+  const [isLoadingDefaultOrg, setLoadingDefaultOrg] = useState<boolean>(true);
   const [ defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
 
   const { isLoading } = usePromise(async () => {
+    await LocalStorage.clear()
     await workspaceManager.init();
     const apps = await getApplications();
     const defaultOrg = await LocalStorage.getItem("default_organization");
     if ( defaultOrg !== undefined){
       setDefaultOrganization( defaultOrg.toString() )
+      setLoadingDefaultOrg(false);
     }
 
     // checking if vsCode is present in all the apps with its bundle id
@@ -59,8 +62,12 @@ function ListWorkspaces() {
   }, []);
 
   return (
-    defaultOrganization === undefined ? <DefaultOrgForm /> : 
     <List isLoading={isLoading}>
+      { (isLoadingDefaultOrg === false || defaultOrganization === undefined) && <List.Item icon={GitpodIcons.info_icon} title={"Setup Default Organization"} subtitle={"Where is it billed? "} actions={
+        <ActionPanel>
+          <Action.Push title={"Setup Default Organization"} target={<DefaultOrgForm/>} />
+        </ActionPanel>
+      }/>}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
         "Active Workspaces",

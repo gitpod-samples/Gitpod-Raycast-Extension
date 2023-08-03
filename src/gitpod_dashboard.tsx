@@ -173,6 +173,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               }}
             />
           )}
+          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
       accessories={[

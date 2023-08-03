@@ -1,4 +1,4 @@
-import { getPreferenceValues, MenuBarExtra, open, showHUD, getApplications, LocalStorage, launchCommand, LaunchType } from "@raycast/api";
+import { getPreferenceValues, MenuBarExtra, open, showHUD, getApplications, LocalStorage, launchCommand, LaunchType, openCommandPreferences, openExtensionPreferences } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -140,6 +140,15 @@ export default function command() {
             }
           }}
         />
+      </MenuBarExtra.Section>
+      <MenuBarExtra.Section title="Utilities">
+        <MenuBarExtra.Item title="Gitpod Dashboard" icon={GitpodIcons.link_icon} subtitle="https://gitpod.io/workspaces" onAction={() => open("https://gitpod.io/workspaces")} />
+        <MenuBarExtra.Item title="User Settings" subtitle="https://gitpod.io/user/account" icon={GitpodIcons.link_icon} onAction={() => open("https://gitpod.io/user/account")} />
+        <MenuBarExtra.Item title="Gitpod Projects" subtitle="https://gitpod.io/projects" icon={GitpodIcons.link_icon} onAction={() => open("https://gitpod.io/projects")} />
+        <MenuBarExtra.Item title="Gitpod Docs" subtitle="https://www.gitpod.io/docs/introduction" icon={GitpodIcons.link_icon} onAction={() => open("https://www.gitpod.io/docs/introduction")} />
+      </MenuBarExtra.Section>
+      <MenuBarExtra.Section>
+        <MenuBarExtra.Item title="Command Preferences" onAction={async () => await openExtensionPreferences()}/>
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

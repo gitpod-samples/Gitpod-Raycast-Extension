@@ -1,5 +1,7 @@
 import { EventEmitter } from "stream";
 
+import { showHUD } from "@raycast/api";
+
 import { IWorkspace } from "./Models/IWorkspace";
 import { IWorkspaceError } from "./Models/IWorkspaceError";
 import { IWorkspaceUpdate } from "./Models/IWorkspaceUpdate";
@@ -48,6 +50,10 @@ export class WorkspaceManager extends EventEmitter {
             updateInstance.status.phase = "PHASE_" + updateInstance.status.phase.toUpperCase()
             if (targetWorkspace == undefined || targetWorkspace.getStatus().phase == updateInstance.status.phase){
                 return;
+            }
+
+            if (targetWorkspace.getStatus().phase === "PHASE_INITIALIZING" && targetWorkspace.getStatus().phase !== updateInstance.status.phase){
+                showHUD("Workspace " + targetWorkspace.getWorkspaceId() + " has started ✅")
             }
 
             // update when the workspace is not in the state

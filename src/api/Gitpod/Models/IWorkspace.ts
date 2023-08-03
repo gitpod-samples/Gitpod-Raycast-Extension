@@ -1,11 +1,18 @@
 import fetch from 'node-fetch';
 
+import { CreateWorkspace, WorkspaceStreamer } from '../WorkspaceStreamer';
+
 import { IWorkspaceError } from './IWorkspaceError';
 import { GitpodDataModel } from "./Model";
 
 type IWorkspaceParams = {
   workspaceID: string;
 };
+
+type ICreateWorkspaceParams = {
+  contextUrl: string;
+  organizationId: string;
+}
 
 const workspaceURLs = {
   getWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/GetWorkspace",
@@ -182,6 +189,16 @@ export class IWorkspace implements GitpodDataModel {
       }
       throw error
     }
+  }
+
+  public static create: (streamer: WorkspaceStreamer,params: ICreateWorkspaceParams) => void = async (streamer: WorkspaceStreamer,params: ICreateWorkspaceParams) => {
+
+    const createParams: CreateWorkspace = {
+      method: "createWorkspace",
+      params: params
+    }
+
+    streamer.execute(createParams)
   }
 
   public fetch: (params: IWorkspaceParams) => Promise<IWorkspace> | never = async (

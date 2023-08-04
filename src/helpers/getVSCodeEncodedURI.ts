@@ -10,9 +10,9 @@ export function getCodeEncodedURI(workspace: IWorkspace): string{
 
     const vsCodeURI =
                     "vscode://gitpod.gitpod-desktop/workspace/" +
-                    workspace.getDescription().split(" ")[0].split("/")[1] +
+                    workspace.getRepositoryName() +
                     `?` +
                     encodeURIComponent(JSON.stringify(data));
-
+                    
     return vsCodeURI
 }

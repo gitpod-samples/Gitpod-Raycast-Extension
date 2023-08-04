@@ -3,7 +3,7 @@ import { List } from "@raycast/api"
 import { GitpodIcons } from "../../constants"
 
 export const errorMessage =  {
-    invalidAccessToken : "Please provide a valid Gitpod access token.",
+    invalidAccessToken : "Set valid Gitpod access token in Preferences",
     networkError: "Please check your internet connection."
 }
 

@@ -1,4 +1,4 @@
-import { Action, ActionPanel, getPreferenceValues, Icon, List, showToast, Toast, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, getPreferenceValues, Icon, List, LocalStorage, showToast, Toast, useNavigation } from "@raycast/api";
 import { useCachedPromise, usePromise } from "@raycast/utils";
 import { useMemo, useState } from "react";
 
@@ -6,6 +6,7 @@ import { GitpodIcons, UIColors } from "../constants";
 
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import BranchListItem from "./components/BranchListItem";
+import DefaultOrgForm from "./components/DefaultOrgForm";
 import IssueListItem from "./components/IssueListItem";
 import PullRequestListItem from "./components/PullRequestListItem";
 import RepositoryListEmptyView from "./components/RepositoryListEmptyView";
@@ -15,6 +16,7 @@ import View from "./components/View";
 import { errorMessage } from "./components/errorListView";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
 import { useBranchHistory } from "./helpers/branch";
+import createWorksapceFromContext from "./helpers/createWorkspaceFromContext";
 import { useIssueHistory } from "./helpers/issue";
 import OpenInGitpod, { getPreferencesForContext } from "./helpers/openInGitpod";
 import { usePullReqHistory } from "./helpers/pull-request";
@@ -120,8 +122,17 @@ function SearchRepositories() {
         <ActionPanel>
           <Action
             title="Start an Empty Workspace"
-            onAction={() => {
-              OpenInGitpod("https://github.com/gitpod-io/empty", "Repository", "gitpod-io/empty")
+            onAction={async () => {
+              if (dashboardPreferences.access_token !== undefined && dashboardPreferences.access_token !== "") {
+                const defaultOrg = await LocalStorage.getItem("default_organization");
+                if (defaultOrg !== undefined && WorkspaceManager.api) {
+                  createWorksapceFromContext(defaultOrg.toString(),"https://github.com/gitpod-io/empty");
+                } else {
+                  push(<DefaultOrgForm />)
+                }
+              } else {
+                OpenInGitpod("https://github.com/gitpod-io/empty", "Repository", "gitpod-io/empty")
+              }
             }}
           />
           <Action
@@ -129,7 +140,7 @@ function SearchRepositories() {
             onAction={() =>
               push(<RepositoryPreference revalidate={revalidate} repository={"gitpod-io/empty"} />)
             }
-            shortcut={{ modifiers: ["cmd"], key: "w" }}
+            shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
         </ActionPanel>
       } />

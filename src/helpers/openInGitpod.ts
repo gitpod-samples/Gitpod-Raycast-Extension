@@ -53,7 +53,7 @@ export default async function OpenInGitpod(
       style: Toast.Style.Animated,
     });
     setTimeout(() => {
-      if (preferences.preferredEditor === "vim") {
+      if (preferences.preferredEditor === "ssh") {
         // TODO: Add a check if dotsh files are loaded in future
         open(
           `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${"code"}${preferences.useLatest ? "-latest" : ""

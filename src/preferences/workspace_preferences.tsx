@@ -79,7 +79,7 @@ export default function WorkspacePreference({ workspace }: WorkspacePreferencePr
         >
           <Form.Dropdown.Item value="code" title="VS Code Browser" />
           <Form.Dropdown.Item value="code-desktop" title="VS Code Desktop" />
-          <Form.Dropdown.Item value="vim" title="Vim" />
+          <Form.Dropdown.Item value="ssh" title="SSH" />
         </Form.Dropdown>
       </Form>
     )

@@ -121,7 +121,7 @@ export default function PullRequestListItem({
             title="Open PR in Gitpod"
             onAction={async () => {
               visitPullReq?.(pullRequest);
-              if (dashboardPreferences.access_token !== undefined) {
+              if (dashboardPreferences.access_token) {
                 const defaultOrg = await LocalStorage.getItem("default_organization");
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
                   createWorksapceFromContext(defaultOrg.toString(), pullRequest.permalink);
@@ -136,8 +136,6 @@ export default function PullRequestListItem({
                   pullRequest.title
                 );
               }
-              
-              
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
@@ -186,7 +184,7 @@ export default function PullRequestListItem({
                 />
               )
             }
-            shortcut={{ modifiers: ["cmd"], key: "w" }}
+            shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
           {!fromCache && (
             <Action
@@ -210,7 +208,7 @@ export default function PullRequestListItem({
               }}
             />
           )}
-          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
+          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
     />

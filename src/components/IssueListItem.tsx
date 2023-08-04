@@ -103,7 +103,7 @@ export default function IssueListItem({
             title="Open Issue in Gitpod"
             onAction={async () => {
               visitIssue?.(issue);
-              if (dashboardPreferences.access_token !== undefined) {
+              if (dashboardPreferences.access_token) {
                 const defaultOrg = await LocalStorage.getItem("default_organization");
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
                   createWorksapceFromContext(defaultOrg.toString(),issue.url);
@@ -183,9 +183,9 @@ export default function IssueListItem({
                 />
               )
             }
-            shortcut={{ modifiers: ["cmd"], key: "w" }}
+            shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
-          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
+          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
     />

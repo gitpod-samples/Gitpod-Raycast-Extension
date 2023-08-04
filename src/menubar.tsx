@@ -140,7 +140,7 @@ export default function command() {
                 ignoreRunningPrebuild: true,
                 ignoreRunningWorkspaceOnSameCommit: true,
                 ideSetting: {
-                  defaultIde: EditorPreferences.preferredEditor === "vim" ? "code" : EditorPreferences.preferredEditor,
+                  defaultIde: EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
                   useLatestVersion: false
                 }
               })

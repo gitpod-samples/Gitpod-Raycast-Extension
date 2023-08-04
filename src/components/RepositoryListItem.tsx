@@ -141,7 +141,7 @@ export default function RepositoryListItem({
             title="Trigger Workspace"
             onAction={async () => {
               onVisit(repository);
-              if (dashboardPreferences.access_token !== undefined) {
+              if (dashboardPreferences.access_token) {
                 const defaultOrg = await LocalStorage.getItem("default_organization");
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
                   createWorksapceFromContext(defaultOrg.toString(),repository.url);
@@ -159,9 +159,9 @@ export default function RepositoryListItem({
             onAction={() =>
               push(<RepositoryPreference revalidate={revalidate} repository={repository.nameWithOwner} />)
             }
-            shortcut={{ modifiers: ["cmd"], key: "w" }}
+            shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
-          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
+          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
         </ActionPanel>
       }
     />

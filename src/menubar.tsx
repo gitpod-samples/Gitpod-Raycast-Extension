@@ -1,4 +1,4 @@
-import { getPreferenceValues, MenuBarExtra, open, showHUD, getApplications, LocalStorage, launchCommand, LaunchType, openCommandPreferences, openExtensionPreferences } from "@raycast/api";
+import { getPreferenceValues, MenuBarExtra, open, showHUD, getApplications, LocalStorage, launchCommand, LaunchType, openExtensionPreferences } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -8,6 +8,7 @@ import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
+import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { Preferences } from "./preferences/repository_preferences";
 
@@ -88,7 +89,10 @@ export default function command() {
 
                   const vsCodeURI = getCodeEncodedURI(workspace)
                   open(vsCodeURI, "com.microsoft.VSCode");
-                }
+                } else if (EditorPreferences.preferredEditor === "ssh") {
+                  const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.getIDEURL());
+                  open(terminalURL)
+                } 
                 else {
                   if (workspace.getIDEURL() !== '') {
                     if (EditorPreferences.preferredEditor === "code-desktop") {
@@ -130,7 +134,13 @@ export default function command() {
             if (item !== undefined) {
               IWorkspace.create(WorkspaceManager.api, {
                 contextUrl: "https://github.com/gitpod-io/empty",
-                organizationId: item.toString()
+                organizationId: item.toString(),
+                ignoreRunningPrebuild: true,
+                ignoreRunningWorkspaceOnSameCommit: true,
+                ideSetting: {
+                  defaultIde: EditorPreferences.preferredEditor === "vim" ? "code" : EditorPreferences.preferredEditor,
+                  useLatestVersion: false
+                }
               })
             } else {
               launchCommand({
@@ -142,13 +152,13 @@ export default function command() {
         />
       </MenuBarExtra.Section>
       <MenuBarExtra.Section title="Utilities">
-        <MenuBarExtra.Item title="Gitpod Dashboard" icon={GitpodIcons.link_icon} subtitle="https://gitpod.io/workspaces" onAction={() => open("https://gitpod.io/workspaces")} />
-        <MenuBarExtra.Item title="User Settings" subtitle="https://gitpod.io/user/account" icon={GitpodIcons.link_icon} onAction={() => open("https://gitpod.io/user/account")} />
-        <MenuBarExtra.Item title="Gitpod Projects" subtitle="https://gitpod.io/projects" icon={GitpodIcons.link_icon} onAction={() => open("https://gitpod.io/projects")} />
-        <MenuBarExtra.Item title="Gitpod Docs" subtitle="https://www.gitpod.io/docs/introduction" icon={GitpodIcons.link_icon} onAction={() => open("https://www.gitpod.io/docs/introduction")} />
+        <MenuBarExtra.Item title="Dashboard" icon={GitpodIcons.dashboard_icon} shortcut={{ modifiers: ["cmd", "shift"], key: "d"}} onAction={() => open("https://gitpod.io/workspaces")} />
+        <MenuBarExtra.Item title="My Projects" shortcut={{modifiers: ["cmd",  "shift"], key: "p"}} icon={GitpodIcons.project_icon} onAction={() => open("https://gitpod.io/projects")} />
+        <MenuBarExtra.Item title="My Settings" shortcut={{ modifiers: ["cmd" , "shift"], key: "s"}} icon={GitpodIcons.settings_icon} onAction={() => open("https://gitpod.io/user/account")} />
+        <MenuBarExtra.Item title="Documentation" shortcut={{modifiers: ["cmd", "shift"], key: "."}} icon={GitpodIcons.docs_icon} onAction={() => open("https://www.gitpod.io/docs/introduction")} />
       </MenuBarExtra.Section>
       <MenuBarExtra.Section>
-        <MenuBarExtra.Item title="Command Preferences" onAction={async () => await openExtensionPreferences()}/>
+        <MenuBarExtra.Item title="Command Preferences" shortcut={{modifiers: ["cmd"], key: ","}} onAction={async () => await openExtensionPreferences()}/>
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

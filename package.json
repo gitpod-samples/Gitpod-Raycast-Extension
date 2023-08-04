@@ -31,8 +31,8 @@
           "value": "code"
         },
         {
-          "title": "Vim",
-          "value": "vim"
+          "title": "SSH",
+          "value": "ssh"
         }
       ],
       "required": true

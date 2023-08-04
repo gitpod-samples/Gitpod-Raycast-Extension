@@ -11,6 +11,7 @@ import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import DefaultOrgForm from "./components/DefaultOrgForm";
 import View from "./components/View";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
+import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { Preferences } from "./preferences/repository_preferences";
 
@@ -22,19 +23,19 @@ function ListWorkspaces() {
   const workspaceManager = new WorkspaceManager(
     dashboardPreferences.access_token ?? ""
   );
-  
+
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
 
-  const [ defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
+  const [defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
 
   const { isLoading, revalidate } = usePromise(async () => {
     // await LocalStorage.clear();
     await workspaceManager.init();
     const apps = await getApplications();
     const defaultOrg = await LocalStorage.getItem("default_organization");
-    if ( defaultOrg !== undefined){
-      setDefaultOrganization( defaultOrg.toString() )
+    if (defaultOrg !== undefined) {
+      setDefaultOrganization(defaultOrg.toString())
     }
 
     // checking if vsCode is present in all the apps with its bundle id
@@ -61,11 +62,11 @@ function ListWorkspaces() {
 
   return (
     <List isLoading={isLoading}>
-      { (!isLoading && defaultOrganization === undefined) && <List.Item icon={GitpodIcons.info_icon} title={"Setup Default Organization"} subtitle={"Where is it billed? "} actions={
+      {(!isLoading && defaultOrganization === undefined) && <List.Item icon={GitpodIcons.info_icon} title={"Setup Default Organization"} subtitle={"Where is it billed? "} actions={
         <ActionPanel>
-          <Action.Push title={"Setup Default Organization"} target={<DefaultOrgForm revalidate={revalidate}/>} />
+          <Action.Push title={"Setup Default Organization"} target={<DefaultOrgForm revalidate={revalidate} />} />
         </ActionPanel>
-      }/>}
+      } />}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
         "Active Workspaces",
@@ -108,7 +109,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
             <Action
               title="Open Workspace"
               onAction={async () => {
-
+                console.log(workspace.getIDEURL())
                 if (CodePresent && EditorPreferences.preferredEditor === "code-desktop") {
                   const toast = await showToast({
                     title: "Launching your workspace in VSCode Desktop",
@@ -120,10 +121,11 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                     open(vsCodeURI, "com.microsoft.VSCode");
                     toast.hide();
                   }, 1500);
+                } else if (EditorPreferences.preferredEditor === "ssh") {
+                  const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.getIDEURL());
+                  open(terminalURL)
                 }
-
                 else {
-
                   if (workspace.getIDEURL() !== '') {
                     if (EditorPreferences.preferredEditor === "code-desktop") {
                       showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
@@ -131,7 +133,6 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                     setTimeout(() => {
                       open(workspace.getIDEURL());
                     }, 1500)
-
                   }
                 }
               }}
@@ -147,8 +148,8 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                   style: Toast.Style.Failure,
                 });
                 try {
-                  workspace.stop({ workspaceID: workspace.getWorkspaceId()});
-                } catch (e){
+                  workspace.stop({ workspaceID: workspace.getWorkspaceId() });
+                } catch (e) {
                   await showHUD("Failed to stop your workspace, check your network, your token, or try later.")
                 }
               }}
@@ -173,7 +174,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               }}
             />
           )}
-          <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />}/>
+          {(workspace.getStatus().phase === "PHASE_RUNNING" || workspace.getStatus().phase === "PHASE_STOPPED") && <Action.Push title="Switch Default Organization" target={<DefaultOrgForm />} />}
         </ActionPanel>
       }
       accessories={[

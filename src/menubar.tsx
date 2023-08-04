@@ -3,6 +3,7 @@ import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
 import { GitpodIcons } from "../constants";
+import sinceTime from "../utils/sinceTime";
 
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
@@ -17,6 +18,7 @@ export default function command() {
 
   const preferences = getPreferenceValues<dashboardPreferences>();
   const EditorPreferences = getPreferenceValues<Preferences>();
+  const [isUnauthorised, setIsUnauthorized] = useState<boolean>(false);
 
   const workspaceManager = new WorkspaceManager(
     preferences.access_token ?? "",
@@ -39,23 +41,21 @@ export default function command() {
         setVSCodePresent(true);
       }
     }
-  });
+  },);
 
-  if (preferences.access_token) {
-    useEffect(() => {
+  useEffect(() => {
+    if (preferences.access_token) {
+
       workspaceManager.on("workspaceUpdated", async () => {
-        // if (targetWorkspace.getStatus().phase === "PHASE_INITIALIZING") {
-        //   showHUD("Workspace " + targetWorkspace.getDescription() + " has started ✅")
-        // }
         setWorkspaces(Array.from(WorkspaceManager.workspaces.values()))
       })
-
-      // Note: As menu bar has background refresh, it can lead to the menu-bar yelling the HUD on the desktop.
-      // workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
-      //   showHUD("Unable to fetch workspaces")
-      // })
-    }, [])
-  }
+      workspaceManager.on("errorOccured", (e: IWorkspaceError) => {
+        if (e.code === 401 || e.code === 500) {
+          setIsUnauthorized(true)
+        }
+      })
+    }
+  }, [preferences.access_token])
 
   if (isLoading) {
     return <MenuBarExtra isLoading={true}></MenuBarExtra>;
@@ -73,7 +73,7 @@ export default function command() {
 
   return (
     <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary} isLoading={isLoading}>
-      {preferences.access_token && <MenuBarExtra.Section title="Active Workspaces">
+      {(preferences.access_token && !isUnauthorised) && <MenuBarExtra.Section title="Active Workspaces">
         {activeWorkspaces.map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
@@ -83,6 +83,7 @@ export default function command() {
                 : GitpodIcons.progressing_icon_menubar
             }
             title={workspace.getDescription()}
+            subtitle={sinceTime(new Date(workspace.createdAt)) + " ago"}
             onAction={() => {
               if (workspace.getStatus().phase === "PHASE_RUNNING") {
                 if (vsCodePresent && EditorPreferences.preferredEditor === "code-desktop") {
@@ -92,7 +93,7 @@ export default function command() {
                 } else if (EditorPreferences.preferredEditor === "ssh") {
                   const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.getIDEURL());
                   open(terminalURL)
-                } 
+                }
                 else {
                   if (workspace.getIDEURL() !== '') {
                     if (EditorPreferences.preferredEditor === "code-desktop") {
@@ -106,12 +107,13 @@ export default function command() {
           />
         ))}
       </MenuBarExtra.Section>}
-      {preferences.access_token && <MenuBarExtra.Section title="Recent Workspaces">
+      {(preferences.access_token && !isUnauthorised) && <MenuBarExtra.Section title="Recent Workspaces">
         {recentWorkspaces.slice(0, 7).map((workspace) => (
           <MenuBarExtra.Item
             key={workspace.getWorkspaceId()}
             icon={GitpodIcons.stopped_icon_menubar}
             title={workspace.getDescription()}
+            subtitle={sinceTime(new Date(workspace.createdAt)) + " ago"}
             onAction={async () => {
               try {
                 await workspace.start({ workspaceID: workspace.getWorkspaceId() })
@@ -124,7 +126,7 @@ export default function command() {
           />
         ))}
       </MenuBarExtra.Section>}
-      <MenuBarExtra.Section>
+      {(preferences.access_token && !isUnauthorised) && <MenuBarExtra.Section>
         <MenuBarExtra.Item
           title="Launch New Empty Workspace"
           icon={GitpodIcons.gitpod_logo_primary}
@@ -150,15 +152,15 @@ export default function command() {
             }
           }}
         />
-      </MenuBarExtra.Section>
+      </MenuBarExtra.Section>}
       <MenuBarExtra.Section title="Utilities">
-        <MenuBarExtra.Item title="Dashboard" icon={GitpodIcons.dashboard_icon} shortcut={{ modifiers: ["cmd", "shift"], key: "d"}} onAction={() => open("https://gitpod.io/workspaces")} />
-        <MenuBarExtra.Item title="My Projects" shortcut={{modifiers: ["cmd",  "shift"], key: "p"}} icon={GitpodIcons.project_icon} onAction={() => open("https://gitpod.io/projects")} />
-        <MenuBarExtra.Item title="My Settings" shortcut={{ modifiers: ["cmd" , "shift"], key: "s"}} icon={GitpodIcons.settings_icon} onAction={() => open("https://gitpod.io/user/account")} />
-        <MenuBarExtra.Item title="Documentation" shortcut={{modifiers: ["cmd", "shift"], key: "."}} icon={GitpodIcons.docs_icon} onAction={() => open("https://www.gitpod.io/docs/introduction")} />
+        <MenuBarExtra.Item title="Dashboard" icon={GitpodIcons.dashboard_icon} shortcut={{ modifiers: ["cmd", "shift"], key: "d" }} onAction={() => open("https://gitpod.io/workspaces")} />
+        <MenuBarExtra.Item title="My Projects" shortcut={{ modifiers: ["cmd", "shift"], key: "p" }} icon={GitpodIcons.project_icon} onAction={() => open("https://gitpod.io/projects")} />
+        <MenuBarExtra.Item title="My Settings" shortcut={{ modifiers: ["cmd", "shift"], key: "s" }} icon={GitpodIcons.settings_icon} onAction={() => open("https://gitpod.io/user/account")} />
+        <MenuBarExtra.Item title="Documentation" shortcut={{ modifiers: ["cmd", "shift"], key: "." }} icon={GitpodIcons.docs_icon} onAction={() => open("https://www.gitpod.io/docs/introduction")} />
       </MenuBarExtra.Section>
       <MenuBarExtra.Section>
-        <MenuBarExtra.Item title="Command Preferences" shortcut={{modifiers: ["cmd"], key: ","}} onAction={async () => await openExtensionPreferences()}/>
+        <MenuBarExtra.Item title="Command Preferences" shortcut={{ modifiers: ["cmd"], key: "," }} onAction={async () => await openExtensionPreferences()} />
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

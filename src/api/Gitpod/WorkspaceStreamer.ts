@@ -20,6 +20,12 @@ export interface CreateWorkspace {
   params: {
     contextUrl : string;
     organizationId : string;
+    ignoreRunningWorkspaceOnSameCommit : true;
+    ignoreRunningPrebuild : true;
+    ideSetting : {
+      defaultIde : string;
+      useLatestVersion: false;
+    }
   }
 } 
 

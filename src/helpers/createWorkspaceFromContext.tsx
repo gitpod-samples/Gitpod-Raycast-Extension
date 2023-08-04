@@ -1,13 +1,23 @@
-import { LaunchType, Toast, launchCommand, showToast} from "@raycast/api";
+import { LaunchType, Toast, getPreferenceValues, launchCommand, showToast} from "@raycast/api";
 
 import { IWorkspace } from "../api/Gitpod/Models/IWorkspace";
 import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
+import { Preferences } from "../preferences/repository_preferences";
 
 export default async function createWorksapceFromContext(defaultOrg: string,context_url: string) {
 
+    const EditorPreferences = getPreferenceValues<Preferences>();
+    console.log(EditorPreferences.preferredEditor)
+
     IWorkspace.create(WorkspaceManager.api, {
         contextUrl: context_url,
-        organizationId: defaultOrg
+        organizationId: defaultOrg,
+        ignoreRunningPrebuild: true,
+        ignoreRunningWorkspaceOnSameCommit: true,
+        ideSetting: {
+            defaultIde : EditorPreferences.preferredEditor === "vim" ? "code" : EditorPreferences.preferredEditor,
+            useLatestVersion: false
+        }
     });
     await showToast({
         title: "Starting your workspace",

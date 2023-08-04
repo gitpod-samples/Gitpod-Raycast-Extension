@@ -12,6 +12,12 @@ type IWorkspaceParams = {
 type ICreateWorkspaceParams = {
   contextUrl: string;
   organizationId: string;
+  ignoreRunningWorkspaceOnSameCommit: true;
+  ignoreRunningPrebuild: true;
+  ideSetting: {
+    defaultIde: string;
+    useLatestVersion: false;
+  }
 }
 
 const workspaceURLs = {
@@ -98,6 +104,11 @@ export class IWorkspace implements GitpodDataModel {
   }
 
   constructor(workspace: any, token: string) {
+
+    if (workspace.status.instance.status.phase !== "PHASE_STOPPED"){
+      console.log(workspace.status.instance.status);
+    }
+    
     this.workspaceId = workspace.workspaceId;
     this.ownerId = workspace.ownerId;
     this.projectId = workspace.projectId;
@@ -108,7 +119,7 @@ export class IWorkspace implements GitpodDataModel {
     this.instanceId = workspace.status.instance.instanceId
     this.initialized = true;
     this.createdAt = workspace.status.instance.createdAt
-    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : '';
+    this.ideURL = workspace.status.instance && workspace.status.instance.status.phase !== "PHASE_RUNNING" ? workspace.status.instance.status.url : 'https://gitpod.io';
   }
 
   parse(json: string): IWorkspace {
@@ -191,7 +202,7 @@ export class IWorkspace implements GitpodDataModel {
     }
   }
 
-  public static create: (streamer: WorkspaceStreamer,params: ICreateWorkspaceParams) => void = async (streamer: WorkspaceStreamer,params: ICreateWorkspaceParams) => {
+  public static create: (streamer: WorkspaceStreamer, params: ICreateWorkspaceParams) => void = async (streamer: WorkspaceStreamer, params: ICreateWorkspaceParams) => {
 
     const createParams: CreateWorkspace = {
       method: "createWorkspace",

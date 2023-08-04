@@ -7,7 +7,6 @@ import { Preferences } from "../preferences/repository_preferences";
 export default async function createWorksapceFromContext(defaultOrg: string,context_url: string) {
 
     const EditorPreferences = getPreferenceValues<Preferences>();
-    console.log(EditorPreferences.preferredEditor)
 
     IWorkspace.create(WorkspaceManager.api, {
         contextUrl: context_url,

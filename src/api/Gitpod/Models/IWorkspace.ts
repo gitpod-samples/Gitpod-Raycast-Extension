@@ -48,6 +48,8 @@ export class IWorkspace implements GitpodDataModel {
     phase: string;
   };
 
+  private repository: string;
+
   getIDEURL() {
     return this.ideURL
   }
@@ -96,6 +98,13 @@ export class IWorkspace implements GitpodDataModel {
     return this.description;
   }
 
+  getRepositoryName(): string{
+    if (!this.initialized){
+      throw new Error("IWorkspace instance not initailized");
+    }
+    return this.repository;
+  }
+
   getStatus(): { phase: string } {
     if (!this.initialized) {
       throw new Error("IWorkspace instance not initialized");
@@ -104,11 +113,6 @@ export class IWorkspace implements GitpodDataModel {
   }
 
   constructor(workspace: any, token: string) {
-
-    if (workspace.status.instance.status.phase !== "PHASE_STOPPED"){
-      console.log(workspace.status.instance.status);
-    }
-    
     this.workspaceId = workspace.workspaceId;
     this.ownerId = workspace.ownerId;
     this.projectId = workspace.projectId;
@@ -119,7 +123,8 @@ export class IWorkspace implements GitpodDataModel {
     this.instanceId = workspace.status.instance.instanceId
     this.initialized = true;
     this.createdAt = workspace.status.instance.createdAt
-    this.ideURL = workspace.status.instance && workspace.status.instance.status.phase !== "PHASE_RUNNING" ? workspace.status.instance.status.url : 'https://gitpod.io';
+    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : 'https://gitpod.io';
+    this.repository = workspace.context.git.repository.name
   }
 
   parse(json: string): IWorkspace {
@@ -133,8 +138,8 @@ export class IWorkspace implements GitpodDataModel {
         normalizedContextUrl: data.result.context.git.normalizedContextUrl,
       },
     };
-
-    this.instanceId = data.result.status.instance.instanceId
+    this.repository = data.result.context.git.repository.name;
+    this.instanceId = data.result.status.instance.instanceId;
     this.description = data.result.description;
     this.status = {
       phase: data.result.status.instance.status.phase,

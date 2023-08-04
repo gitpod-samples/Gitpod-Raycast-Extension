@@ -1,7 +1,5 @@
 import { EventEmitter } from "stream";
 
-import { showHUD } from "@raycast/api";
-
 import { IWorkspace } from "./Models/IWorkspace";
 import { IWorkspaceError } from "./Models/IWorkspaceError";
 import { IWorkspaceUpdate } from "./Models/IWorkspaceUpdate";
@@ -48,12 +46,13 @@ export class WorkspaceManager extends EventEmitter {
             const targetWorkspace = WorkspaceManager.workspaces.get(updateInstance.workspaceId);
             // don't update anything when the workspace is already in the same state
             updateInstance.status.phase = "PHASE_" + updateInstance.status.phase.toUpperCase()
-            if (targetWorkspace == undefined || targetWorkspace.getStatus().phase == updateInstance.status.phase){
+            if (targetWorkspace === undefined || targetWorkspace.getStatus().phase === updateInstance.status.phase){
                 return;
             }
             
             // update when the workspace is not in the state
             targetWorkspace.setStatus(updateInstance.status)
+            targetWorkspace.setIDEURL(updateInstance.ideUrl)
             WorkspaceManager.workspaces = WorkspaceManager.workspaces.set(updateInstance.workspaceId, targetWorkspace);
 
             // Workspace has been updated, its time to tell our listeners i.e. UI Components, that workspaces have been updated and it's time to change things.

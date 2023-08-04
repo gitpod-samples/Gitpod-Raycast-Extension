@@ -116,8 +116,8 @@
       "title": "Recent Workspaces and Repositories",
       "subtitle": "Gitpod (Beta)",
       "description": "A Menubar Icon for faster access to recently visited workspaces and repositories",
-      "interval": "10s",
       "mode": "menu-bar",
+      "interval": "100000d",
       "keywords": [
         "gitpod",
         "gp",

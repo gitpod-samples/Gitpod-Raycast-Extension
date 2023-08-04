@@ -10,14 +10,21 @@ import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import DefaultOrgForm from "./components/DefaultOrgForm";
 import View from "./components/View";
+import { ErrorListView, errorMessage } from "./components/errorListView";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { Preferences } from "./preferences/repository_preferences";
 
 function ListWorkspaces() {
-
   const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
+  const [isUnauthorised, setIsUnauthorized] = useState<boolean>(false);
+  const [isNetworkError, setNetworkError] = useState<boolean>(false);
+
+  if (dashboardPreferences.access_token === undefined || dashboardPreferences.access_token.trim() === "") {
+    return (<ErrorListView message={errorMessage.invalidAccessToken}/>)
+  }
+
   const EditorPreferences = getPreferenceValues<Preferences>();
 
   const workspaceManager = new WorkspaceManager(
@@ -26,6 +33,7 @@ function ListWorkspaces() {
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
+
 
   const [defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
 
@@ -46,19 +54,35 @@ function ListWorkspaces() {
     if (CodePresent !== undefined) {
       setVSCodePresent(true);
     }
+  }, [], {
+    onError: (error) => {
+        console.log(error.name)
+    }
   });
 
   useEffect(() => {
     workspaceManager.on("workspaceUpdated", () => {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
-    workspaceManager.on("errorOccured", () => {
-      showToast({
-        style: Toast.Style.Failure,
-        title: "Unable to perform this action, please check your network, your token expiry or try again later.",
-      })
+    workspaceManager.on("errorOccured", (error: IWorkspaceError) => {
+      if (error.code.toString() === "ENOTFOUND"){
+        return setNetworkError(true);
+      }
+      if (error.code === 500 || error.code === 401){
+        setIsUnauthorized(true);
+      } else {
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Unable to perform this action, please check your network, your token expiry or try again later.",
+        })
+      }
     })
   }, []);
+  
+
+  if (isUnauthorised || isNetworkError) {
+    return (<ErrorListView message={isUnauthorised ? errorMessage.invalidAccessToken : errorMessage.networkError}/>)
+  }
 
   return (
     <List isLoading={isLoading}>
@@ -109,7 +133,6 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
             <Action
               title="Open Workspace"
               onAction={async () => {
-                console.log(workspace.getIDEURL())
                 if (CodePresent && EditorPreferences.preferredEditor === "code-desktop") {
                   const toast = await showToast({
                     title: "Launching your workspace in VSCode Desktop",

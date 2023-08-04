@@ -12,6 +12,7 @@ import RepositoryListEmptyView from "./components/RepositoryListEmptyView";
 import RepositoryListItem from "./components/RepositoryListItem";
 import SearchRepositoryDropdown from "./components/SearchRepositoryDropdown";
 import View from "./components/View";
+import { errorMessage } from "./components/errorListView";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
 import { useBranchHistory } from "./helpers/branch";
 import { useIssueHistory } from "./helpers/issue";
@@ -21,7 +22,6 @@ import { useHistory } from "./helpers/repository";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import RepositoryPreference from "./preferences/repository_preferences";
-
 
 function SearchRepositories() {
   const { github } = getGitHubClient();
@@ -54,9 +54,10 @@ function SearchRepositories() {
     [query],
     {
       keepPreviousData: true,
-      onError(error) {
+      onError(error : Error) {
+        const e = ( error as any ) as {code: string }
         showToast({
-          title: error.message,
+          title: e.code === "ENOTFOUND" ? errorMessage.networkError : error.message,
           style: Toast.Style.Failure,
         });
       },

@@ -24,10 +24,10 @@
 The Community Raycast Extension is an extension made for the Raycast App in MacOS, which promises to integrate the best features of Gitpod with your operating system by means of Raycast.
 The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://github.com/henit-chobisa) and [M Palanikannan](https://github.com/Palanikannan1437) serves the soul aim of making accessibility of <i>Gitpod Faster than Local Development</i> by providing extensive feature to open any github context with gitpod or managing your workspace just a click on your menubar, the extension got it all covered.
 
-## Have a glimpse on youtube!
 
-[![Watch the video](https://img.youtube.com/vi/1nGRhYOAhRA/mqdefault.jpg)](https://youtu.be/1nGRhYOAhRA)
-[![Watch the video](https://img.youtube.com/vi/X_8O9soJ-Mg/mqdefault.jpg)](https://youtu.be/X_8O9soJ-Mg)
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/8b49ad96-b4c8-463d-9811-3bb4027682d2
+
+
      
 
 ## Let's get it on your Mac!

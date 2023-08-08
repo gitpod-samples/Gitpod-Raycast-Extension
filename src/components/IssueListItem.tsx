@@ -103,16 +103,17 @@ export default function IssueListItem({
             title="Open Issue in Gitpod"
             onAction={async () => {
               visitIssue?.(issue);
-              if (dashboardPreferences.access_token) {
-                const defaultOrg = await LocalStorage.getItem("default_organization");
-                if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),issue.url);
-                } else {
-                  push(<DefaultOrgForm />)
-                }
-              } else {
-                OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title);
-              }
+              OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, push, issue.title);
+              // if (dashboardPreferences.access_token) {
+              //   const defaultOrg = await LocalStorage.getItem("default_organization");
+              //   if (defaultOrg !== undefined && WorkspaceManager.api) {
+              //     createWorksapceFromContext(defaultOrg.toString(),issue.url);
+              //   } else {
+              //     push(<DefaultOrgForm />)
+              //   }
+              // } else {
+              //   OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title);
+              // }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
@@ -148,7 +149,7 @@ export default function IssueListItem({
           {!fromCache && (
             <Action
               title="Add Issue to Recents"
-              onAction={async() => {
+              onAction={async () => {
                 visitIssue?.(issue);
                 await showToast({
                   title: `Added Issue "#${issue.number}" to Recents`,
@@ -185,7 +186,7 @@ export default function IssueListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o" }} target={<DefaultOrgForm />} />
         </ActionPanel>
       }
     />

@@ -145,16 +145,17 @@ export default function BranchListItem({
             title="Open Branch in Gitpod"
             onAction={async () => {
               visitBranch?.(branch, repository);
-              if (dashboardPreferences.access_token) {
-                const defaultOrg = await LocalStorage.getItem("default_organization");
-                if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),branchURL);
-                } else {
-                  push(<DefaultOrgForm />)
-                }
-              } else {
-                OpenInGitpod(branchURL, "Branch", repository, branch.branchName);
-              }
+              OpenInGitpod(branchURL, "Branch", repository, push, branch.branchName);
+              // if (dashboardPreferences.access_token) {
+              //   const defaultOrg = await LocalStorage.getItem("default_organization");
+              //   if (defaultOrg !== undefined && WorkspaceManager.api) {
+              //     createWorksapceFromContext(defaultOrg.toString(), branchURL);
+              //   } else {
+              //     push(<DefaultOrgForm />)
+              //   }
+              // } else {
+              //   OpenInGitpod(branchURL, "Branch", repository, branch.branchName);
+              // }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
@@ -228,7 +229,7 @@ export default function BranchListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o" }} target={<DefaultOrgForm />} />
         </ActionPanel>
       }
     />

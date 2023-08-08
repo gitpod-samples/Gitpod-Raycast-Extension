@@ -5,7 +5,6 @@ import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
 import { Preferences } from "../preferences/repository_preferences";
 
 export default async function createWorksapceFromContext(defaultOrg: string,context_url: string) {
-
     const EditorPreferences = getPreferenceValues<Preferences>();
 
     IWorkspace.create(WorkspaceManager.api, {

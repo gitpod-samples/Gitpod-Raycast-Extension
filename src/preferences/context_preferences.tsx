@@ -90,14 +90,7 @@ export default function ContextPreferences({ repository, type, context, revalida
         >
           <Form.Dropdown.Item value="code" title="VS Code Browser" />
           <Form.Dropdown.Item value="code-desktop" title="VS Code Desktop" />
-          <Form.Dropdown.Item value="intellij" title="IntelliJ" />
-          <Form.Dropdown.Item value="goland" title="GoLand" />
-          <Form.Dropdown.Item value="phpstorm" title="PhpStorm" />
-          <Form.Dropdown.Item value="pycharm" title="PyCharm" />
-          <Form.Dropdown.Item value="rubymine" title="RubyMine" />
-          <Form.Dropdown.Item value="webstorm" title="WebStorm" />
-          <Form.Dropdown.Item value="rider" title="Rider" />
-          <Form.Dropdown.Item value="clion" title="CLion" />
+          <Form.Dropdown.Item value="ssh" title="SSH" />
         </Form.Dropdown>
         <Form.Checkbox
           id="useLatest"

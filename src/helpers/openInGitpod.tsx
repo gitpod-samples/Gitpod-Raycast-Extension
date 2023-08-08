@@ -1,14 +1,18 @@
 import { LocalStorage, open, showToast, Toast } from "@raycast/api";
 import { getPreferenceValues } from "@raycast/api";
 
+import { WorkspaceManager } from "../api/Gitpod/WorkspaceManager";
+import DefaultOrgForm from "../components/DefaultOrgForm";
+import { dashboardPreferences } from "../preferences/dashboard_preferences";
 import { getGitpodEndpoint } from "../preferences/gitpod_endpoint";
+
+import createWorksapceFromContext from "./createWorkspaceFromContext";
 
 interface Preferences {
   preferredEditor: string;
   useLatest: boolean;
   preferredEditorClass: "g1-standard" | "g1-large";
 }
-
 
 export async function getPreferencesForContext(
   type: "Branch" | "Pull Request" | "Issue" | "Repository",
@@ -38,21 +42,40 @@ export async function getPreferencesForContext(
   return preferences;
 }
 
+async function createWorksapce(
+  contextUrl: string,
+  push: (jsx: JSX.Element) => void,
+) {
+  const defaultOrg = await LocalStorage.getItem("default_organization");
+  if (defaultOrg && WorkspaceManager.api) {
+    createWorksapceFromContext(defaultOrg.toString(), contextUrl);
+  } else {
+    push(<DefaultOrgForm />);
+  }
+}
+
 export default async function OpenInGitpod(
   contextUrl: string,
   type: "Branch" | "Pull Request" | "Issue" | "Repository",
   repository: string,
-  context?: string
+  push: (jsx: JSX.Element) => void,
+  context?: string,
 ) {
   const gitpodEndpoint = getGitpodEndpoint();
   const preferences = await getPreferencesForContext(type, repository, context);
 
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
+  if (dashboardPreferences.access_token) {
+    return createWorksapce(contextUrl, push);
+  }
+
   try {
-    await showToast({
+    const toast = await showToast({
       title: "Launching your workspace",
       style: Toast.Style.Animated,
     });
     setTimeout(() => {
+      toast.hide();
       if (preferences.preferredEditor === "ssh") {
         // TODO: Add a check if dotsh files are loaded in future
         open(

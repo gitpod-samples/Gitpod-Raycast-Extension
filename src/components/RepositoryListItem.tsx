@@ -1,4 +1,4 @@
-import { Color, List, ActionPanel, Action, open, useNavigation, Icon, showToast, Toast, getPreferenceValues, LocalStorage} from "@raycast/api";
+import { Color, List, ActionPanel, Action, open, useNavigation, Icon, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 
 import { GitpodIcons, UIColors } from "../../constants";
@@ -141,16 +141,17 @@ export default function RepositoryListItem({
             title="Trigger Workspace"
             onAction={async () => {
               onVisit(repository);
-              if (dashboardPreferences.access_token) {
-                const defaultOrg = await LocalStorage.getItem("default_organization");
-                if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),repository.url);
-                } else {
-                  push(<DefaultOrgForm />)
-                }
-              } else {
-                OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)
-              }
+              OpenInGitpod(repository.url, "Repository", repository.nameWithOwner, push)
+              // if (dashboardPreferences.access_token) {
+              //   const defaultOrg = await LocalStorage.getItem("default_organization");
+              //   if (defaultOrg !== undefined && WorkspaceManager.api) {
+              //     createWorksapceFromContext(defaultOrg.toString(), repository.url);
+              //   } else {
+              //     push(<DefaultOrgForm />)
+              //   }
+              // } else {
+              //   OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)
+              // }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
@@ -161,7 +162,7 @@ export default function RepositoryListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o" }} target={<DefaultOrgForm />} />
         </ActionPanel>
       }
     />

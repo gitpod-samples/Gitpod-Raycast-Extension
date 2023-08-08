@@ -118,7 +118,8 @@ Currently the extension supports two types of creating workspaces,
 ### Creating Workspaces from Context ( Requires Gitpod PAT)
 You can browse through contexts in the `Open Context from Github` Command and can create a workspace directly from the there just by using `cmd` + `g`, g for Gitpod.
 
-TODO: Add Creating workspace from context video
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/51dd9170-2f6c-46f1-bca5-7531eaf8f872
+
 
 Along with that for creating workspaces, you can also add your configuration such as workspace size, just by using `cmd` + `E`, where you can select your editor and workspace size for a particular context from which a workspace is to be created.
 ![Configure Workspace](/assets/Screenshots/Workspaces/ConfigureWorkspace.png)
@@ -127,8 +128,11 @@ Along with that for creating workspaces, you can also add your configuration suc
 ### Creating Empty Workspaces 
 For creating empty workspaces on the go, for your experimentation purposes, you can use both the `Open Context Command` or `Menubar` Command
 
-TODO: Add Empty Workspace Command from Context
-TODO: Add Empty Workspace from Menubar
+
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/73e39949-a2f2-46a1-8604-d5f3917d1133
+
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/a6d30561-bf38-49ad-b0cb-d5819e8c3f4a
+
 
 ## Feedback
 At last, we would love to hear from you to improve the extension, hence we also put a command called `feedback`, so that you can report any issue in the extension or you can make a feature extension.

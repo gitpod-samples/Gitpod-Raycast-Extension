@@ -133,6 +133,12 @@ TODO: Add Empty Workspace from Menubar
 ## Feedback
 At last, we would love to hear from you to improve the extension, hence we also put a command called `feedback`, so that you can report any issue in the extension or you can make a feature extension.
 
+# Instructions for Beta Testers
+<i>After Joining the Beta Tester Organization</i> by using the link provided to you by the maintainer or a previous beta tester. 
+- Navigate to Store
+- Change the Store Setting from Public to Gitpod (Beta)
+![](/assets/Screenshots/Workspaces/Screenshot%202023-08-08%20at%202.05.42%20PM.png)
+- Install the Beta Extension from the Gitpod Extension Store.
 
 
 

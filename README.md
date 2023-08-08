@@ -92,16 +92,28 @@ If Context Display is not enough and you need a deep dive in conversation or add
 Using the `Managing Workspace` Command, you can start and launch your workspaces.
 The extension shows you all the stages of your workspaces, Running, Progressing and Stopped.
 ![Starting Workspace](/assets/Screenshots/Workspaces/WorkspaceWindow.png)
-TODO, ADD Starting Workspace Video
+
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/5cb4887f-b6b2-4a55-941c-ea77706ec8a4
+
+
+
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/5cafa2ed-9276-4a3a-9325-bbe4962eae96
+
+
+
 
 Wait!! There is more, with `Menubar Workspace` Menubar command, to do this which is the key feature for `Gitpod Accessibility faster than local.`
 
-TODO, ADD MENUBAR VIDEO
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/6ce6ebb7-5f3e-48ce-909d-8e624349eff7
 
 ### Stopping workspaces (Required Gitpod PAT)
 You can use a simple command `cmd` + `s`, on the running workspaces and you can see them stopping on real time, just like magic ✨
 
-TODO, ADD Stop Workspace VIDEO
+
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/c0288710-ec4e-4e4a-add1-31d53f74230a
+
+
+
 ### Selecting Default Editor to Open
 You can also select your favourite editor for opening your workspaces, just go to command preferences with `cmd` + `,` change the default editor, currently the extension supports VSCode Browser, VSCode Desktop and SSH which you can use with VIM, checkout [axonasif/dotsh](https://github.com/axonasif/dotsh).
 

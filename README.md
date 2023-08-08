@@ -32,17 +32,32 @@ The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://g
 
 ## Let's get it on your Mac!
 
-1. Install Raycast to get started if you haven't by simply clicking on this button! 😉
+1.  Install Raycast to get started if you haven't by simply clicking on this button! 😉
 
-<a href="https://www.raycast.com/henitchobisa/gitpod"><img src="https://www.raycast.com/henitchobisa/gitpod/install_button@2x.png" height="64" alt="" style="height: 64px;"></a>
+- <a href="https://www.raycast.com/henitchobisa/gitpod"><img src="https://www.raycast.com/henitchobisa/gitpod/install_button@2x.png" height="64" alt="" style="height: 64px;"></a>
 
 2. Navigate to the Raycast Store to Download the `Gitpod` extension
+![GithubLogin](/assets/Screenshots/NavigatingContexts/Download%20GItpod.png)
 3. While generating the GitHub Access Token, make sure to give the `user`, `admin` & `repo` access rights, else it may result in some weird behaviours.
+![GithubLogin](/assets/Screenshots/NavigatingContexts/GIthub%20Login%20Success.png)
 4. For directly opening the workspaces and interaction with Gitpod, you'll need a Gitpod Access Token which is currently in beta and available for limited users, if you have a github access token, navigate to command setting by using `cmd` + `,` and set the access token there.
+![GithubLogin](/assets/Screenshots/NavigatingContexts/AccessTokenGItpod.png)
+![GithubLogin](/assets/Screenshots/NavigatingContexts/GitpodAccessToken.png)
+5. Setup your default organization for creating new workspaces in the Manage Workspaces Window.
+![GithubLogin](/assets/Screenshots/NavigatingContexts/SetupDefaultOrganization.png)
 
-## Features
+## Command Descriptions
+### <i>Manage Workspaces</i>
+`Manage Workspaces` Command is responsible for managing your workspaces from Gitpod Dashboard, you can stop or start your existing workspaces there or create empty workspaces
+### <i>Open Contexts from Github</i>
+`Open Contexts` command takes responsibility to browse or create workspaces from any context url from github, no matter it's a PR or Issue or Branch or a whole repository. Along with that you can pin contexts or later use or can view your issues or PR descriptions right away!
+### <i>Menubar Workspaces</i>
+`Menubar Workspaces` is the command that gets the extension so near to achieving it's goal of `Gitpod Faster than local`, with it's function to start workspaces and opening it into your favourite IDE in just a click!
 
-1. "Open in Gitpod" -> Experience the power of Gitpod Contexts!
+
+# Key Features
+## <i>Navigating Contexts</i> 
+
    1. Find the repository from GitHub (you can even see if the repo is Gitpodified...it glows up ✨)
    
       ![RepoSearch](/metadata/RepoCatelog.png)

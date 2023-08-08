@@ -82,9 +82,9 @@
   "commands": [
     {
       "name": "open_in_gitpod",
-      "title": "Open in Gitpod",
-      "subtitle": "Gitpod (Beta)",
-      "description": "Open any GitHub Repository's Branch, Pull Request or Issue in Gitpod",
+      "title": "Open Contexts from Github",
+      "subtitle": "Open any Context in Gitpod",
+      "description": "Open any Repository / Branch / PR / Issue in Gitpod with the extension",
       "mode": "view",
       "keywords": [
         "gitpod",
@@ -95,7 +95,7 @@
     {
       "name": "feedback_form",
       "title": "Feedback",
-      "subtitle": "Gitpod Templates (Beta)",
+      "subtitle": "Feedback form for Gitpod Extension",
       "description": "We'd love your valuable feedback",
       "mode": "view",
       "keywords": [
@@ -106,16 +106,16 @@
     },
     {
       "name": "gitpod_dashboard",
-      "title": "List Gitpod Workspaces",
-      "subtitle": "List Workspaces",
-      "description": "List All Workspaces on your gitpod Dashboard",
+      "title": "Manage Workspaces",
+      "subtitle": "Manage and Create New Workspaces",
+      "description": "Start, Stop or Create New Workspaces just from the extension.",
       "mode": "view"
     },
     {
       "name": "menubar",
-      "title": "Recent Workspaces and Repositories",
-      "subtitle": "Gitpod (Beta)",
-      "description": "A Menubar Icon for faster access to recently visited workspaces and repositories",
+      "title": "Menu Bar Workspaces",
+      "subtitle": "Manage Workspaces from Menubar",
+      "description": "A Menubar Icon for faster access to recently visited workspaces, starting them and opening quicklinks.",
       "mode": "menu-bar",
       "interval": "100000d",
       "keywords": [

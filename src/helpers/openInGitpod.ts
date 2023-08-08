@@ -48,11 +48,12 @@ export default async function OpenInGitpod(
   const preferences = await getPreferencesForContext(type, repository, context);
 
   try {
-    await showToast({
+    const toast = await showToast({
       title: "Launching your workspace",
       style: Toast.Style.Animated,
     });
     setTimeout(() => {
+      toast.hide();
       if (preferences.preferredEditor === "ssh") {
         // TODO: Add a check if dotsh files are loaded in future
         open(

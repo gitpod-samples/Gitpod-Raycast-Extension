@@ -15,7 +15,7 @@
   <a href="https://werft.gitpod-dev.com/">
     <img src="https://img.shields.io/badge/typescript-%23007ACC.svg" alt="Werft.dev - Gitpod CI" />
   </a>
-  <a href="https://www.gitpod.io/chat">
+  <a href="https://www.gitpod.io/chat"> 
     <img src="https://img.shields.io/badge/-GraphQL-E10098" alt="Discord" />
   </a>
 </p>
@@ -26,10 +26,11 @@ The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://g
 
 ## Have a glimpse on youtube!
 
-![Gitpod Extension Demo](https://youtu.be/1nGRhYOAhRA)
-![Gitpod Community Office Hours](https://youtu.be/X_8O9soJ-Mg)
+[![Watch the video](https://img.youtube.com/vi/1nGRhYOAhRA/hqdefault.jpg)](https://youtu.be/1nGRhYOAhRA)
+[![Watch the video](https://img.youtube.com/vi/X_8O9soJ-Mg/hqdefault.jpg)](https://youtu.be/X_8O9soJ-Mg)
+     
 
-### Installation
+## Let's get it on your Mac!
 
 1. Install Raycast to get started if you haven't by simply clicking on this button! 😉
 
@@ -37,8 +38,9 @@ The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://g
 
 2. Navigate to the Raycast Store to Download the `Gitpod` extension
 3. While generating the GitHub Access Token, make sure to give the `user`, `admin` & `repo` access rights, else it may result in some weird behaviours.
+4. For directly opening the workspaces and interaction with Gitpod, you'll need a Gitpod Access Token which is currently in beta and available for limited users, if you have a github access token, navigate to command setting by using `cmd` + `,` and set the access token there.
 
-### Currently Supported Features
+## Features
 
 1. "Open in Gitpod" -> Experience the power of Gitpod Contexts!
    1. Find the repository from GitHub (you can even see if the repo is Gitpodified...it glows up ✨)
@@ -64,11 +66,3 @@ The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://g
 3. By default you can see the latest visited Repository to start with! 
 
 
-### WIP
-
-- [ ] Manage All Workspaces within Gitpod 
-- [ ] Teams and Projects Support
-- [ ] Manage Prebuilds withing Raycast
-- [ ] Add support for GitLab and Bitbucker
-- [ ] Default ide support
-- [ ] And much more....

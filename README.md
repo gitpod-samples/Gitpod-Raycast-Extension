@@ -57,27 +57,37 @@ https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/8b49a
 
 # Key Features
 ## <i>Navigating Contexts</i> 
+With the `Open Context from Github` Command, it's incredibly easy to navigate contexts such as Repositories, branches, pull requests and issues.
 
-   1. Find the repository from GitHub (you can even see if the repo is Gitpodified...it glows up ✨)
-   
-      ![RepoSearch](/metadata/RepoCatelog.png)
-   2. You can now see and find all the branches, PRs and Issues which you can directly open in Gitpod with a single Keypress!
-   
-      ![ContextView](/metadata/OpenBranchPRIssue.png)
-   
-   You can filter and search further using the following tags
+### Browsing and Filtering 
+- You can browse repositories and also any context URL inside of the repostory as well such as branches, PR or Issues
+![Browsing Contexts](/assets/Screenshots/NavigatingContexts/Browse%20Repository.png)
+![Browsing Ctx](/assets/Screenshots/NavigatingContexts/Inside%20Repository.png)
+- Along with that we make sure that your browsing experience should be super smooth with the help of filtering 
+You can filter and search further using the following tags
       - `/b` for branch
       - `/p` for PRs 
       - `/i` for Issues
       - `/me` for anything and everything related to 
          - eg. `/me /p` would refer to your Pull Requests in a particular repository!
+![ContextView](/metadata/OpenBranchPRIssue.png)
 
-   ![FilterView](/metadata/FilterBranchPRIssue.png)
+### Displaying Contexts
+As a product manager or a maintainer, we provided context preview, so that you can have a glimpse on contexts on the go and can open the right one.
+![Displaying Context](/assets/Screenshots/NavigatingContexts/Search%20PR%20Open.png)
+![Displaying Context](/assets/Screenshots/NavigatingContexts/Search%20Issue%20Open.png)
 
-   3. Open using "CMD + Enter" to open the selected Branch, PR or Issue directly on Gitpod
+### Pinning Contexts for Faster Access
+We pin every context that you open with Gitpod, for faster us and if you wish to manually add any context to your recent, you can achieve by a single command `cmd` + `R` and bingo!
+![Pinning Context](/assets/Screenshots/NavigatingContexts/Add%20To%20Recent%20Issue.png)
+![Pinning Context](/assets/Screenshots/NavigatingContexts/Issue%20Recent%20Success.png)
+![Pinning Context](/assets/Screenshots/NavigatingContexts/Issue%20Added%20Recent%20.png)
 
-2. "Recent Repositories" -> Faster Access of Recent Workspaces from menubar
-   
-3. By default you can see the latest visited Repository to start with! 
+### Opening Contexts with Github
+If Context Display is not enough and you need a deep dive in conversation or add any labels, you can open contexts directly in Github with a single command `cmd` + `RETURN`
+![Opening Context in Github](/assets/Screenshots/NavigatingContexts/View%20in%20Github%20Issue.png)
+
+
+## <i>Managing Workspaces</i>
 
 

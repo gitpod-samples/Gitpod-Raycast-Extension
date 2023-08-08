@@ -44,12 +44,12 @@ export default function ContextPreferences({ repository, type, context, revalida
   const [defaultPrefValue, setDefaultPrefValue] = useState<Preferences | null>(null);
 
   useEffect(() => {
-    const getUsers = async () => {
+    const loadDefaultValues = async () => {
       const res = await getDefaultValue(repository, context);
       setDefaultPrefValue(res);
     };
 
-    getUsers();
+    loadDefaultValues();
   }, []);
 
   const { pop } = useNavigation();

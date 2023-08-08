@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.gitpod.io">
-    <img src="./assets/Icons/GitpodRaycastLogo.svg" alt="Gitpod Logo" height="130" />
+    <img src="./assets/Icons/GitpodRaycastLogo.svg" alt="Gitpod Logo" height="180" />
     <br />
     <strong>Gitpod Raycast Extension</strong>
   </a>
@@ -91,16 +91,10 @@ If Context Display is not enough and you need a deep dive in conversation or add
 ### Starting Workspaces ( Requires Gitpod PAT)
 Using the `Managing Workspace` Command, you can start and launch your workspaces.
 The extension shows you all the stages of your workspaces, Running, Progressing and Stopped.
-![Starting Workspace](/assets/Screenshots/Workspaces/WorkspaceWindow.png)
 
 https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/5cb4887f-b6b2-4a55-941c-ea77706ec8a4
 
-
-
 https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/5cafa2ed-9276-4a3a-9325-bbe4962eae96
-
-
-
 
 Wait!! There is more, with `Menubar Workspace` Menubar command, to do this which is the key feature for `Gitpod Accessibility faster than local.`
 
@@ -109,10 +103,7 @@ https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/6ce6e
 ### Stopping workspaces (Required Gitpod PAT)
 You can use a simple command `cmd` + `s`, on the running workspaces and you can see them stopping on real time, just like magic ✨
 
-
 https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/c0288710-ec4e-4e4a-add1-31d53f74230a
-
-
 
 ### Selecting Default Editor to Open
 You can also select your favourite editor for opening your workspaces, just go to command preferences with `cmd` + `,` change the default editor, currently the extension supports VSCode Browser, VSCode Desktop and SSH which you can use with VIM, checkout [axonasif/dotsh](https://github.com/axonasif/dotsh).
@@ -120,6 +111,29 @@ You can also select your favourite editor for opening your workspaces, just go t
 ![Changing Editor](/assets/Screenshots/Workspaces/Changing%20Editor.png)
 
 ## <i>Creating New Workspaces</i>
+Currently the extension supports two types of creating workspaces, 
+1. Creating Workspaces from Context
+2. Creating Empty Workspaces 
+
+### Creating Workspaces from Context ( Requires Gitpod PAT)
+You can browse through contexts in the `Open Context from Github` Command and can create a workspace directly from the there just by using `cmd` + `g`, g for Gitpod.
+
+TODO: Add Creating workspace from context video
+
+Along with that for creating workspaces, you can also add your configuration such as workspace size, just by using `cmd` + `E`, where you can select your editor and workspace size for a particular context from which a workspace is to be created.
+![Configure Workspace](/assets/Screenshots/Workspaces/ConfigureWorkspace.png)
+![Configure Tab](/assets/Screenshots/Workspaces/configureWorkspaceTab.png)
+
+### Creating Empty Workspaces 
+For creating empty workspaces on the go, for your experimentation purposes, you can use both the `Open Context Command` or `Menubar` Command
+
+TODO: Add Empty Workspace Command from Context
+TODO: Add Empty Workspace from Menubar
+
+## Feedback
+At last, we would love to hear from you to improve the extension, hence we also put a command called `feedback`, so that you can report any issue in the extension or you can make a feature extension.
+
+
 
 
 

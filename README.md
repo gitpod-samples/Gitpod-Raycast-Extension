@@ -87,7 +87,28 @@ We pin every context that you open with Gitpod, for faster us and if you wish to
 If Context Display is not enough and you need a deep dive in conversation or add any labels, you can open contexts directly in Github with a single command `cmd` + `RETURN`
 ![Opening Context in Github](/assets/Screenshots/NavigatingContexts/View%20in%20Github%20Issue.png)
 
-
 ## <i>Managing Workspaces</i>
+### Starting Workspaces ( Requires Gitpod PAT)
+Using the `Managing Workspace` Command, you can start and launch your workspaces.
+The extension shows you all the stages of your workspaces, Running, Progressing and Stopped.
+![Starting Workspace](/assets/Screenshots/Workspaces/WorkspaceWindow.png)
+TODO, ADD Starting Workspace Video
+
+Wait!! There is more, with `Menubar Workspace` Menubar command, to do this which is the key feature for `Gitpod Accessibility faster than local.`
+
+TODO, ADD MENUBAR VIDEO
+
+### Stopping workspaces (Required Gitpod PAT)
+You can use a simple command `cmd` + `s`, on the running workspaces and you can see them stopping on real time, just like magic ✨
+
+TODO, ADD Stop Workspace VIDEO
+### Selecting Default Editor to Open
+You can also select your favourite editor for opening your workspaces, just go to command preferences with `cmd` + `,` change the default editor, currently the extension supports VSCode Browser, VSCode Desktop and SSH which you can use with VIM, checkout [axonasif/dotsh](https://github.com/axonasif/dotsh).
+
+![Changing Editor](/assets/Screenshots/Workspaces/Changing%20Editor.png)
+
+## <i>Creating New Workspaces</i>
+
+
 
 

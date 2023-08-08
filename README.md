@@ -1,10 +1,33 @@
-![GitpodRaycast](https://user-images.githubusercontent.com/72302948/212153237-df8ea15e-c50f-4ab2-9694-d6671abe568f.png)
+<p align="center">
+  <a href="https://www.gitpod.io">
+    <img src="./assets/Icons/GitpodRaycastLogo.svg" alt="Gitpod Logo" height="130" />
+    <br />
+    <strong>Gitpod Raycast Extension</strong>
+  </a>
+  <br />
+  <span>Powered by The Gitpod Community 💛</span>
+</p>
 
-# Raycast Extension for Gitpod 
+<p align="center">
+  <a href="https://gitpod.io/from-referrer/">
+    <img src="https://img.shields.io/badge/gitpod-f06611.svg" alt="Gitpod ready-to-code" />
+  </a>
+  <a href="https://werft.gitpod-dev.com/">
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg" alt="Werft.dev - Gitpod CI" />
+  </a>
+  <a href="https://www.gitpod.io/chat">
+    <img src="https://img.shields.io/badge/-GraphQL-E10098" alt="Discord" />
+  </a>
+</p>
 
-A _BLAZINGLY FAST_ way to work with Gitpod 🍊
+# Community Raycast Extension for Gitpod 
+The Community Raycast Extension is an extension made for the Raycast App in MacOS, which promises to integrate the best features of Gitpod with your operating system by means of Raycast.
+The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://github.com/henit-chobisa) and [M Palanikannan](https://github.com/Palanikannan1437) serves the soul aim of making accessibility of <i>Gitpod Faster than Local Development</i> by providing extensive feature to open any github context with gitpod or managing your workspace just a click on your menubar, the extension got it all covered.
 
-![ Gitpod Commands for Raycast ](/metadata/Commands.png)
+## Have a glimpse on youtube!
+
+![Gitpod Extension Demo](https://youtu.be/1nGRhYOAhRA)
+![Gitpod Community Office Hours](https://youtu.be/X_8O9soJ-Mg)
 
 ### Installation
 

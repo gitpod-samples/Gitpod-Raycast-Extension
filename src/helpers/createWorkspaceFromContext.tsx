@@ -22,7 +22,7 @@ export default async function createWorksapceFromContext(defaultOrg: string,cont
         title: "Starting your workspace",
         style: Toast.Style.Animated,
     });
-    setTimeout(() => {
+    setTimeout(async () => {
         launchCommand({
             name: "gitpod_dashboard",
             type: LaunchType.UserInitiated

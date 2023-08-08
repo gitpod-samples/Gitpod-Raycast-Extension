@@ -26,8 +26,8 @@ The community raycast extension, made by Gitpod Heroes [Henit Chobisa](https://g
 
 ## Have a glimpse on youtube!
 
-[![Watch the video](https://img.youtube.com/vi/1nGRhYOAhRA/hqdefault.jpg)](https://youtu.be/1nGRhYOAhRA)
-[![Watch the video](https://img.youtube.com/vi/X_8O9soJ-Mg/hqdefault.jpg)](https://youtu.be/X_8O9soJ-Mg)
+[![Watch the video](https://img.youtube.com/vi/1nGRhYOAhRA/mqdefault.jpg)](https://youtu.be/1nGRhYOAhRA)
+[![Watch the video](https://img.youtube.com/vi/X_8O9soJ-Mg/mqdefault.jpg)](https://youtu.be/X_8O9soJ-Mg)
      
 
 ## Let's get it on your Mac!

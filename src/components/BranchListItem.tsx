@@ -214,7 +214,7 @@ export default function BranchListItem({
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />
           )}
-          <Action
+          {/* <Action
             title="Configure Workspace"
             onAction={() =>
               push(
@@ -227,7 +227,7 @@ export default function BranchListItem({
               )
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
-          />
+          /> */}
           <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
         </ActionPanel>
       }

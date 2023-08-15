@@ -154,13 +154,13 @@ export default function RepositoryListItem({
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
           />
-          <Action
+          {/* <Action
             title="Configure Workspace"
             onAction={() =>
               push(<RepositoryPreference revalidate={revalidate} repository={repository.nameWithOwner} />)
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
-          />
+          /> */}
           <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
         </ActionPanel>
       }

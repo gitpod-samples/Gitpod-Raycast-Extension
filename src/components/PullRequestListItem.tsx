@@ -172,7 +172,7 @@ export default function PullRequestListItem({
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />
           )}
-          <Action
+          {/* <Action
             title="Configure Workspace"
             onAction={() =>
               push(
@@ -185,7 +185,7 @@ export default function PullRequestListItem({
               )
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
-          />
+          /> */}
           {!fromCache && (
             <Action
               title="Show PR Preview"

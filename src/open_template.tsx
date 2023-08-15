@@ -1,4 +1,5 @@
-import { List, showToast, Toast } from "@raycast/api"; import { useCachedPromise } from "@raycast/utils";
+import { List, showToast, Toast } from "@raycast/api";
+import { useCachedPromise } from "@raycast/utils";
 import { useState, useMemo } from "react";
 
 import TemplateListEmptyView from "./components/TemplateListEmptyView";
@@ -10,9 +11,9 @@ type TemplateRepositoryFieldsFragment = {
   url: string;
   id: string;
   stargazerCount: number;
-  owner: { name?: string | null; login?: string; avatarUrl: string }
-  issues: { totalCount: number }
-  pullRequests: { totalCount: number }
+  owner: { name?: string | null; login?: string; avatarUrl: string };
+  issues: { totalCount: number };
+  pullRequests: { totalCount: number };
 };
 
 export default function SearchTemplateRepositories() {
@@ -22,10 +23,7 @@ export default function SearchTemplateRepositories() {
 
   const query = useMemo(() => `topic:template org:gitpod-samples ${searchText}`, [searchText]);
 
-  const {
-    data,
-    isLoading,
-  } = useCachedPromise(
+  const { data, isLoading } = useCachedPromise(
     async (query) => {
       const result = await github.searchTemplateRepositories({ query, numberOfItems: 10 });
       return result.search.repos?.map((node) => node?.repo as TemplateRepositoryFieldsFragment);
@@ -51,7 +49,7 @@ export default function SearchTemplateRepositories() {
     >
       {data?.length && data?.length > 0 ? (
         <List.Section title={"Find your favorite template"} subtitle={`${data.length}`}>
-          {data.map((repository : TemplateRepositoryFieldsFragment) => {
+          {data.map((repository: TemplateRepositoryFieldsFragment) => {
             return <TemplateListItem key={repository?.id} repository={repository} />;
           })}
         </List.Section>

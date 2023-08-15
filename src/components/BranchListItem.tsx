@@ -1,4 +1,16 @@
-import { Action, ActionPanel, Color, Icon, List, open, useNavigation, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Color,
+  Icon,
+  List,
+  open,
+  useNavigation,
+  showToast,
+  Toast,
+  getPreferenceValues,
+  LocalStorage,
+} from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
 import { branchStatus, GitpodIcons, UIColors } from "../../constants";
@@ -148,9 +160,9 @@ export default function BranchListItem({
               if (dashboardPreferences.access_token) {
                 const defaultOrg = await LocalStorage.getItem("default_organization");
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),branchURL);
+                  createWorksapceFromContext(defaultOrg.toString(), branchURL);
                 } else {
-                  push(<DefaultOrgForm />)
+                  push(<DefaultOrgForm />);
                 }
               } else {
                 OpenInGitpod(branchURL, "Branch", repository, branch.branchName);
@@ -228,7 +240,11 @@ export default function BranchListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           /> */}
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push
+            title="Switch Default Organization"
+            shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
+            target={<DefaultOrgForm />}
+          />
         </ActionPanel>
       }
     />

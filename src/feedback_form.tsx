@@ -1,9 +1,4 @@
-import {
-  ActionPanel,
-  Form,
-  Action,
-  showHUD,
-} from "@raycast/api";
+import { ActionPanel, Form, Action, showHUD } from "@raycast/api";
 import fetch from "node-fetch";
 
 import View from "./components/View";
@@ -11,21 +6,23 @@ import View from "./components/View";
 function FeedbackForm() {
   return (
     <Form
-      navigationTitle={`Feedback Form for Gitpod Extension(Beta)`}
+      navigationTitle={`Feedback Form for Gitpod Extension`}
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Submit Feedback"
+          <Action.SubmitForm
+            title="Submit Feedback"
             onSubmit={async (values) => {
               try {
                 await fetch(`https://raycast-extension-feedback.vercel.app/api-v1`, {
                   method: "POST",
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ ...values, tags: values.tags.join(",") })
-                })
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ...values, tags: values.tags.join(",") }),
+                });
               } catch (e) {
-                showHUD("Failed to submit form data. Please try again.")
+                showHUD("Failed to submit form data. Please try again.");
               }
-            }} />
+            }}
+          />
         </ActionPanel>
       }
     >
@@ -36,7 +33,12 @@ function FeedbackForm() {
         <Form.Dropdown.Item value="New Feature Request" title="New Feature" />
       </Form.Dropdown>
       <Form.TextField title="Title of Issue" id="title" placeholder="Any issue you've been facing..." />
-      <Form.TextArea enableMarkdown={true} title="Description" id="comment" placeholder={"Issue/Feature in brief (markdown supported)"} />
+      <Form.TextArea
+        enableMarkdown={true}
+        title="Description"
+        id="comment"
+        placeholder={"Issue/Feature in brief (markdown supported)"}
+      />
       <Form.Dropdown id="type" title="Type" defaultValue="Issue">
         <Form.Dropdown.Item value="Issue" title="Issue" />
         <Form.Dropdown.Item value="Feature Request" title="Feature Request" />
@@ -50,9 +52,8 @@ function FeedbackForm() {
         <Form.TagPicker.Item value="github" title="github" icon="🎓" />
       </Form.TagPicker>
     </Form>
-  )
+  );
 }
-
 
 export default function Command() {
   return (
@@ -61,4 +62,3 @@ export default function Command() {
     </View>
   );
 }
-

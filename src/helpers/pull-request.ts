@@ -47,7 +47,6 @@ export function usePullReqHistory() {
     setHistory(nextPullReq);
   }
 
-
   function removePullReq(pullRequest: PullRequestFieldsFragment) {
     const visitedPullReq = [...(history?.filter((item) => item.id !== pullRequest.id) ?? [])];
     LocalStorage.setItem(VISITED_PULL_REQ_KEY, JSON.stringify(visitedPullReq));

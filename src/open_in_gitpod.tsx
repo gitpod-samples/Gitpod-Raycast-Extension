@@ -1,4 +1,14 @@
-import { Action, ActionPanel, getPreferenceValues, Icon, List, LocalStorage, showToast, Toast, useNavigation } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  getPreferenceValues,
+  Icon,
+  List,
+  LocalStorage,
+  showToast,
+  Toast,
+  useNavigation,
+} from "@raycast/api";
 import { useCachedPromise, usePromise } from "@raycast/utils";
 import { useMemo, useState } from "react";
 
@@ -39,9 +49,7 @@ function SearchRepositories() {
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
   const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
-  const workspaceManager = new WorkspaceManager(
-    dashboardPreferences.access_token ?? ""
-  );
+  const workspaceManager = new WorkspaceManager(dashboardPreferences.access_token ?? "");
 
   const {
     data,
@@ -56,14 +64,14 @@ function SearchRepositories() {
     [query],
     {
       keepPreviousData: true,
-      onError(error : Error) {
-        const e = ( error as any ) as {code: string }
+      onError(error: Error) {
+        const e = error as any as { code: string };
         showToast({
           title: e.code === "ENOTFOUND" ? errorMessage.networkError : error.message,
           style: Toast.Style.Failure,
         });
       },
-    },
+    }
   );
 
   const gitpodFilter = async (repo: ExtendedRepositoryFieldsFragment[]) => {
@@ -118,32 +126,35 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
-      <List.Item title={"Empty Workspace"} accessories={accessoriesEmptyRepo} icon={"https://avatars.githubusercontent.com/u/37021919?s=64&v=4"} actions={
-        <ActionPanel>
-          <Action
-            title="Start an Empty Workspace"
-            onAction={async () => {
-              if (dashboardPreferences.access_token !== undefined && dashboardPreferences.access_token !== "") {
-                const defaultOrg = await LocalStorage.getItem("default_organization");
-                if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),"https://github.com/gitpod-io/empty");
+      <List.Item
+        title={"Empty Workspace"}
+        accessories={accessoriesEmptyRepo}
+        icon={"https://avatars.githubusercontent.com/u/37021919?s=64&v=4"}
+        actions={
+          <ActionPanel>
+            <Action
+              title="Start an Empty Workspace"
+              onAction={async () => {
+                if (dashboardPreferences.access_token !== undefined && dashboardPreferences.access_token !== "") {
+                  const defaultOrg = await LocalStorage.getItem("default_organization");
+                  if (defaultOrg !== undefined && WorkspaceManager.api) {
+                    createWorksapceFromContext(defaultOrg.toString(), "https://github.com/gitpod-io/empty");
+                  } else {
+                    push(<DefaultOrgForm />);
+                  }
                 } else {
-                  push(<DefaultOrgForm />)
+                  OpenInGitpod("https://github.com/gitpod-io/empty", "Repository", "gitpod-io/empty");
                 }
-              } else {
-                OpenInGitpod("https://github.com/gitpod-io/empty", "Repository", "gitpod-io/empty")
-              }
-            }}
-          />
-          <Action
-            title="Configure Workspace"
-            onAction={() =>
-              push(<RepositoryPreference revalidate={revalidate} repository={"gitpod-io/empty"} />)
-            }
-            shortcut={{ modifiers: ["cmd"], key: "e" }}
-          />
-        </ActionPanel>
-      } />
+              }}
+            />
+            <Action
+              title="Configure Workspace"
+              onAction={() => push(<RepositoryPreference revalidate={revalidate} repository={"gitpod-io/empty"} />)}
+              shortcut={{ modifiers: ["cmd"], key: "e" }}
+            />
+          </ActionPanel>
+        }
+      />
       {searchText == "" && (
         <List.Section
           title="Recent Contexts"

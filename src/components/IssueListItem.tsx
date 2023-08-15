@@ -1,4 +1,15 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Icon,
+  List,
+  open,
+  useNavigation,
+  showToast,
+  Toast,
+  getPreferenceValues,
+  LocalStorage,
+} from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 
@@ -18,16 +29,15 @@ import { dashboardPreferences } from "../preferences/dashboard_preferences";
 
 import DefaultOrgForm from "./DefaultOrgForm";
 
-
 type IssueListItemProps = {
   issue: IssueFieldsFragment;
   viewer?: UserFieldsFragment;
   changeBodyVisibility?: (state: boolean) => void;
   bodyVisible?: boolean;
   mutateList?:
-  | MutatePromise<SearchCreatedIssuesQuery | undefined>
-  | MutatePromise<SearchOpenIssuesQuery | undefined>
-  | MutatePromise<IssueFieldsFragment[] | undefined>;
+    | MutatePromise<SearchCreatedIssuesQuery | undefined>
+    | MutatePromise<SearchOpenIssuesQuery | undefined>
+    | MutatePromise<IssueFieldsFragment[] | undefined>;
   visitIssue?: (issue: IssueFieldsFragment) => void;
   removeIssue?: (issue: IssueFieldsFragment) => void;
   fromCache?: boolean;
@@ -106,9 +116,9 @@ export default function IssueListItem({
               if (dashboardPreferences.access_token) {
                 const defaultOrg = await LocalStorage.getItem("default_organization");
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),issue.url);
+                  createWorksapceFromContext(defaultOrg.toString(), issue.url);
                 } else {
-                  push(<DefaultOrgForm />)
+                  push(<DefaultOrgForm />);
                 }
               } else {
                 OpenInGitpod(issue.url, "Issue", issue.repository.nameWithOwner, issue.title);
@@ -148,7 +158,7 @@ export default function IssueListItem({
           {!fromCache && (
             <Action
               title="Add Issue to Recents"
-              onAction={async() => {
+              onAction={async () => {
                 visitIssue?.(issue);
                 await showToast({
                   title: `Added Issue "#${issue.number}" to Recents`,
@@ -185,7 +195,11 @@ export default function IssueListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           /> */}
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push
+            title="Switch Default Organization"
+            shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
+            target={<DefaultOrgForm />}
+          />
         </ActionPanel>
       }
     />

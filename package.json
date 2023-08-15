@@ -1,11 +1,11 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "gitpod",
-  "title": "Gitpod (Beta)",
+  "title": "Gitpod",
   "description": "A blazingly fast way to work with Gitpod",
   "icon": "logo-mark.png",
   "author": "Henit-Palani",
-  "owner": "gitpod-community",
+  "access": "public",
   "contributors": [
     "Palanikannan1437",
     "henitchobisa"
@@ -82,7 +82,7 @@
   "commands": [
     {
       "name": "open_in_gitpod",
-      "title": "Open Contexts from Github",
+      "title": "Open Contexts From Github",
       "subtitle": "Open any Context in Gitpod",
       "description": "Open any Repository / Branch / PR / Issue in Gitpod with the extension",
       "mode": "view",

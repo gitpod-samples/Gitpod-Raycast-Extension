@@ -9,7 +9,6 @@ interface Preferences {
   preferredEditorClass: "g1-standard" | "g1-large";
 }
 
-
 export async function getPreferencesForContext(
   type: "Branch" | "Pull Request" | "Issue" | "Repository",
   repository: string,
@@ -57,12 +56,14 @@ export default async function OpenInGitpod(
       if (preferences.preferredEditor === "ssh") {
         // TODO: Add a check if dotsh files are loaded in future
         open(
-          `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${"code"}${preferences.useLatest ? "-latest" : ""
+          `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${"code"}${
+            preferences.useLatest ? "-latest" : ""
           }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
         );
       } else {
         open(
-          `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${preferences.useLatest ? "-latest" : ""
+          `${gitpodEndpoint}/new/?useLatest=${preferences.useLatest}&editor=${preferences.preferredEditor}${
+            preferences.useLatest ? "-latest" : ""
           }&workspaceClass=${preferences.preferredEditorClass}#${contextUrl}`
         );
       }

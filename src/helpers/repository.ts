@@ -44,7 +44,7 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
   async function removeRepository(repository: ExtendedRepositoryFieldsFragment) {
     const visitedRepositories = [...(history?.filter((item) => item.id !== repository.id) ?? [])];
     await LocalStorage.setItem(VISITED_REPOSITORIES_KEY, JSON.stringify(visitedRepositories));
-    await removeRepoContext({ repoName: repository.nameWithOwner })
+    await removeRepoContext({ repoName: repository.nameWithOwner });
     const nextRepositories = visitedRepositories.slice(0, VISITED_REPOSITORIES_LENGTH);
     setHistory(nextRepositories);
   }

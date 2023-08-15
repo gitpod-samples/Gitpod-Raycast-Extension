@@ -26,7 +26,7 @@ type SearchContextProps = {
 
 function SearchContext({ repository }: SearchContextProps) {
   const { history: cachedContexts, addRepoContext } = useContextHistory();
-  const cachedRepo = cachedContexts.find(ctx => ctx.repoName === repository.nameWithOwner)
+  const cachedRepo = cachedContexts.find((ctx) => ctx.repoName === repository.nameWithOwner);
 
   const { github } = getGitHubClient();
   const viewer = useViewer();
@@ -63,8 +63,9 @@ function SearchContext({ repository }: SearchContextProps) {
         if (sections.includes("/p")) {
           const pullRequest = (
             await github.searchPullRequests({
-              query: `is:pr repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
-                } archived:false ${searchText.trim()}`,
+              query: `is:pr repo:${repository.nameWithOwner} ${
+                forAuthor ? "author:@me" : ""
+              } archived:false ${searchText.trim()}`,
               numberOfItems: n,
             })
           ).search.edges?.map((edge) => edge?.node as PullRequestFieldsFragment);
@@ -74,8 +75,9 @@ function SearchContext({ repository }: SearchContextProps) {
         if (sections.includes("/i")) {
           const issues = (
             await github.searchIssues({
-              query: `is:issue repo:${repository.nameWithOwner} ${forAuthor ? "author:@me" : ""
-                } archived:false ${searchText.trim()}`,
+              query: `is:issue repo:${repository.nameWithOwner} ${
+                forAuthor ? "author:@me" : ""
+              } archived:false ${searchText.trim()}`,
               numberOfItems: n,
             })
           ).search.nodes?.map((node) => node as IssueFieldsFragment);
@@ -152,7 +154,6 @@ function SearchContext({ repository }: SearchContextProps) {
     }
   }, [searchText]);
 
-
   if (firstLoad && cachedRepo?.contexts) {
     return (
       <List
@@ -163,16 +164,15 @@ function SearchContext({ repository }: SearchContextProps) {
         navigationTitle={repository.nameWithOwner}
         throttle
       >
-        {cachedRepo.contexts.branches &&
+        {cachedRepo.contexts.branches && (
           <List.Section
             key={"Branches"}
             title={"Branches"}
             subtitle={pluralize(cachedRepo.contexts.branches.length, "Branch", {
               withNumber: true,
             })}
-
           >
-            {cachedRepo.contexts.branches.map(branch => {
+            {cachedRepo.contexts.branches.map((branch) => {
               return (
                 <BranchListItem
                   bodyVisible={bodyVisible}
@@ -186,20 +186,19 @@ function SearchContext({ repository }: SearchContextProps) {
                   branch={branch}
                   visitBranch={visitBranch}
                 />
-              )
+              );
             })}
           </List.Section>
-        }
-        {cachedRepo.contexts.pullRequest &&
+        )}
+        {cachedRepo.contexts.pullRequest && (
           <List.Section
             key={"Pull Requests"}
             title={"Pull Requests"}
             subtitle={pluralize(cachedRepo.contexts.pullRequest.length, "Pull Request", {
               withNumber: true,
             })}
-
           >
-            {cachedRepo.contexts.pullRequest.map(pullRequest => {
+            {cachedRepo.contexts.pullRequest.map((pullRequest) => {
               return (
                 <PullRequestListItem
                   bodyVisible={bodyVisible}
@@ -209,11 +208,11 @@ function SearchContext({ repository }: SearchContextProps) {
                   viewer={viewer}
                   visitPullReq={visitPullReq}
                 />
-              )
+              );
             })}
           </List.Section>
-        }
-        {cachedRepo.contexts.issues &&
+        )}
+        {cachedRepo.contexts.issues && (
           <List.Section
             key={"Issues"}
             title={"Issues"}
@@ -221,7 +220,7 @@ function SearchContext({ repository }: SearchContextProps) {
               withNumber: true,
             })}
           >
-            {cachedRepo.contexts.issues.map(issue => {
+            {cachedRepo.contexts.issues.map((issue) => {
               return (
                 <IssueListItem
                   bodyVisible={bodyVisible}
@@ -231,12 +230,12 @@ function SearchContext({ repository }: SearchContextProps) {
                   viewer={viewer}
                   visitIssue={visitIssue}
                 />
-              )
+              );
             })}
           </List.Section>
-        }
+        )}
       </List>
-    )
+    );
   }
 
   return (

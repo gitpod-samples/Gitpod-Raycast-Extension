@@ -1,4 +1,16 @@
-import { Color, List, ActionPanel, Action, open, useNavigation, Icon, showToast, Toast, getPreferenceValues, LocalStorage} from "@raycast/api";
+import {
+  Color,
+  List,
+  ActionPanel,
+  Action,
+  open,
+  useNavigation,
+  Icon,
+  showToast,
+  Toast,
+  getPreferenceValues,
+  LocalStorage,
+} from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 
 import { GitpodIcons, UIColors } from "../../constants";
@@ -86,11 +98,11 @@ export default function RepositoryListItem({
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-          subtitle: {
-            value: `${numberOfStars}`,
-            tooltip: `Number of Stars: ${numberOfStars}`,
-          },
-        }
+            subtitle: {
+              value: `${numberOfStars}`,
+              tooltip: `Number of Stars: ${numberOfStars}`,
+            },
+          }
         : {})}
       accessories={accessories}
       actions={
@@ -102,10 +114,13 @@ export default function RepositoryListItem({
               push(<SearchContext repository={repository} />);
             }}
           />
-          <Action title="Open Repo in GitHub" onAction={() => {
-            onVisit(repository);
-            open(repository.url)
-          }} />
+          <Action
+            title="Open Repo in GitHub"
+            onAction={() => {
+              onVisit(repository);
+              open(repository.url);
+            }}
+          />
           {!fromCache && (
             <Action
               title="Add Repo to Recents"
@@ -115,7 +130,6 @@ export default function RepositoryListItem({
                   title: `Added "${repository.nameWithOwner}" to Recents`,
                   style: Toast.Style.Success,
                 });
-
               }}
               shortcut={{ modifiers: ["cmd"], key: "r" }}
             />
@@ -144,12 +158,12 @@ export default function RepositoryListItem({
               if (dashboardPreferences.access_token) {
                 const defaultOrg = await LocalStorage.getItem("default_organization");
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
-                  createWorksapceFromContext(defaultOrg.toString(),repository.url);
+                  createWorksapceFromContext(defaultOrg.toString(), repository.url);
                 } else {
-                  push(<DefaultOrgForm />)
+                  push(<DefaultOrgForm />);
                 }
               } else {
-                OpenInGitpod(repository.url, "Repository", repository.nameWithOwner)
+                OpenInGitpod(repository.url, "Repository", repository.nameWithOwner);
               }
             }}
             shortcut={{ modifiers: ["cmd"], key: "g" }}
@@ -161,7 +175,11 @@ export default function RepositoryListItem({
             }
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           /> */}
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push
+            title="Switch Default Organization"
+            shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
+            target={<DefaultOrgForm />}
+          />
         </ActionPanel>
       }
     />

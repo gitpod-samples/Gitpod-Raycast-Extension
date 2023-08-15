@@ -1,4 +1,15 @@
-import { Action, ActionPanel, List, open, showToast, showHUD, Toast, getPreferenceValues, getApplications, LocalStorage } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  List,
+  open,
+  showToast,
+  showHUD,
+  Toast,
+  getPreferenceValues,
+  getApplications,
+  LocalStorage,
+} from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
@@ -22,80 +33,87 @@ function ListWorkspaces() {
   const [isNetworkError, setNetworkError] = useState<boolean>(false);
 
   if (dashboardPreferences.access_token === undefined || dashboardPreferences.access_token.trim() === "") {
-    return (<ErrorListView message={errorMessage.invalidAccessToken}/>)
+    return <ErrorListView message={errorMessage.invalidAccessToken} />;
   }
 
   const EditorPreferences = getPreferenceValues<Preferences>();
 
-  const workspaceManager = new WorkspaceManager(
-    dashboardPreferences.access_token ?? ""
-  );
+  const workspaceManager = new WorkspaceManager(dashboardPreferences.access_token ?? "");
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
 
-
   const [defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
 
-  const { isLoading, revalidate } = usePromise(async () => {
-    // await LocalStorage.clear();
-    await workspaceManager.init();
-    const apps = await getApplications();
-    const defaultOrg = await LocalStorage.getItem("default_organization");
-    if (defaultOrg !== undefined) {
-      setDefaultOrganization(defaultOrg.toString())
-    }
+  const { isLoading, revalidate } = usePromise(
+    async () => {
+      // await LocalStorage.clear();
+      await workspaceManager.init();
+      const apps = await getApplications();
+      const defaultOrg = await LocalStorage.getItem("default_organization");
+      if (defaultOrg !== undefined) {
+        setDefaultOrganization(defaultOrg.toString());
+      }
 
-    // checking if vsCode is present in all the apps with its bundle id
-    const CodePresent = apps.find((app) => {
-      return app.bundleId && app.bundleId === "com.microsoft.VSCode"
-    });
+      // checking if vsCode is present in all the apps with its bundle id
+      const CodePresent = apps.find((app) => {
+        return app.bundleId && app.bundleId === "com.microsoft.VSCode";
+      });
 
-    if (CodePresent !== undefined) {
-      setVSCodePresent(true);
+      if (CodePresent !== undefined) {
+        setVSCodePresent(true);
+      }
+    },
+    [],
+    {
+      onError: (error) => {
+        console.log(error.name);
+      },
     }
-  }, [], {
-    onError: (error) => {
-        console.log(error.name)
-    }
-  });
+  );
 
   useEffect(() => {
     workspaceManager.on("workspaceUpdated", () => {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
     });
     workspaceManager.on("errorOccured", (error: IWorkspaceError) => {
-      if (error.code.toString() === "ENOTFOUND"){
+      if (error.code.toString() === "ENOTFOUND") {
         return setNetworkError(true);
       }
-      if (error.code === 500 || error.code === 401){
+      if (error.code === 500 || error.code === 401) {
         setIsUnauthorized(true);
       } else {
         showToast({
           style: Toast.Style.Failure,
           title: "Unable to perform this action, please check your network, your token expiry or try again later.",
-        })
+        });
       }
-    })
+    });
   }, []);
-  
 
   if (isUnauthorised || isNetworkError) {
-    return (<ErrorListView message={isUnauthorised ? errorMessage.invalidAccessToken : errorMessage.networkError}/>)
+    return <ErrorListView message={isUnauthorised ? errorMessage.invalidAccessToken : errorMessage.networkError} />;
   }
 
   return (
     <List isLoading={isLoading}>
-      {(!isLoading && defaultOrganization === undefined) && <List.Item icon={GitpodIcons.info_icon} title={"Setup Default Organization"} subtitle={"Where is it billed? "} actions={
-        <ActionPanel>
-          <Action.Push title={"Setup Default Organization"} target={<DefaultOrgForm revalidate={revalidate} />} />
-        </ActionPanel>
-      } />}
+      {!isLoading && defaultOrganization === undefined && (
+        <List.Item
+          icon={GitpodIcons.info_icon}
+          title={"Setup Default Organization"}
+          subtitle={"Where is it billed? "}
+          actions={
+            <ActionPanel>
+              <Action.Push title={"Setup Default Organization"} target={<DefaultOrgForm revalidate={revalidate} />} />
+            </ActionPanel>
+          }
+        />
+      )}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
         "Active Workspaces",
         EditorPreferences,
-        vsCodePresent,
+        vsCodePresent
       )}
       {renderWorkspaces(
         workspaces.filter(
@@ -104,20 +122,29 @@ function ListWorkspaces() {
         ),
         "Progressing Workspaces",
         EditorPreferences,
-        vsCodePresent,
+        vsCodePresent
       )}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_STOPPED"),
         "Inactive Workspaces",
         EditorPreferences,
-        vsCodePresent,
+        vsCodePresent
       )}
     </List>
   );
 }
 
-function renderWorkspaces(workspaces: IWorkspace[], title: string, EditorPreferences: Preferences, CodePresent: boolean) {
-  return <List.Section title={title}>{workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent))}</List.Section>;
+function renderWorkspaces(
+  workspaces: IWorkspace[],
+  title: string,
+  EditorPreferences: Preferences,
+  CodePresent: boolean
+) {
+  return (
+    <List.Section title={title}>
+      {workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent))}
+    </List.Section>
+  );
 }
 
 function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences, CodePresent: boolean) {
@@ -139,23 +166,22 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                     style: Toast.Style.Animated,
                   });
 
-                  const vsCodeURI = getCodeEncodedURI(workspace)
+                  const vsCodeURI = getCodeEncodedURI(workspace);
                   setTimeout(() => {
                     open(vsCodeURI, "com.microsoft.VSCode");
                     toast.hide();
                   }, 1500);
                 } else if (EditorPreferences.preferredEditor === "ssh") {
                   const terminalURL = "ssh://" + workspace.getWorkspaceId() + "@" + splitUrl(workspace.getIDEURL());
-                  open(terminalURL)
-                }
-                else {
-                  if (workspace.getIDEURL() !== '') {
+                  open(terminalURL);
+                } else {
+                  if (workspace.getIDEURL() !== "") {
                     if (EditorPreferences.preferredEditor === "code-desktop") {
-                      showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.")
+                      showHUD("Unable to find VSCode Desktop, opening in VSCode Insiders.");
                     }
                     setTimeout(() => {
                       open(workspace.getIDEURL());
-                    }, 1500)
+                    }, 1500);
                   }
                 }
               }}
@@ -173,7 +199,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                 try {
                   workspace.stop({ workspaceID: workspace.getWorkspaceId() });
                 } catch (e) {
-                  await showHUD("Failed to stop your workspace, check your network, your token, or try later.")
+                  await showHUD("Failed to stop your workspace, check your network, your token, or try later.");
                 }
               }}
               shortcut={{ modifiers: ["cmd"], key: "s" }}
@@ -189,15 +215,21 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                   style: Toast.Style.Success,
                 });
                 try {
-                  await workspace.start({ workspaceID: workspace.getWorkspaceId() })
+                  await workspace.start({ workspaceID: workspace.getWorkspaceId() });
                 } catch (error) {
-                  const workspaceError: IWorkspaceError = error as IWorkspaceError
-                  showHUD(workspaceError.message)
+                  const workspaceError: IWorkspaceError = error as IWorkspaceError;
+                  showHUD(workspaceError.message);
                 }
               }}
             />
           )}
-          {(workspace.getStatus().phase === "PHASE_RUNNING" || workspace.getStatus().phase === "PHASE_STOPPED") && <Action.Push shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} title="Switch Default Organization" target={<DefaultOrgForm />} />}
+          {(workspace.getStatus().phase === "PHASE_RUNNING" || workspace.getStatus().phase === "PHASE_STOPPED") && (
+            <Action.Push
+              shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
+              title="Switch Default Organization"
+              target={<DefaultOrgForm />}
+            />
+          )}
         </ActionPanel>
       }
       accessories={[
@@ -212,8 +244,8 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
             workspace.getStatus().phase === "PHASE_RUNNING"
               ? GitpodIcons.running_icon
               : workspace.getStatus().phase === "PHASE_STOPPED"
-                ? GitpodIcons.stopped_icon
-                : GitpodIcons.progressing_icon,
+              ? GitpodIcons.stopped_icon
+              : GitpodIcons.progressing_icon,
         },
       ]}
     />

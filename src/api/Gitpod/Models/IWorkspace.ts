@@ -1,8 +1,8 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
-import { CreateWorkspace, WorkspaceStreamer } from '../WorkspaceStreamer';
+import { CreateWorkspace, WorkspaceStreamer } from "../WorkspaceStreamer";
 
-import { IWorkspaceError } from './IWorkspaceError';
+import { IWorkspaceError } from "./IWorkspaceError";
 import { GitpodDataModel } from "./Model";
 
 type IWorkspaceParams = {
@@ -17,15 +17,15 @@ type ICreateWorkspaceParams = {
   ideSetting: {
     defaultIde: string;
     useLatestVersion: false;
-  }
-}
+  };
+};
 
 const workspaceURLs = {
   getWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/GetWorkspace",
   getAllWorkspaces: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/ListWorkspaces",
   deleteWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/DeleteWorkspace",
   startWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StartWorkspace",
-  stopWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StopWorkspace"
+  stopWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StopWorkspace",
 };
 
 export class IWorkspace implements GitpodDataModel {
@@ -43,7 +43,7 @@ export class IWorkspace implements GitpodDataModel {
   };
   private description: string;
   public instanceId: string;
-  public createdAt: string
+  public createdAt: string;
   private status: {
     phase: string;
   };
@@ -51,7 +51,7 @@ export class IWorkspace implements GitpodDataModel {
   private repository: string;
 
   getIDEURL() {
-    return this.ideURL
+    return this.ideURL;
   }
 
   setIDEURL(url: string) {
@@ -98,8 +98,8 @@ export class IWorkspace implements GitpodDataModel {
     return this.description;
   }
 
-  getRepositoryName(): string{
-    if (!this.initialized){
+  getRepositoryName(): string {
+    if (!this.initialized) {
       throw new Error("IWorkspace instance not initailized");
     }
     return this.repository;
@@ -120,11 +120,11 @@ export class IWorkspace implements GitpodDataModel {
     this.status = workspace.status.instance.status;
     this.description = workspace.description;
     this.token = token;
-    this.instanceId = workspace.status.instance.instanceId
+    this.instanceId = workspace.status.instance.instanceId;
     this.initialized = true;
-    this.createdAt = workspace.status.instance.createdAt
-    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : 'https://gitpod.io';
-    this.repository = workspace.context.git.repository.name
+    this.createdAt = workspace.status.instance.createdAt;
+    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : "https://gitpod.io";
+    this.repository = workspace.context.git.repository.name;
   }
 
   parse(json: string): IWorkspace {
@@ -144,9 +144,9 @@ export class IWorkspace implements GitpodDataModel {
     this.status = {
       phase: data.result.status.instance.status.phase,
     };
-    this.ideURL = data.result.status.instance ? data.result.status.instance.status.url : ''
+    this.ideURL = data.result.status.instance ? data.result.status.instance.status.url : "";
 
-    this.createdAt = data.result.status.instance.createdAt
+    this.createdAt = data.result.status.instance.createdAt;
 
     return this;
   }
@@ -167,23 +167,26 @@ export class IWorkspace implements GitpodDataModel {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "Authorization": `Bearer ${this.token}`,
+        Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({ workspaceId: workspaceID }),
     });
     const json = await response.json();
     if (response.status !== 200) {
-      const errorState = json as { code?: string, message?: string }
+      const errorState = json as { code?: string; message?: string };
       const error: IWorkspaceError = {
         name: "WorkspaceStartError",
         code: response.status,
-        message: errorState.message && errorState.message.startsWith("You cannot run more than 4 workspaces at the same time") ? errorState.message : "Error Occured in Starting Workspace"
-      }
-      throw error
+        message:
+          errorState.message && errorState.message.startsWith("You cannot run more than 4 workspaces at the same time")
+            ? errorState.message
+            : "Error Occured in Starting Workspace",
+      };
+      throw error;
     }
     const workspace = this.parse(JSON.stringify(json));
     return workspace;
-  }
+  };
 
   public stop: (params: IWorkspaceParams) => void = async (params: IWorkspaceParams) => {
     const { workspaceID } = params;
@@ -192,7 +195,7 @@ export class IWorkspace implements GitpodDataModel {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "Authorization": `Bearer ${this.token}`,
+        Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({ workspaceId: workspaceID }),
     });
@@ -201,32 +204,32 @@ export class IWorkspace implements GitpodDataModel {
       const error: IWorkspaceError = {
         name: "WorkspaceStartError",
         code: response.status,
-        message: "Error Occured in Stopping Workspace"
-      }
-      throw error
+        message: "Error Occured in Stopping Workspace",
+      };
+      throw error;
     }
-  }
+  };
 
-  public static create: (streamer: WorkspaceStreamer, params: ICreateWorkspaceParams) => void = async (streamer: WorkspaceStreamer, params: ICreateWorkspaceParams) => {
-
+  public static create: (streamer: WorkspaceStreamer, params: ICreateWorkspaceParams) => void = async (
+    streamer: WorkspaceStreamer,
+    params: ICreateWorkspaceParams
+  ) => {
     const createParams: CreateWorkspace = {
       method: "createWorkspace",
-      params: params
-    }
+      params: params,
+    };
 
-    streamer.execute(createParams)
-  }
+    streamer.execute(createParams);
+  };
 
-  public fetch: (params: IWorkspaceParams) => Promise<IWorkspace> | never = async (
-    params: IWorkspaceParams
-  ) => {
+  public fetch: (params: IWorkspaceParams) => Promise<IWorkspace> | never = async (params: IWorkspaceParams) => {
     const { workspaceID } = params;
 
     const response = await fetch(workspaceURLs.getWorkspace, {
       method: "GET",
       headers: {
         "content-type": "application/json",
-        "Authorization": `Bearer ${this.token}`,
+        Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({ workspaceID }),
     });
@@ -235,9 +238,9 @@ export class IWorkspace implements GitpodDataModel {
       const error: IWorkspaceError = {
         name: "WorkspaceFetchError",
         code: response.status,
-        message: response.statusText
-      }
-      throw error
+        message: response.statusText,
+      };
+      throw error;
     }
 
     const json = await response.json();
@@ -252,27 +255,27 @@ export class IWorkspace implements GitpodDataModel {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({}),
-    })
+    });
     if (response.status != 200) {
       const error: IWorkspaceError = {
         name: "WorkspaceFetchError",
         code: response.status,
-        message: response.statusText
-      }
-      throw error
+        message: response.statusText,
+      };
+      throw error;
     }
 
-    const json = await response.json() as any;
+    const json = (await response.json()) as any;
 
     json.result.map((workspace: unknown) => {
       const space = new IWorkspace(workspace, token);
       workspaceMap.set(space.workspaceId, space);
-    })
-    return workspaceMap
-  }
+    });
+    return workspaceMap;
+  };
 
   // public delete = async () => {
   //   const response = await fetch(workspaceURLs.deleteWorkspace, {

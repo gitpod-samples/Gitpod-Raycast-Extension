@@ -1,4 +1,15 @@
-import { Action, ActionPanel, Icon, List, open, useNavigation, showToast, Toast, getPreferenceValues, LocalStorage } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Icon,
+  List,
+  open,
+  useNavigation,
+  showToast,
+  Toast,
+  getPreferenceValues,
+  LocalStorage,
+} from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { format } from "date-fns";
 import { useMemo } from "react";
@@ -97,7 +108,6 @@ export default function PullRequestListItem({
         accessories.unshift(checkStateAccessory);
       }
     }
-
   }
 
   const keywords = [`${pullRequest.number}`];
@@ -126,7 +136,7 @@ export default function PullRequestListItem({
                 if (defaultOrg !== undefined && WorkspaceManager.api) {
                   createWorksapceFromContext(defaultOrg.toString(), pullRequest.permalink);
                 } else {
-                  push(<DefaultOrgForm />)
+                  push(<DefaultOrgForm />);
                 }
               } else {
                 OpenInGitpod(
@@ -208,7 +218,11 @@ export default function PullRequestListItem({
               }}
             />
           )}
-          <Action.Push title="Switch Default Organization" shortcut={{ modifiers: ["cmd", "shift"], key: "o"}} target={<DefaultOrgForm />}/>
+          <Action.Push
+            title="Switch Default Organization"
+            shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
+            target={<DefaultOrgForm />}
+          />
         </ActionPanel>
       }
     />

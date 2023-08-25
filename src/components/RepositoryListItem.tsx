@@ -10,6 +10,7 @@ import {
   Toast,
   getPreferenceValues,
   LocalStorage,
+  copyTextToClipboard,
 } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 
@@ -98,11 +99,11 @@ export default function RepositoryListItem({
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-            subtitle: {
-              value: `${numberOfStars}`,
-              tooltip: `Number of Stars: ${numberOfStars}`,
-            },
-          }
+          subtitle: {
+            value: `${numberOfStars}`,
+            tooltip: `Number of Stars: ${numberOfStars}`,
+          },
+        }
         : {})}
       accessories={accessories}
       actions={
@@ -120,6 +121,22 @@ export default function RepositoryListItem({
               onVisit(repository);
               open(repository.url);
             }}
+          />
+          <Action
+            title="Copy Repo URL"
+            onAction={async () => {
+              onVisit(repository);
+              await showToast({
+                title: `Copying "${repository.name}" url`,
+                style: Toast.Style.Animated,
+              });
+              copyTextToClipboard(repository.url);
+              await showToast({
+                title: `Copied "${repository.name}" url`,
+                style: Toast.Style.Success,
+              });
+            }}
+            shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
           />
           {!fromCache && (
             <Action

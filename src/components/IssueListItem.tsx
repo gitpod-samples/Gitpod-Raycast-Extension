@@ -9,6 +9,7 @@ import {
   Toast,
   getPreferenceValues,
   LocalStorage,
+  copyTextToClipboard,
 } from "@raycast/api";
 import { MutatePromise, usePromise } from "@raycast/utils";
 import { format } from "date-fns";
@@ -35,9 +36,9 @@ type IssueListItemProps = {
   changeBodyVisibility?: (state: boolean) => void;
   bodyVisible?: boolean;
   mutateList?:
-    | MutatePromise<SearchCreatedIssuesQuery | undefined>
-    | MutatePromise<SearchOpenIssuesQuery | undefined>
-    | MutatePromise<IssueFieldsFragment[] | undefined>;
+  | MutatePromise<SearchCreatedIssuesQuery | undefined>
+  | MutatePromise<SearchOpenIssuesQuery | undefined>
+  | MutatePromise<IssueFieldsFragment[] | undefined>;
   visitIssue?: (issue: IssueFieldsFragment) => void;
   removeIssue?: (issue: IssueFieldsFragment) => void;
   fromCache?: boolean;
@@ -132,6 +133,22 @@ export default function IssueListItem({
               visitIssue?.(issue);
               open(issue.url);
             }}
+          />
+          <Action
+            title="Copy Issue URL"
+            onAction={async () => {
+              visitIssue?.(issue);
+              await showToast({
+                title: `Copying "${issue.title}" url`,
+                style: Toast.Style.Animated,
+              });
+              copyTextToClipboard(issue.url);
+              await showToast({
+                title: `Copied "${issue.title}" url`,
+                style: Toast.Style.Success,
+              });
+            }}
+            shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
           />
           {!fromCache && (
             <Action

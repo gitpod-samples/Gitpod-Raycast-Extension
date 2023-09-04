@@ -30,6 +30,11 @@ export class WorkspaceManager extends EventEmitter {
     return WorkspaceManager.instance;
   }
 
+  deleteWorkspace(workspace_id: string){
+    WorkspaceManager.workspaces.delete(workspace_id);
+    return WorkspaceManager.workspaces;
+  }
+
   async init() {
     // this method will give you all the workspaces
     if (WorkspaceManager.instance) {
@@ -54,10 +59,13 @@ export class WorkspaceManager extends EventEmitter {
       // update when the workspace is not in the state
       targetWorkspace.setStatus(updateInstance.status);
       targetWorkspace.setIDEURL(updateInstance.ideUrl);
+      if (!targetWorkspace.getWorkspaceClass()){
+        targetWorkspace.setWorkspaceClass(updateInstance.workspaceClass)
+      }
       WorkspaceManager.workspaces = WorkspaceManager.workspaces.set(updateInstance.workspaceId, targetWorkspace);
 
       // Workspace has been updated, its time to tell our listeners i.e. UI Components, that workspaces have been updated and it's time to change things.
-      this.emit("workspaceUpdated", targetWorkspace);
+      this.emit("workspaceUpdated");
     });
 
     WorkspaceManager.api.on("errorOccured", (error: IWorkspaceError) => {

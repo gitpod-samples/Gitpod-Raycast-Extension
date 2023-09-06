@@ -200,7 +200,7 @@ export class IWorkspace implements GitpodDataModel {
     this.ideURL = workspace.status.instance ? data.result.status.instance.status.url : "";
 
     this.createdAt = workspace.status.instance.createdAt;
-
+    
     if (workspace.status.instance.status.gitStatus.totalUntrackedFiles) {
       this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles;
       this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;

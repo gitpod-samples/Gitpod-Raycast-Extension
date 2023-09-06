@@ -53,7 +53,7 @@ export class IWorkspace implements GitpodDataModel {
   private repository: string;
   private totalUntrackedFiles?: number;
   private untrackedFiles?: string[];
-  private recentFolders: string[];
+  private recentFolders?: string[];
 
   private totalUncommittedFiles?: number;
   private UncommittedFiles?: string[];
@@ -162,17 +162,21 @@ export class IWorkspace implements GitpodDataModel {
     this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : "https://gitpod.io";
     this.repository = workspace.context.git.repository.name;
 
-    if (workspace.status.instance.status.gitStatus.totalUntrackedFiles){
-      this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles; 
-      this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;
+    if (workspace.status.instance.status.gitStatus) {
+      if (workspace.status.instance.status.gitStatus.totalUntrackedFiles) {
+        this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles;
+        this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;
+      }
+
+      if (workspace.status.instance.status.gitStatus.uncommitedFiles) {
+        this.totalUncommittedFiles = workspace.status.instance.status.gitStatus.totalUncommitedFiles
+        this.UncommittedFiles = workspace.status.instance.status.gitStatus.uncommitedFiles
+      }
     }
 
-    if (workspace.status.instance.status.gitStatus.uncommitedFiles){
-      this.totalUncommittedFiles = workspace.status.instance.status.gitStatus.totalUncommitedFiles
-      this.UncommittedFiles = workspace.status.instance.status.gitStatus.uncommitedFiles
+    if (workspace.status.instance.status.recentFolders) {
+      this.recentFolders = workspace.status.instance.status.recentFolders as string[];
     }
-
-    this.recentFolders = workspace.status.instance.status.recentFolders as string[];
   }
 
   parse(json: string): IWorkspace {
@@ -197,8 +201,8 @@ export class IWorkspace implements GitpodDataModel {
 
     this.createdAt = workspace.status.instance.createdAt;
 
-    if (workspace.status.instance.status.gitStatus.totalUntrackedFiles){
-      this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles; 
+    if (workspace.status.instance.status.gitStatus.totalUntrackedFiles) {
+      this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles;
       this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;
     }
 
@@ -326,11 +330,12 @@ export class IWorkspace implements GitpodDataModel {
 
     const json = (await response.json()) as any;
 
-
-    json.result.map((workspace: unknown) => {
-      const space = new IWorkspace(workspace, token);
-      workspaceMap.set(space.workspaceId, space);
-    });
+    if (json.result) {
+      json.result.map((workspace: unknown) => {
+        const space = new IWorkspace(workspace, token);
+        workspaceMap.set(space.workspaceId, space);
+      });
+    }
     return workspaceMap;
   };
 

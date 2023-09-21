@@ -14,6 +14,7 @@ type ICreateWorkspaceParams = {
   organizationId: string;
   ignoreRunningWorkspaceOnSameCommit: true;
   ignoreRunningPrebuild: true;
+  worksspaceClass: "g1-standard" | "g1-large";
   ideSetting: {
     defaultIde: string;
     useLatestVersion: false;
@@ -35,6 +36,7 @@ export class IWorkspace implements GitpodDataModel {
   private ownerId: string;
   private projectId: string;
   private ideURL: string;
+  private workspaceClass?: "g1-standard" | "g1-large";
   private context: {
     contextURL: string;
     git: {
@@ -49,6 +51,40 @@ export class IWorkspace implements GitpodDataModel {
   };
 
   private repository: string;
+  private totalUntrackedFiles?: number;
+  private untrackedFiles?: string[];
+  private recentFolders?: string[];
+
+  private totalUncommittedFiles?: number;
+  private UncommittedFiles?: string[];
+
+  getUntrackedFiles() {
+    return this.untrackedFiles
+  }
+
+  getUncommittedFiles() {
+    return this.UncommittedFiles
+  }
+
+  getRecentFolders() {
+    return this.recentFolders;
+  }
+
+  getTotalUntrackedFiles() {
+    return this.totalUntrackedFiles
+  }
+
+  getTotatUncommittedFiles() {
+    return this.totalUncommittedFiles
+  }
+
+  getWorkspaceClass() {
+    return this.workspaceClass
+  }
+
+  setWorkspaceClass(workspaceClass: "g1-standard" | "g1-large") {
+    this.workspaceClass = workspaceClass
+  }
 
   getIDEURL() {
     return this.ideURL;
@@ -125,28 +161,52 @@ export class IWorkspace implements GitpodDataModel {
     this.createdAt = workspace.status.instance.createdAt;
     this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : "https://gitpod.io";
     this.repository = workspace.context.git.repository.name;
+
+    if (workspace.status.instance.status.gitStatus) {
+      if (workspace.status.instance.status.gitStatus.totalUntrackedFiles) {
+        this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles;
+        this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;
+      }
+
+      if (workspace.status.instance.status.gitStatus.uncommitedFiles) {
+        this.totalUncommittedFiles = workspace.status.instance.status.gitStatus.totalUncommitedFiles
+        this.UncommittedFiles = workspace.status.instance.status.gitStatus.uncommitedFiles
+      }
+    }
+
+    if (workspace.status.instance.status.recentFolders) {
+      this.recentFolders = workspace.status.instance.status.recentFolders as string[];
+    }
   }
 
   parse(json: string): IWorkspace {
     const data = JSON.parse(json);
-    this.workspaceId = data.result.workspaceId;
-    this.ownerId = data.result.ownerId;
-    this.projectId = data.result.context.git.normalizedContextUrl.split("/").slice(-2)[0];
+    const workspace = data.result;
+    this.workspaceId = workspace.workspaceId;
+    this.ownerId = workspace.ownerId;
+    this.projectId = workspace.context.git.normalizedContextUrl.split("/").slice(-2)[0];
     this.context = {
-      contextURL: data.result.context.contextUrl,
+      contextURL: workspace.context.contextUrl,
       git: {
-        normalizedContextUrl: data.result.context.git.normalizedContextUrl,
+        normalizedContextUrl: workspace.context.git.normalizedContextUrl,
       },
     };
-    this.repository = data.result.context.git.repository.name;
-    this.instanceId = data.result.status.instance.instanceId;
-    this.description = data.result.description;
+    this.repository = workspace.context.git.repository.name;
+    this.instanceId = workspace.status.instance.instanceId;
+    this.description = workspace.description;
     this.status = {
-      phase: data.result.status.instance.status.phase,
+      phase: workspace.status.instance.status.phase,
     };
-    this.ideURL = data.result.status.instance ? data.result.status.instance.status.url : "";
+    this.ideURL = workspace.status.instance ? data.result.status.instance.status.url : "";
 
-    this.createdAt = data.result.status.instance.createdAt;
+    this.createdAt = workspace.status.instance.createdAt;
+    
+    if (workspace.status.instance.status.gitStatus.totalUntrackedFiles) {
+      this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles;
+      this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;
+    }
+
+    this.recentFolders = workspace.status.instance.status.recentFolders;
 
     return this;
   }
@@ -270,27 +330,35 @@ export class IWorkspace implements GitpodDataModel {
 
     const json = (await response.json()) as any;
 
-    json.result.map((workspace: unknown) => {
-      const space = new IWorkspace(workspace, token);
-      workspaceMap.set(space.workspaceId, space);
-    });
+    if (json.result) {
+      json.result.map((workspace: unknown) => {
+        const space = new IWorkspace(workspace, token);
+        workspaceMap.set(space.workspaceId, space);
+      });
+    }
     return workspaceMap;
   };
 
-  // public delete = async () => {
-  //   const response = await fetch(workspaceURLs.deleteWorkspace, {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  // Authorization: `Bearer ${this.token}`,
-  //     },
-  //     body: JSON.stringify({ workspaceId: this.workspaceId }),
-  //   });
-  //   const result = await response.json();
-  //   if (response.status !== 200) {
-  //   throw new Error(`Failed to delete workspace: ${result.message}`);
-  //   }
+  public delete = async () => {
 
-  //   this.dispose();
-  // };
+    const workspace_id = this.workspaceId
+    const response = await fetch(workspaceURLs.deleteWorkspace, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${this.token}`,
+      },
+      body: JSON.stringify({ workspaceId: workspace_id }),
+    });
+
+    if (response.status !== 200) {
+      const error: IWorkspaceError = {
+        name: "WorkspaceDeleteError",
+        code: response.status,
+        message: "Error Occured in Deleting Workspace",
+      };
+      throw error;
+    }
+    return workspace_id
+  };
 }

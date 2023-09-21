@@ -44,6 +44,13 @@
       "required": true
     },
     {
+      "name" : "allow_delete_workspaces",
+      "label" : "Allow Deleting Workspace",
+      "description" : "Enable deleting workspaces from Extension",
+      "type" : "checkbox",
+      "required" : false
+    },
+    {
       "name": "preferredEditorClass",
       "title": "Default Workspace Class",
       "description": "Up to 4 cores, 8GB RAM, 30GB storage in Standard and Up to 8 cores, 16GB RAM, 50GB storage in Large",

@@ -10,6 +10,7 @@ import {
   Toast,
   getPreferenceValues,
   LocalStorage,
+  copyTextToClipboard,
 } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
@@ -176,6 +177,22 @@ export default function BranchListItem({
               visitBranch?.(branch, repository);
               open(branchURL);
             }}
+          />
+          <Action
+            title="Copy Branch URL"
+            onAction={async () => {
+              visitBranch?.(branch, repository);
+              await showToast({
+                title: `Copying "${branch.branchName}" url`,
+                style: Toast.Style.Animated,
+              });
+              copyTextToClipboard(branchURL);
+              await showToast({
+                title: `Copied "${branch.branchName}" url`,
+                style: Toast.Style.Success,
+              });
+            }}
+            shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
           />
           {!fromCache && (
             <Action

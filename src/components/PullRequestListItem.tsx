@@ -9,6 +9,7 @@ import {
   Toast,
   getPreferenceValues,
   LocalStorage,
+  copyTextToClipboard,
 } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { format } from "date-fns";
@@ -155,6 +156,22 @@ export default function PullRequestListItem({
               visitPullReq?.(pullRequest);
               open(pullRequest.permalink);
             }}
+          />
+          <Action
+            title="Copy PR URL"
+            onAction={async () => {
+              visitPullReq?.(pullRequest);
+              await showToast({
+                title: `Copying "${pullRequest.title}" url`,
+                style: Toast.Style.Animated,
+              });
+              copyTextToClipboard(pullRequest.permalink);
+              await showToast({
+                title: `Copied "${pullRequest.title}" url`,
+                style: Toast.Style.Success,
+              });
+            }}
+            shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
           />
           {!fromCache && (
             <Action

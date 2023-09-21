@@ -142,6 +142,7 @@ export default function command() {
                   organizationId: item.toString(),
                   ignoreRunningPrebuild: true,
                   ignoreRunningWorkspaceOnSameCommit: true,
+                  worksspaceClass: EditorPreferences.preferredEditorClass,
                   ideSetting: {
                     defaultIde:
                       EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,

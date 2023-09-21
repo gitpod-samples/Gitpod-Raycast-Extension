@@ -9,11 +9,14 @@ import {
   getPreferenceValues,
   getApplications,
   LocalStorage,
+  confirmAlert,
+  ToastStyle,
+  Alert,
 } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
-import { GitpodIcons } from "../constants";
+import { GitpodIcons, UIColors } from "../constants";
 import sinceTime from "../utils/sinceTime";
 
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
@@ -72,6 +75,11 @@ function ListWorkspaces() {
     }
   );
 
+  const deleteWorkspaceCallback = (workspace_id: string) => {
+    const workspaces: IWorkspace[] = Array.from(workspaceManager.deleteWorkspace(workspace_id).values())
+    setWorkspaces(workspaces)
+  }
+
   useEffect(() => {
     workspaceManager.on("workspaceUpdated", () => {
       setWorkspaces(Array.from(WorkspaceManager.workspaces.values()));
@@ -113,7 +121,8 @@ function ListWorkspaces() {
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_RUNNING"),
         "Active Workspaces",
         EditorPreferences,
-        vsCodePresent
+        vsCodePresent,
+        deleteWorkspaceCallback
       )}
       {renderWorkspaces(
         workspaces.filter(
@@ -122,13 +131,15 @@ function ListWorkspaces() {
         ),
         "Progressing Workspaces",
         EditorPreferences,
-        vsCodePresent
+        vsCodePresent,
+        deleteWorkspaceCallback
       )}
       {renderWorkspaces(
         workspaces.filter((workspace) => workspace.getStatus().phase == "PHASE_STOPPED"),
         "Inactive Workspaces",
         EditorPreferences,
-        vsCodePresent
+        vsCodePresent,
+        deleteWorkspaceCallback
       )}
     </List>
   );
@@ -138,16 +149,60 @@ function renderWorkspaces(
   workspaces: IWorkspace[],
   title: string,
   EditorPreferences: Preferences,
-  CodePresent: boolean
+  CodePresent: boolean,
+  deleteWorkspaceCallback: (workspace_id: string) => void
 ) {
   return (
     <List.Section title={title}>
-      {workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent))}
+      {workspaces.map((workspace) => renderWorkspaceListItem(workspace, EditorPreferences, CodePresent, deleteWorkspaceCallback))}
     </List.Section>
   );
 }
 
-function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences, CodePresent: boolean) {
+function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Preferences, CodePresent: boolean, deleteWorkspaceCallback: (workspace_id: string) => void) {
+
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
+
+  const accessories : List.Item.Accessory[] =  [
+    {
+      icon: GitpodIcons.branchIcon,
+      text: {
+        value: workspace.getDescription().split(" ")[2],
+      },
+    },
+    {
+      icon:
+        workspace.getStatus().phase === "PHASE_RUNNING"
+          ? GitpodIcons.running_icon
+          : workspace.getStatus().phase === "PHASE_STOPPED"
+            ? GitpodIcons.stopped_icon
+            : GitpodIcons.progressing_icon,
+    },
+  ]
+
+  if (workspace.getTotalUntrackedFiles()) {
+    accessories.unshift({
+      icon: GitpodIcons.github_untracked,
+      tooltip: workspace.getUntrackedFiles()?.join("\n"),
+      text: {
+        value: workspace.getTotalUntrackedFiles()?.toString(),
+      }
+    })
+  }
+
+  if (workspace.getTotatUncommittedFiles()){
+    accessories.unshift({
+      icon: {
+        ...GitpodIcons.commit_icon,
+        tintColor: UIColors.grey
+      },
+      tooltip: workspace.getUncommittedFiles()?.join("\n"),
+      text: {
+        value: workspace.getTotatUncommittedFiles()?.toString(),
+      }
+    })
+  }
+
   return (
     <List.Item
       title={workspace.getDescription()}
@@ -205,7 +260,6 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               shortcut={{ modifiers: ["cmd"], key: "s" }}
             />
           )}
-
           {workspace.getStatus().phase === "PHASE_STOPPED" && (
             <Action
               title="Start Workspace"
@@ -222,7 +276,9 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                 }
               }}
             />
+            
           )}
+          
           {(workspace.getStatus().phase === "PHASE_RUNNING" || workspace.getStatus().phase === "PHASE_STOPPED") && (
             <Action.Push
               shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
@@ -230,24 +286,49 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               target={<DefaultOrgForm />}
             />
           )}
+          {(workspace.getStatus().phase === "PHASE_STOPPED" && dashboardPreferences.allow_delete_workspaces) && 
+            <Action 
+              title="Delete Workspace"
+              shortcut={{ modifiers: ["ctrl"], key: "x" }}
+              onAction = {
+                async () => {
+                  const options: Alert.Options = {
+                    title: "Delete Workspace",
+                    icon: {
+                      ...GitpodIcons.gitpod_logo_secondary,
+                      tintColor: UIColors.red
+                    },
+                    message: `Confirm Deleting ${workspace.getDescription()}`,
+                    primaryAction: {
+                      title: "Confirm",
+                      style: Alert.ActionStyle.Destructive,
+                      onAction: async () => {
+                        const toast = await showToast({
+                          title: "Failed Deleting Workspace",
+                          style: ToastStyle.Animated
+                        })
+                        try { 
+                          const workspace_id = await workspace.delete() 
+                          deleteWorkspaceCallback(workspace_id)
+                        }
+                        catch (e) {
+                          toast.title = "Failed Deleting Workspace",
+                          toast.style = ToastStyle.Failure
+                        };
+    
+                        toast.title = "Successfully Deleted Workspace",
+                        toast.style = ToastStyle.Success
+                      },
+                    },
+                  };
+                  confirmAlert(options)
+                }
+              }
+            />
+          }
         </ActionPanel>
       }
-      accessories={[
-        {
-          icon: GitpodIcons.branchIcon,
-          text: {
-            value: workspace.getDescription().split(" ")[2],
-          },
-        },
-        {
-          icon:
-            workspace.getStatus().phase === "PHASE_RUNNING"
-              ? GitpodIcons.running_icon
-              : workspace.getStatus().phase === "PHASE_STOPPED"
-              ? GitpodIcons.stopped_icon
-              : GitpodIcons.progressing_icon,
-        },
-      ]}
+      accessories={ accessories }
     />
   );
 }

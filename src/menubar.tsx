@@ -18,6 +18,7 @@ import sinceTime from "../utils/sinceTime";
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
+import { getFocusedContext } from "./helpers/getFocusedContext";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
@@ -32,9 +33,14 @@ export default function command() {
 
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
   const [vsCodePresent, setVSCodePresent] = useState<boolean>(false);
+  const [focusedContext, setFocusedContext] = useState<string>("");
 
   const { isLoading } = usePromise(async () => {
     if (preferences.access_token) {
+      const browserContext = await getFocusedContext();
+      if (browserContext){
+        setFocusedContext(browserContext)
+      }
       await workspaceManager.init();
       const apps = await getApplications();
 
@@ -129,9 +135,38 @@ export default function command() {
         </MenuBarExtra.Section>
       )}
       {preferences.access_token && !isUnauthorised && (
-        <MenuBarExtra.Section>
+        <MenuBarExtra.Section title="Create Workspaces">
+          { focusedContext &&
           <MenuBarExtra.Item
-            title="Launch New Empty Workspace"
+            title={focusedContext}
+            icon={GitpodIcons.gitpod_logo_primary}
+            key={focusedContext}
+            onAction={async () => {
+              const item = await LocalStorage.getItem("default_organization");
+              if (item !== undefined) {
+                IWorkspace.create(WorkspaceManager.api, {
+                  contextUrl: "https://github.com/" + focusedContext,
+                  organizationId: item.toString(),
+                  ignoreRunningPrebuild: true,
+                  ignoreRunningWorkspaceOnSameCommit: true,
+                  worksspaceClass: EditorPreferences.preferredEditorClass,
+                  ideSetting: {
+                    defaultIde:
+                      EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
+                    useLatestVersion: false,
+                  },
+                });
+              } else {
+                launchCommand({
+                  name: "gitpod_dashboard",
+                  type: LaunchType.UserInitiated,
+                });
+              }
+            }}
+          />
+          }
+          <MenuBarExtra.Item
+            title="New Empty Workspace"
             icon={GitpodIcons.gitpod_logo_primary}
             key={"Launch New Empty Workspace"}
             onAction={async () => {

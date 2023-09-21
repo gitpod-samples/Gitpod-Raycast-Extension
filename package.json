@@ -44,11 +44,11 @@
       "required": true
     },
     {
-      "name" : "allow_delete_workspaces",
-      "label" : "Allow Deleting Workspace",
-      "description" : "Enable deleting workspaces from Extension",
-      "type" : "checkbox",
-      "required" : false
+      "name": "allow_delete_workspaces",
+      "label": "Allow Deleting Workspace",
+      "description": "Enable deleting workspaces from Extension",
+      "type": "checkbox",
+      "required": false
     },
     {
       "name": "preferredEditorClass",
@@ -147,6 +147,7 @@
     "lodash": "^4.17.21",
     "node-fetch": "^3.3.0",
     "octokit": "^2.0.10",
+    "run-applescript": "^6.1.0",
     "ws": "^8.11.0"
   },
   "devDependencies": {

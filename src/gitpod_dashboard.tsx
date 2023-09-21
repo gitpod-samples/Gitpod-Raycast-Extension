@@ -163,11 +163,11 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
 
   const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
 
-  const accessories : List.Item.Accessory[] =  [
+  const accessories: List.Item.Accessory[] = [
     {
       icon: GitpodIcons.branchIcon,
       text: {
-        value: workspace.getDescription().split(" ")[2],
+        value: workspace.getDescription().split(" ")[2] ?? "",
       },
     },
     {
@@ -190,7 +190,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
     })
   }
 
-  if (workspace.getTotatUncommittedFiles()){
+  if (workspace.getTotatUncommittedFiles()) {
     accessories.unshift({
       icon: {
         ...GitpodIcons.commit_icon,
@@ -276,9 +276,9 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                 }
               }}
             />
-            
+
           )}
-          
+
           {(workspace.getStatus().phase === "PHASE_RUNNING" || workspace.getStatus().phase === "PHASE_STOPPED") && (
             <Action.Push
               shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
@@ -286,11 +286,11 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
               target={<DefaultOrgForm />}
             />
           )}
-          {(workspace.getStatus().phase === "PHASE_STOPPED" && dashboardPreferences.allow_delete_workspaces) && 
-            <Action 
+          {(workspace.getStatus().phase === "PHASE_STOPPED" && dashboardPreferences.allow_delete_workspaces) &&
+            <Action
               title="Delete Workspace"
               shortcut={{ modifiers: ["ctrl"], key: "x" }}
-              onAction = {
+              onAction={
                 async () => {
                   const options: Alert.Options = {
                     title: "Delete Workspace",
@@ -307,17 +307,17 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
                           title: "Failed Deleting Workspace",
                           style: ToastStyle.Animated
                         })
-                        try { 
-                          const workspace_id = await workspace.delete() 
+                        try {
+                          const workspace_id = await workspace.delete()
                           deleteWorkspaceCallback(workspace_id)
                         }
                         catch (e) {
                           toast.title = "Failed Deleting Workspace",
-                          toast.style = ToastStyle.Failure
+                            toast.style = ToastStyle.Failure
                         };
-    
+
                         toast.title = "Successfully Deleted Workspace",
-                        toast.style = ToastStyle.Success
+                          toast.style = ToastStyle.Success
                       },
                     },
                   };
@@ -328,7 +328,7 @@ function renderWorkspaceListItem(workspace: IWorkspace, EditorPreferences: Prefe
           }
         </ActionPanel>
       }
-      accessories={ accessories }
+      accessories={accessories}
     />
   );
 }

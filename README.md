@@ -34,7 +34,7 @@ https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/8b49a
 
 1.  Install Raycast to get started if you haven't by simply clicking on this button!
 
-<a href="https://www.raycast.com/henitchobisa/gitpod"><img src="https://www.raycast.com/henitchobisa/gitpod/install_button@2x.png" height="64" alt="" style="height: 64px;"></a>
+<a href="https://www.raycast.com/Henit-Palani/gitpod"><img src="https://www.raycast.com/henitchobisa/gitpod/install_button@2x.png" height="64" alt="" style="height: 64px;"></a>
 
 2. Navigate to the Raycast Store to Download the `Gitpod` extension
 ![GithubLogin](/assets/Screenshots/NavigatingContexts/Download%20GItpod.png)

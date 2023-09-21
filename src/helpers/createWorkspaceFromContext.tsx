@@ -12,6 +12,7 @@ export default async function createWorksapceFromContext(defaultOrg: string, con
     organizationId: defaultOrg,
     ignoreRunningPrebuild: true,
     ignoreRunningWorkspaceOnSameCommit: true,
+    worksspaceClass: EditorPreferences.preferredEditorClass,
     ideSetting: {
       defaultIde: EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
       useLatestVersion: false,

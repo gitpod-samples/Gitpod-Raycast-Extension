@@ -9,7 +9,7 @@ export interface IWorkspaceUpdate {
   };
   phasePersisted: string;
   deleted: boolean;
-  workspaceClass: string;
+  workspaceClass: "g1-standard" | "g1-large";
 }
 
 export function NewIWorkspaceUpdateObject(jsonObj: any): IWorkspaceUpdate {

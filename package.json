@@ -118,7 +118,7 @@
       "mode": "view"
     },
     {
-      "name": "menubar",
+      "name": "menubar_workspaces",
       "title": "Menu Bar Workspaces",
       "subtitle": "Manage Workspaces from Menubar",
       "description": "A Menubar Icon for faster access to recently visited workspaces, starting them and opening quicklinks.",
@@ -131,6 +131,18 @@
         "menubar",
         "workspaces"
       ]
+    },
+    {
+      "name" : "browser_context",
+      "title": "Open Browser Context",
+      "description": "New New",
+      "mode": "view"
+    },
+    {
+      "name" : "browser_hud",
+      "title": "Browser Hud",
+      "description": "afnd",
+      "mode": "no-view"
     }
   ],
   "dependencies": {

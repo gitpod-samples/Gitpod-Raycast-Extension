@@ -133,7 +133,8 @@ You can also select your favourite editor for opening your workspaces, just go t
 ## Creating New Workspaces
 Currently the extension supports two types of creating workspaces, 
 1. Creating Workspaces from Context
-2. Creating Empty Workspaces 
+2. Creating Empty Workspaces
+3. Creating Workspaces from Context Opened in Browser
 
 ### Creating Workspaces from Context 
 ( Requires Gitpod Access token)
@@ -153,6 +154,13 @@ For creating empty workspaces on the go, say for some quick experimentation, you
 https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/73e39949-a2f2-46a1-8604-d5f3917d1133
 
 https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/a6d30561-bf38-49ad-b0cb-d5819e8c3f4a
+
+### Creating Workspaces from Context Opened in Browser
+Let's say if you're looking at a github pullrequest / issue / repository / branch in your browser ( chrome / safari ), you can just click on the menubar icon and you can see the context you were looking at in the create workspaces section. Just click on that and a new workspace will be created for you, just with a click!
+
+
+https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/5fe19b56-b1bb-469d-892c-ddd9fb5e6cd2
+
 
 
 ## Feedback

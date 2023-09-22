@@ -18,7 +18,7 @@ import sinceTime from "../utils/sinceTime";
 import { IWorkspace } from "./api/Gitpod/Models/IWorkspace";
 import { IWorkspaceError } from "./api/Gitpod/Models/IWorkspaceError";
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
-import { getFocusedContext } from "./helpers/getFocusedContext";
+import { getFocusedBrowserContext } from "./helpers/getFocusedContext";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
@@ -37,7 +37,7 @@ export default function command() {
 
   const { isLoading } = usePromise(async () => {
     if (preferences.access_token) {
-      const browserContext = await getFocusedContext();
+      const browserContext = await getFocusedBrowserContext();
       if (browserContext){
         setFocusedContext(browserContext)
       }

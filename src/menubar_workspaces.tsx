@@ -22,11 +22,13 @@ import { getFocusedBrowserContext } from "./helpers/getFocusedContext";
 import { getCodeEncodedURI } from "./helpers/getVSCodeEncodedURI";
 import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
+import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 import { Preferences } from "./preferences/repository_preferences";
 
 export default function command() {
   const preferences = getPreferenceValues<dashboardPreferences>();
   const EditorPreferences = getPreferenceValues<Preferences>();
+  const gitpodEndpoint = getGitpodEndpoint();
   const [isUnauthorised, setIsUnauthorized] = useState<boolean>(false);
 
   const workspaceManager = new WorkspaceManager(preferences.access_token ?? "");
@@ -199,19 +201,19 @@ export default function command() {
           title="Dashboard"
           icon={GitpodIcons.dashboard_icon}
           shortcut={{ modifiers: ["cmd", "shift"], key: "d" }}
-          onAction={() => open("https://gitpod.io/workspaces")}
+          onAction={() => open(`${gitpodEndpoint}/workspaces`)}
         />
         <MenuBarExtra.Item
           title="My Projects"
           shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
           icon={GitpodIcons.project_icon}
-          onAction={() => open("https://gitpod.io/projects")}
+          onAction={() => open(`${gitpodEndpoint}/projects`)}
         />
         <MenuBarExtra.Item
           title="My Settings"
           shortcut={{ modifiers: ["cmd", "shift"], key: "s" }}
           icon={GitpodIcons.settings_icon}
-          onAction={() => open("https://gitpod.io/user/account")}
+          onAction={() => open(`${gitpodEndpoint}/user/account`)}
         />
         <MenuBarExtra.Item
           title="Documentation"

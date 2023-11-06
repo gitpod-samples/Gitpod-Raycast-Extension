@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 
+import { getPublicAPIEndpoint, getGitpodEndpoint } from "../../../preferences/gitpod_endpoint";
 import { CreateWorkspace, WorkspaceStreamer } from "../WorkspaceStreamer";
 
 import { IWorkspaceError } from "./IWorkspaceError";
@@ -21,12 +22,13 @@ type ICreateWorkspaceParams = {
   };
 };
 
+const publicAPIEndpoint = getPublicAPIEndpoint();
 const workspaceURLs = {
-  getWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/GetWorkspace",
-  getAllWorkspaces: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/ListWorkspaces",
-  deleteWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/DeleteWorkspace",
-  startWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StartWorkspace",
-  stopWorkspace: "https://api.gitpod.io/gitpod.experimental.v1.WorkspacesService/StopWorkspace",
+  getWorkspace: `${publicAPIEndpoint}/gitpod.experimental.v1.WorkspacesService/GetWorkspace`,
+  getAllWorkspaces: `${publicAPIEndpoint}/gitpod.experimental.v1.WorkspacesService/ListWorkspaces`,
+  deleteWorkspace: `${publicAPIEndpoint}/gitpod.experimental.v1.WorkspacesService/DeleteWorkspace`,
+  startWorkspace: `${publicAPIEndpoint}/gitpod.experimental.v1.WorkspacesService/StartWorkspace`,
+  stopWorkspace: `${publicAPIEndpoint}/gitpod.experimental.v1.WorkspacesService/StopWorkspace`,
 };
 
 export class IWorkspace implements GitpodDataModel {
@@ -159,7 +161,7 @@ export class IWorkspace implements GitpodDataModel {
     this.instanceId = workspace.status.instance.instanceId;
     this.initialized = true;
     this.createdAt = workspace.status.instance.createdAt;
-    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : "https://gitpod.io";
+    this.ideURL = workspace.status.instance ? workspace.status.instance.status.url : getGitpodEndpoint();
     this.repository = workspace.context.git.repository.name;
 
     if (workspace.status.instance.status.gitStatus) {

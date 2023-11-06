@@ -1,10 +1,13 @@
 import fetch from "node-fetch";
 
+import { getPublicAPIEndpoint } from "../../../preferences/gitpod_endpoint";
+
 import { IOrganizationError } from "./IOrganizationError";
 import { GitpodDataModel } from "./Model";
 
+const publicAPIEndpoint = getPublicAPIEndpoint();
 const organizationURLs = {
-  getOrganizations: "https://api.gitpod.io/gitpod.experimental.v1.TeamsService/ListTeams",
+  getOrganizations: `${publicAPIEndpoint}/gitpod.experimental.v1.TeamsService/ListTeams`,
 };
 
 export class IOrganization implements GitpodDataModel {

@@ -1,10 +1,12 @@
 import { IWorkspace } from "../api/Gitpod/Models/IWorkspace";
+import { getGitpodEndpoint } from "../preferences/gitpod_endpoint";
 
 export function getCodeEncodedURI(workspace: IWorkspace): string {
+  const gitpodEndpoint = getGitpodEndpoint();
   const data = {
     instanceId: workspace.instanceId,
     workspaceId: workspace.getWorkspaceId(),
-    gitpodHost: "https://gitpod.io",
+    gitpodHost: gitpodEndpoint,
   };
 
   const vsCodeURI =

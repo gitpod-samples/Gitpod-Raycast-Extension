@@ -2,6 +2,8 @@ import { EventEmitter } from "events";
 
 import WebSocket from "ws";
 
+import { getGitpodEndpoint, getWebsocketEndpoint } from "../../preferences/gitpod_endpoint";
+
 import { NewIWorkspaceErrorObject } from "./Models/IWorkspaceError";
 import { NewIWorkspaceUpdateObject } from "./Models/IWorkspaceUpdate";
 
@@ -44,12 +46,15 @@ export class WorkspaceStreamer extends EventEmitter {
 
   constructor(token: string) {
     super();
+
+    const gitpodEndpoint = getGitpodEndpoint();
+    const gitpodWebsocketEndpoint = getWebsocketEndpoint();
     try {
       WorkspaceStreamer.token = token;
       // Create new transport for GRPC Messages
-      WorkspaceStreamer.webSocket = new WebSocket("wss://gitpod.io/api/v1", {
+      WorkspaceStreamer.webSocket = new WebSocket(`${gitpodWebsocketEndpoint}/api/v1`, {
         headers: {
-          Origin: new URL("https://gitpod.io").origin,
+          Origin: new URL(gitpodEndpoint).origin,
           Authorization: `Bearer ${token}`,
         },
       });

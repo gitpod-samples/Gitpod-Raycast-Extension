@@ -130,6 +130,26 @@
         "recent repositories",
         "menubar",
         "workspaces"
+      ],
+      "preferences": [
+        {
+          "name": "menubar_icon_style",
+          "title": "Icon Style",
+          "description": "Pick the style to use for the menubar icon",
+          "required": false,
+          "default": "monochrome",
+          "type": "dropdown",
+          "data": [
+            {
+              "title": "Monochrome",
+              "value": "monochrome"
+            },
+            {
+              "title": "Orange",
+              "value": "orange"
+            }
+          ]
+        }
       ]
     },
     {

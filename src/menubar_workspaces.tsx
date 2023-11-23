@@ -24,6 +24,7 @@ import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 import { Preferences } from "./preferences/repository_preferences";
+import * as WorkspaceMenubarPreferences from "./preferences/workspace_menubar_preferences"
 
 export default function command() {
   const preferences = getPreferenceValues<dashboardPreferences>();
@@ -81,7 +82,7 @@ export default function command() {
   const recentWorkspaces = workspaces.filter((workspace) => workspace.getStatus().phase === "PHASE_STOPPED");
 
   return (
-    <MenuBarExtra icon={GitpodIcons.gitpod_logo_primary} isLoading={isLoading}>
+    <MenuBarExtra icon={WorkspaceMenubarPreferences.getIcon()} isLoading={isLoading}>
       {preferences.access_token && !isUnauthorised && (
         <MenuBarExtra.Section title="Active Workspaces">
           {activeWorkspaces.map((workspace) => (

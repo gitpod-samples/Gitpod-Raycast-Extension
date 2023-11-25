@@ -70,9 +70,10 @@ export const GitpodIcons = {
   stopped_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.stopped },
   failed_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.failed },
   progressing_icon_menubar: { source: "Icons/status_icon_small.png", tintColor: statusColors.progressing },
-  settings_icon: {source: "Icons/settings.png"},
-  project_icon: {source: "Icons/projects.png"},
-  docs_icon: {source: "Icons/documentation.png"},
+  settings_icon: {source: "Icons/settings.png", tintColor: Color.PrimaryText,},
+  project_icon: {source: "Icons/projects.png", tintColor: Color.PrimaryText,},
+  docs_icon: {source: "Icons/documentation.png", tintColor: Color.PrimaryText,},
+  dashboard_icon: { source: "Icons/dashboard1.png", tintColor: Color.PrimaryText },
 
   repoIcon : {
     source: "Icons/repo-16.svg",
@@ -83,7 +84,6 @@ export const GitpodIcons = {
   link_icon: { source: "Icons/link.svg", tintColor: UIColors.gitpod_gold},
 
   commit_icon: {source: "Icons/git-commit.svg", tintColor: UIColors.gitpod_gold},
-  dashboard_icon: {source: "Icons/dashboard1.png"},
 
   branch_icon: {
     source: "Icons/merge.svg",

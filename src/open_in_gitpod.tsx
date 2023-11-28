@@ -30,7 +30,7 @@ import createWorksapceFromContext from "./helpers/createWorkspaceFromContext";
 import { useIssueHistory } from "./helpers/issue";
 import OpenInGitpod, { getPreferencesForContext } from "./helpers/openInGitpod";
 import { usePullReqHistory } from "./helpers/pull-request";
-import { useHistory } from "./helpers/repository";
+import { useHistory, useFavorites } from "./helpers/repository";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import RepositoryPreference from "./preferences/repository_preferences";
@@ -42,6 +42,7 @@ function SearchRepositories() {
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
 
   const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
+  const { favorites, addFavorite, removeFavorite } = useFavorites();
   const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
   const { history: visitedBranches, removeBranch } = useBranchHistory();
   const { history: visitedIssues, removeIssue } = useIssueHistory();
@@ -155,6 +156,22 @@ function SearchRepositories() {
           </ActionPanel>
         }
       />
+      {favorites.length > 0 && (
+        <List.Section title="Favorites" subtitle={String(favorites.length)}>
+          {favorites.map((repository) => (
+            <RepositoryListItem
+              key={repository.id}
+              isGitpodified={gitpodArray?.includes(repository.name) ?? false}
+              repository={repository}
+              mutateList={mutateList}
+              onVisit={visitRepository}
+              addToFavorites={addFavorite}
+              removeFromFavorites={removeFavorite}
+              isFavorite={favorites.includes(repository)}
+            />
+          ))}
+        </List.Section>
+      )}
       {searchText == "" && (
         <List.Section
           title="Recent Contexts"
@@ -198,6 +215,9 @@ function SearchRepositories() {
             mutateList={mutateList}
             fromCache={true}
             removeRepository={removeRepository}
+            addToFavorites={addFavorite}
+            removeFromFavorites={removeFavorite}
+            isFavorite={favorites.includes(repository)}
           />
         ))}
       </List.Section>
@@ -215,6 +235,9 @@ function SearchRepositories() {
                 repository={repository}
                 mutateList={mutateList}
                 onVisit={visitRepository}
+                addToFavorites={addFavorite}
+                removeFromFavorites={removeFavorite}
+                isFavorite={favorites.includes(repository)}
               />
             );
           })}

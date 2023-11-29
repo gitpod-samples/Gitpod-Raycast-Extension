@@ -1,40 +1,23 @@
 import {
-  Action,
-  ActionPanel,
   getPreferenceValues,
-  Icon,
   List,
-  LocalStorage,
   showToast,
   Toast,
-  useNavigation,
 } from "@raycast/api";
-import { useCachedPromise, usePromise } from "@raycast/utils";
+import { useCachedPromise } from "@raycast/utils";
 import { useMemo, useState } from "react";
 
-import { GitpodIcons, UIColors } from "../constants";
-
 import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
-import BranchListItem from "./components/BranchListItem";
-import DefaultOrgForm from "./components/DefaultOrgForm";
-import IssueListItem from "./components/IssueListItem";
-import PullRequestListItem from "./components/PullRequestListItem";
 import RepositoryListEmptyView from "./components/RepositoryListEmptyView";
 import RepositoryListItem from "./components/RepositoryListItem";
 import SearchRepositoryDropdown from "./components/SearchRepositoryDropdown";
 import View from "./components/View";
 import { errorMessage } from "./components/errorListView";
 import { ExtendedRepositoryFieldsFragment } from "./generated/graphql";
-import { useBranchHistory } from "./helpers/branch";
-import createWorksapceFromContext from "./helpers/createWorkspaceFromContext";
-import { useIssueHistory } from "./helpers/issue";
-import OpenInGitpod, { getPreferencesForContext } from "./helpers/openInGitpod";
-import { usePullReqHistory } from "./helpers/pull-request";
 import { useHistory } from "./helpers/repository";
 import { useFavorites } from "./helpers/repository-favorites";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
-import RepositoryPreference from "./preferences/repository_preferences";
 
 function SearchRepositories() {
   const { github } = getGitHubClient();
@@ -43,13 +26,11 @@ function SearchRepositories() {
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
 
   const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
+
   const { favorites, addFavorite, removeFavorite, moveFavoriteDown, moveFavoriteUp } = useFavorites(
     searchText,
     searchFilter
   );
-  const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
-  const { history: visitedBranches, removeBranch } = useBranchHistory();
-  const { history: visitedIssues, removeIssue } = useIssueHistory();
 
   const [gitpodArray, setGitpodArray] = useState<string[]>();
   const query = useMemo(() => `${searchFilter} ${searchText} fork:true`, [searchText, searchFilter]);
@@ -100,29 +81,6 @@ function SearchRepositories() {
     return found;
   }, [data]);
 
-  const { data: preferences, revalidate } = usePromise(async () => {
-    const response = await getPreferencesForContext("Repository", "gitpod-io/empty");
-    return response;
-  });
-
-  const { push } = useNavigation();
-
-  const accessoriesEmptyRepo: List.Item.Accessory[] = [
-    {
-      text: {
-        value: preferences?.preferredEditorClass === "g1-large" ? "L" : "S",
-      },
-      icon: {
-        source: Icon.ComputerChip,
-        tintColor: UIColors.gitpod_gold,
-      },
-      tooltip: `Editor: ${preferences?.preferredEditor}, Class: ${preferences?.preferredEditorClass} `,
-    },
-    {
-      icon: GitpodIcons.gitpod_logo_primary,
-    },
-  ];
-
   return (
     <List
       isLoading={isLoading}
@@ -131,35 +89,6 @@ function SearchRepositories() {
       searchBarAccessory={<SearchRepositoryDropdown onFilterChange={setSearchFilter} />}
       throttle
     >
-      <List.Item
-        title={"Empty Workspace"}
-        accessories={accessoriesEmptyRepo}
-        icon={"https://avatars.githubusercontent.com/u/37021919?s=64&v=4"}
-        actions={
-          <ActionPanel>
-            <Action
-              title="Start an Empty Workspace"
-              onAction={async () => {
-                if (dashboardPreferences.access_token !== undefined && dashboardPreferences.access_token !== "") {
-                  const defaultOrg = await LocalStorage.getItem("default_organization");
-                  if (defaultOrg !== undefined && WorkspaceManager.api) {
-                    createWorksapceFromContext(defaultOrg.toString(), "https://github.com/gitpod-io/empty");
-                  } else {
-                    push(<DefaultOrgForm />);
-                  }
-                } else {
-                  OpenInGitpod("https://github.com/gitpod-io/empty", "Repository", "gitpod-io/empty");
-                }
-              }}
-            />
-            <Action
-              title="Configure Workspace"
-              onAction={() => push(<RepositoryPreference revalidate={revalidate} repository={"gitpod-io/empty"} />)}
-              shortcut={{ modifiers: ["cmd"], key: "e" }}
-            />
-          </ActionPanel>
-        }
-      />
       {favorites.length > 0 && (
         <List.Section title="Favorites" subtitle={String(favorites.length)}>
           {favorites.map((favorite) => (
@@ -175,39 +104,6 @@ function SearchRepositories() {
               moveFavoriteDown={favorite.isLast ? undefined : moveFavoriteDown}
               isFavorite={true}
             />
-          ))}
-        </List.Section>
-      )}
-      {searchText == "" && (
-        <List.Section
-          title="Recent Contexts"
-          subtitle={
-            visitedBranches || visitedPullReqs || visitedIssues
-              ? String(visitedBranches?.length + visitedPullReqs?.length + visitedIssues?.length)
-              : undefined
-          }
-        >
-          {visitedBranches.map((branchCache, index) => {
-            return (
-              <BranchListItem
-                branch={branchCache.branch}
-                repository={branchCache.repository}
-                key={index}
-                removeBranch={removeBranch}
-                fromCache={true}
-              />
-            );
-          })}
-          {visitedPullReqs.map((pullRequest) => (
-            <PullRequestListItem
-              key={pullRequest.id}
-              pullRequest={pullRequest}
-              fromCache={true}
-              removePullReq={removePullReq}
-            />
-          ))}
-          {visitedIssues.map((issue) => (
-            <IssueListItem key={issue.id} issue={issue} fromCache={true} removeIssue={removeIssue} />
           ))}
         </List.Section>
       )}
@@ -227,7 +123,6 @@ function SearchRepositories() {
           />
         ))}
       </List.Section>
-
       {foundRepositories ? (
         <List.Section
           title={searchText ? "Search Results" : "Found Repositories"}

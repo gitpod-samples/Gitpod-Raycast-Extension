@@ -160,7 +160,7 @@ export default function command() {
         <MenuBarExtra.Item title="Documentation" shortcut={{ modifiers: ["cmd", "shift"], key: "." }} icon={GitpodIcons.docs_icon} onAction={() => open("https://www.gitpod.io/docs/introduction")} />
       </MenuBarExtra.Section>
       <MenuBarExtra.Section>
-        <MenuBarExtra.Item title="Command Preferences" shortcut={{ modifiers: ["cmd"], key: "," }} onAction={async () => await openExtensionPreferences()} />
+        <MenuBarExtra.Item title="Configure Command" shortcut={{ modifiers: ["cmd"], key: "," }} onAction={async () => await openExtensionPreferences()} />
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

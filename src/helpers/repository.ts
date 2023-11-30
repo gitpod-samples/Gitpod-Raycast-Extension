@@ -57,21 +57,3 @@ export function useHistory(searchText: string | undefined, searchFilter: string 
 
   return { data, visitRepository, removeRepository };
 }
-
-export function useFavorites() {
-  const [favorites, setFavorites] = useCachedState<ExtendedRepositoryFieldsFragment[]>("favorites", []); 
-
-  async function addFavorite(repository: ExtendedRepositoryFieldsFragment) {
-    console.log("Adding repository to favorites", repository.id)
-    const updated = [repository, ...(favorites?.filter((item) => item.id !== repository.id) ?? [])];
-    setFavorites(updated);
-  }
-
-  async function removeFavorite(repository: ExtendedRepositoryFieldsFragment) {
-    console.log("Removing repository from favorites", repository.id)
-    const updated = [...(favorites?.filter((item) => item.id !== repository.id) ?? [])];
-    setFavorites(updated);
-  }
-
-  return { favorites, addFavorite, removeFavorite };
-}

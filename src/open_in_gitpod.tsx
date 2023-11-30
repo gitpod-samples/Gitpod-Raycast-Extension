@@ -43,7 +43,7 @@ function SearchRepositories() {
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
 
   const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
-  const { favorites, addFavorite, removeFavorite } = useFavorites();
+  const { favorites, addFavorite, removeFavorite, moveFavoriteDown, moveFavoriteUp } = useFavorites();
   const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
   const { history: visitedBranches, removeBranch } = useBranchHistory();
   const { history: visitedIssues, removeIssue } = useIssueHistory();
@@ -159,16 +159,18 @@ function SearchRepositories() {
       />
       {favorites.length > 0 && (
         <List.Section title="Favorites" subtitle={String(favorites.length)}>
-          {favorites.map((repository) => (
+          {favorites.map((favorite) => (
             <RepositoryListItem
-              key={repository.id}
-              isGitpodified={gitpodArray?.includes(repository.name) ?? false}
-              repository={repository}
+              key={favorite.repository.id}
+              isGitpodified={gitpodArray?.includes(favorite.repository.name) ?? false}
+              repository={favorite.repository}
               mutateList={mutateList}
               onVisit={visitRepository}
               addToFavorites={addFavorite}
               removeFromFavorites={removeFavorite}
-              isFavorite={favorites.includes(repository)}
+              moveFavoriteUp={favorite.isFirst ? undefined : moveFavoriteUp}
+              moveFavoriteDown={favorite.isLast ? undefined : moveFavoriteDown}
+              isFavorite={true}
             />
           ))}
         </List.Section>
@@ -218,7 +220,7 @@ function SearchRepositories() {
             removeRepository={removeRepository}
             addToFavorites={addFavorite}
             removeFromFavorites={removeFavorite}
-            isFavorite={favorites.includes(repository)}
+            isFavorite={favorites.findIndex((favorite) => favorite.repository.id == repository.id) > 0}
           />
         ))}
       </List.Section>
@@ -238,7 +240,7 @@ function SearchRepositories() {
                 onVisit={visitRepository}
                 addToFavorites={addFavorite}
                 removeFromFavorites={removeFavorite}
-                isFavorite={favorites.includes(repository)}
+                isFavorite={favorites.findIndex((favorite) => favorite.repository.id == repository.id) > 0}
               />
             );
           })}

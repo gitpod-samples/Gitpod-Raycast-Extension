@@ -6,7 +6,6 @@ import { ExtendedRepositoryFieldsFragment } from "../generated/graphql";
 const FAVORITE_REPOSITORIES_KEY = "FAVORITE_REPOSITORIES";
 
 type FavoriteRepository = {
-  index: number
   isFirst: boolean
   isLast: boolean
   repository: ExtendedRepositoryFieldsFragment
@@ -41,7 +40,6 @@ export function useFavorites() {
     const updated = [...favorites]
     updated.push({
       repository: repository,
-      index: favorites.length,
       isFirst: false,
       isLast: true,
     })
@@ -55,11 +53,10 @@ export function useFavorites() {
     console.log("Removing repository from favorites", repository.id);
 
     const updated: FavoriteRepository[] = []
-    favorites.forEach((item, index) => {
+    favorites.forEach((item) => {
       if (item.repository.id !== repository.id) {
         updated.push({
           repository: item.repository,
-          index: index,
           isFirst: false,
           isLast: false,
         })

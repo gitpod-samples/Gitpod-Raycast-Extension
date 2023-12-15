@@ -88,9 +88,9 @@
   "commands": [
     {
       "name": "open_in_gitpod",
-      "title": "Open Contexts From Github",
-      "subtitle": "Open any Context in Gitpod",
-      "description": "Open any Repository / Branch / PR / Issue in Gitpod with the extension",
+      "title": "New Workspace",
+      "subtitle": "Create a workspace from a GitHub repository",
+      "description": "Create a workspace from a GitHub repository, by selecting branch, issue, or pull request.",
       "mode": "view",
       "keywords": [
         "gitpod",
@@ -112,16 +112,16 @@
     },
     {
       "name": "gitpod_dashboard",
-      "title": "Manage Workspaces",
-      "subtitle": "Manage and Create New Workspaces",
+      "title": "All Workspaces",
+      "subtitle": "Manage active and inactive workspaces",
       "description": "Start, Stop or Create New Workspaces just from the extension.",
       "mode": "view"
     },
     {
       "name": "menubar_workspaces",
-      "title": "Menu Bar Workspaces",
-      "subtitle": "Manage Workspaces from Menubar",
-      "description": "A Menubar Icon for faster access to recently visited workspaces, starting them and opening quicklinks.",
+      "title": "Recent Workspaces",
+      "subtitle": "Quick access to recent workspaces",
+      "description": "Quick access to recent workspaces.",
       "mode": "menu-bar",
       "interval": "100000d",
       "keywords": [

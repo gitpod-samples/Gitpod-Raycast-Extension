@@ -50,12 +50,12 @@ https://github.com/gitpod-samples/Gitpod-Raycast-Extension/assets/72302948/8b49a
 ![GithubLogin](/assets/Screenshots/NavigatingContexts/SetupDefaultOrganization.png)
 
 ## Command Descriptions
-### <i>Manage Workspaces</i>
-`Manage Workspaces` Command is responsible for managing your workspaces from Gitpod Dashboard, you can stop or start your existing workspaces there or create empty workspaces
-### <i>Open Contexts from Github</i>
-`Open Contexts` command takes the responsibility off your hands to manually browse through GitHub to open workspaces from any context url, no matter if it's a `PR`, `Issue`, `Branch` or the `Repository` itself. Along with that you can PIN contexts for later use/quick access or can view your Issues/PR descriptions right in the extension!
-### <i>Menubar Workspaces</i>
-`Menubar Workspaces` is the command that gets the extension so near to achieving it's goal of making `Gitpod Faster than local`, with it's function to start workspaces and opening it into your favourite IDE in just a click!
+### <i>All Workspaces</i>
+Manage active and inactive workspaces.
+### <i>New Workspace</i>
+Create a workspace from a GitHub repository, by selecting branch, issue, or pull request.
+### <i>Recent Workspaces</i>
+Quick access to recent workspaces.
 
 # Table of Contents
 

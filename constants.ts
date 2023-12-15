@@ -90,6 +90,12 @@ export const GitpodIcons = {
     tintColor: statusColors.running,
   },
 
+  gitpod_logo_monochrome: {
+    source: {
+      light: "logo-mark-monochrome.svg",
+      dark: "logo-mark-monochrome@dark.svg",
+    },
+  },
   gitpod_logo_primary: { source: "logo-mark.svg" },
   gitpod_logo_secondary: { source: "logo-mark.svg", tintColor: statusColors.stopped },
   github_untracked: {source: "Icons/file-diff.svg", tintColor: UIColors.grey},

@@ -23,7 +23,7 @@ async function setLocalStorage(repositories: FavoriteRepository[]): Promise<void
   await LocalStorage.setItem(FAVORITE_REPOSITORIES_KEY, json);
 }
 
-export function useFavorites() {
+export function useFavorites(searchText: string | null, searchFilter: string | null) {
   const [favorites, setFavorites] = useCachedState<FavoriteRepository[]>("favorites", []);
 
   getLocalStorage().then((repositories) => {
@@ -68,7 +68,7 @@ export function useFavorites() {
     setFavorites(updated);
   }
 
-async function moveFavoriteUp(repository: ExtendedRepositoryFieldsFragment): Promise<void> {
+  async function moveFavoriteUp(repository: ExtendedRepositoryFieldsFragment): Promise<void> {
     const updated: FavoriteRepository[] = [...favorites]
 
     const index = updated.findIndex((item) => item.repository.id === repository.id)
@@ -115,5 +115,39 @@ async function moveFavoriteUp(repository: ExtendedRepositoryFieldsFragment): Pro
     })
   }
 
-  return { favorites, addFavorite, removeFavorite, moveFavoriteUp, moveFavoriteDown };
+  // Filter based on search terms
+  const filteredBasedOnText = filteredBasedOnSearchText(favorites, searchText)
+  const filteredBasedOnFilter = filteredBasedOnSearchFilter(filteredBasedOnText, searchFilter)
+
+  return { favorites: filteredBasedOnFilter, addFavorite, removeFavorite, moveFavoriteUp, moveFavoriteDown };
+}
+
+function filteredBasedOnSearchText(favorites: FavoriteRepository[], searchText: string | null): FavoriteRepository[] {
+  if (searchText == null || searchText.length == 0) {
+    return favorites
+  }
+
+  const lowerSearchText = searchText.toLowerCase()
+  return favorites.filter((item) => {
+    const name = item.repository.nameWithOwner.toLowerCase()
+    return name.includes(lowerSearchText)
+  })
+}
+
+function filteredBasedOnSearchFilter(favorites: FavoriteRepository[], searchFilter: string | null): FavoriteRepository[] {
+  if (searchFilter == null || searchFilter.length == 0) {
+    return favorites
+  }
+
+  // Turns "user:mads-hartmann org:scala org:sbt org:gitpod-io" into "mads-hartmann sbt gitpod-io"
+  // So we can use it to match against the "nameWithOwner" field
+  const ownerNames = searchFilter.toLowerCase().split(" ").map(owner => owner.trim().split(":")[1])
+
+  return favorites.filter((item) => {
+    const match = ownerNames.find((owner) => {
+      const name = item.repository.nameWithOwner.toLowerCase()
+      return name.includes(owner)
+    })
+    return !!match
+  })
 }

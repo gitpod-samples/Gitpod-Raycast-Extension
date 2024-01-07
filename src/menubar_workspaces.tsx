@@ -24,7 +24,7 @@ import { splitUrl } from "./helpers/splitURL";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { getGitpodEndpoint } from "./preferences/gitpod_endpoint";
 import { Preferences } from "./preferences/repository_preferences";
-import * as WorkspaceMenubarPreferences from "./preferences/workspace_menubar_preferences"
+import * as WorkspaceMenubarPreferences from "./preferences/workspace_menubar_preferences";
 
 export default function command() {
   const preferences = getPreferenceValues<dashboardPreferences>();
@@ -41,8 +41,8 @@ export default function command() {
   const { isLoading } = usePromise(async () => {
     if (preferences.access_token) {
       const browserContext = await getFocusedBrowserContext();
-      if (browserContext){
-        setFocusedContext(browserContext)
+      if (browserContext) {
+        setFocusedContext(browserContext);
       }
       await workspaceManager.init();
       const apps = await getApplications();
@@ -139,35 +139,35 @@ export default function command() {
       )}
       {preferences.access_token && !isUnauthorised && (
         <MenuBarExtra.Section title="Create Workspaces">
-          { focusedContext &&
-          <MenuBarExtra.Item
-            title={focusedContext}
-            icon={GitpodIcons.gitpod_logo_primary}
-            key={focusedContext}
-            onAction={async () => {
-              const item = await LocalStorage.getItem("default_organization");
-              if (item !== undefined) {
-                IWorkspace.create(WorkspaceManager.api, {
-                  contextUrl: "https://github.com/" + focusedContext,
-                  organizationId: item.toString(),
-                  ignoreRunningPrebuild: true,
-                  ignoreRunningWorkspaceOnSameCommit: true,
-                  worksspaceClass: EditorPreferences.preferredEditorClass,
-                  ideSetting: {
-                    defaultIde:
-                      EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
-                    useLatestVersion: false,
-                  },
-                });
-              } else {
-                launchCommand({
-                  name: "gitpod_dashboard",
-                  type: LaunchType.UserInitiated,
-                });
-              }
-            }}
-          />
-          }
+          {focusedContext && (
+            <MenuBarExtra.Item
+              title={focusedContext}
+              icon={GitpodIcons.gitpod_logo_primary}
+              key={focusedContext}
+              onAction={async () => {
+                const item = await LocalStorage.getItem("default_organization");
+                if (item !== undefined) {
+                  IWorkspace.create(WorkspaceManager.api, {
+                    contextUrl: "https://github.com/" + focusedContext,
+                    organizationId: item.toString(),
+                    ignoreRunningPrebuild: true,
+                    ignoreRunningWorkspaceOnSameCommit: true,
+                    worksspaceClass: EditorPreferences.preferredEditorClass,
+                    ideSetting: {
+                      defaultIde:
+                        EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
+                      useLatestVersion: false,
+                    },
+                  });
+                } else {
+                  launchCommand({
+                    name: "gitpod_dashboard",
+                    type: LaunchType.UserInitiated,
+                  });
+                }
+              }}
+            />
+          )}
           <MenuBarExtra.Item
             title="New Empty Workspace"
             icon={GitpodIcons.gitpod_logo_primary}

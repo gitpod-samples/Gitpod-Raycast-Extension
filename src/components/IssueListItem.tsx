@@ -36,9 +36,9 @@ type IssueListItemProps = {
   changeBodyVisibility?: (state: boolean) => void;
   bodyVisible?: boolean;
   mutateList?:
-  | MutatePromise<SearchCreatedIssuesQuery | undefined>
-  | MutatePromise<SearchOpenIssuesQuery | undefined>
-  | MutatePromise<IssueFieldsFragment[] | undefined>;
+    | MutatePromise<SearchCreatedIssuesQuery | undefined>
+    | MutatePromise<SearchOpenIssuesQuery | undefined>
+    | MutatePromise<IssueFieldsFragment[] | undefined>;
   visitIssue?: (issue: IssueFieldsFragment) => void;
   removeIssue?: (issue: IssueFieldsFragment) => void;
   fromCache?: boolean;

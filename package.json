@@ -153,15 +153,15 @@
       ]
     },
     {
-      "name" : "browser_context",
+      "name": "browser_context",
       "title": "Open Browser Context",
-      "description": "New New",
+      "description": "Open any GitHub Repository / Branch / PR / Issue in Gitpod with the extension from the browser",
       "mode": "view"
     },
     {
-      "name" : "browser_hud",
+      "name": "browser_hud",
       "title": "Browser Hud",
-      "description": "afnd",
+      "description": "Open any GitHub Repository / Branch / PR / Issue in Gitpod with the extension from the browser",
       "mode": "no-view"
     }
   ],

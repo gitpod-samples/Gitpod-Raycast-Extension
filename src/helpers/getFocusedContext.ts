@@ -1,8 +1,8 @@
 import { runAppleScript } from "run-applescript";
 
 export const getFocusedBrowserContext = async () => {
-    try {
-        const result = await runAppleScript(`
+  try {
+    const result = await runAppleScript(`
       tell application "System Events"
       set activeApp to name of first application process whose frontmost is true
   end tell
@@ -44,18 +44,17 @@ export const getFocusedBrowserContext = async () => {
           return ""
       end tell
   end if
-      `)
+      `);
 
-        return result
-
-    } catch (e) {
-        console.log("error occured")
-        return ""
-    }
-}
+    return result;
+  } catch (e) {
+    console.log("error occured");
+    return "";
+  }
+};
 
 export const getFocusedTextContext = async () => {
-    const text = await runAppleScript(`
+  const text = await runAppleScript(`
     -- Back up clipboard contents:
     set savedClipboard to my fetchStorableClipboard()
     
@@ -136,38 +135,36 @@ export const getFocusedTextContext = async () => {
         thePasteboard's clearContents()
         thePasteboard's writeObjects:theArray
     end putOnClipboard:
-    `)
+    `);
 
-    return filterText(text);
-}
+  return filterText(text);
+};
 
 function filterText(text: string): string {
-    return identifyGitHubEntity(dequote(text.trim()))
+  return identifyGitHubEntity(dequote(text.trim()));
 }
-
 
 function dequote(input: string): string {
-    return input.replace(/['"]+/g, '');
+  return input.replace(/['"]+/g, "");
 }
 
-
 export function identifyGitHubEntity(url: string): string {
-    const repoPattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/;
-    const pullPattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+/;
-    const issuePattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/issues\/\d+/;
-    const branchPattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/tree\/[A-Za-z0-9_.-]+/;
+  const repoPattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/;
+  const pullPattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+/;
+  const issuePattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/issues\/\d+/;
+  const branchPattern = /https?:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/tree\/[A-Za-z0-9_.-]+/;
 
-    if (repoPattern.test(url) || pullPattern.test(url) || issuePattern.test(url) || branchPattern.test(url)) {
-        return url;
-    } else {
-        return '';
-    }
+  if (repoPattern.test(url) || pullPattern.test(url) || issuePattern.test(url) || branchPattern.test(url)) {
+    return url;
+  } else {
+    return "";
+  }
 }
 
 export function removeGitHubPrefix(url: string): string {
-    const prefix = 'https://github.com/';
-    if (url.startsWith(prefix)) {
-        return url.slice(prefix.length);
-    }
-    return url;
+  const prefix = "https://github.com/";
+  if (url.startsWith(prefix)) {
+    return url.slice(prefix.length);
+  }
+  return url;
 }

@@ -108,11 +108,11 @@ export default function RepositoryListItem({
       title={repository.name}
       {...(numberOfStars > 0
         ? {
-          subtitle: {
-            value: `${numberOfStars}`,
-            tooltip: `Number of Stars: ${numberOfStars}`,
-          },
-        }
+            subtitle: {
+              value: `${numberOfStars}`,
+              tooltip: `Number of Stars: ${numberOfStars}`,
+            },
+          }
         : {})}
       accessories={accessories}
       actions={
@@ -148,42 +148,50 @@ export default function RepositoryListItem({
             shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
           />
           <ActionPanel.Section>
-            {!isFavorite && (<Action
-              title="Add to Favorites"
-              icon={Icon.Star}
-              onAction={async () => {
-                await addToFavorites?.(repository);
-                await showToast({
-                  title: `Added "${repository.nameWithOwner}" to favorites`,
-                  style: Toast.Style.Success,
-                });
-              }}
-              shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
-            />)}
-            {isFavorite && (<Action
-              title="Remove from Favorites"
-              icon={Icon.StarDisabled}
-              onAction={async () => {
-                await removeFromFavorites?.(repository);
-                await showToast({
-                  title: `Removed "${repository.nameWithOwner}" to favorites`,
-                  style: Toast.Style.Success,
-                });
-              }}
-              shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
-            />)}
-            {moveFavoriteUp && (<Action
-              title="Move Up in Favorites"
-              icon={Icon.ArrowUp}
-              onAction={async () => moveFavoriteUp(repository)}
-              shortcut={{ modifiers: ["cmd", "opt"], key: "arrowUp" }}
-            />)}
-            {moveFavoriteDown && (<Action
-              title="Move Down in Favorites"
-              icon={Icon.ArrowDown}
-              onAction={async () => moveFavoriteDown(repository)}
-              shortcut={{ modifiers: ["cmd", "opt"], key: "arrowDown" }}
-            />)}
+            {!isFavorite && (
+              <Action
+                title="Add to Favorites"
+                icon={Icon.Star}
+                onAction={async () => {
+                  await addToFavorites?.(repository);
+                  await showToast({
+                    title: `Added "${repository.nameWithOwner}" to favorites`,
+                    style: Toast.Style.Success,
+                  });
+                }}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
+              />
+            )}
+            {isFavorite && (
+              <Action
+                title="Remove from Favorites"
+                icon={Icon.StarDisabled}
+                onAction={async () => {
+                  await removeFromFavorites?.(repository);
+                  await showToast({
+                    title: `Removed "${repository.nameWithOwner}" to favorites`,
+                    style: Toast.Style.Success,
+                  });
+                }}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
+              />
+            )}
+            {moveFavoriteUp && (
+              <Action
+                title="Move Up in Favorites"
+                icon={Icon.ArrowUp}
+                onAction={async () => moveFavoriteUp(repository)}
+                shortcut={{ modifiers: ["cmd", "opt"], key: "arrowUp" }}
+              />
+            )}
+            {moveFavoriteDown && (
+              <Action
+                title="Move Down in Favorites"
+                icon={Icon.ArrowDown}
+                onAction={async () => moveFavoriteDown(repository)}
+                shortcut={{ modifiers: ["cmd", "opt"], key: "arrowDown" }}
+              />
+            )}
           </ActionPanel.Section>
           {!fromCache && (
             <Action

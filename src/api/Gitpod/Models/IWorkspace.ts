@@ -61,11 +61,11 @@ export class IWorkspace implements GitpodDataModel {
   private UncommittedFiles?: string[];
 
   getUntrackedFiles() {
-    return this.untrackedFiles
+    return this.untrackedFiles;
   }
 
   getUncommittedFiles() {
-    return this.UncommittedFiles
+    return this.UncommittedFiles;
   }
 
   getRecentFolders() {
@@ -73,19 +73,19 @@ export class IWorkspace implements GitpodDataModel {
   }
 
   getTotalUntrackedFiles() {
-    return this.totalUntrackedFiles
+    return this.totalUntrackedFiles;
   }
 
   getTotatUncommittedFiles() {
-    return this.totalUncommittedFiles
+    return this.totalUncommittedFiles;
   }
 
   getWorkspaceClass() {
-    return this.workspaceClass
+    return this.workspaceClass;
   }
 
   setWorkspaceClass(workspaceClass: "g1-standard" | "g1-large") {
-    this.workspaceClass = workspaceClass
+    this.workspaceClass = workspaceClass;
   }
 
   getIDEURL() {
@@ -171,8 +171,8 @@ export class IWorkspace implements GitpodDataModel {
       }
 
       if (workspace.status.instance.status.gitStatus.uncommitedFiles) {
-        this.totalUncommittedFiles = workspace.status.instance.status.gitStatus.totalUncommitedFiles
-        this.UncommittedFiles = workspace.status.instance.status.gitStatus.uncommitedFiles
+        this.totalUncommittedFiles = workspace.status.instance.status.gitStatus.totalUncommitedFiles;
+        this.UncommittedFiles = workspace.status.instance.status.gitStatus.uncommitedFiles;
       }
     }
 
@@ -202,7 +202,7 @@ export class IWorkspace implements GitpodDataModel {
     this.ideURL = workspace.status.instance ? data.result.status.instance.status.url : "";
 
     this.createdAt = workspace.status.instance.createdAt;
-    
+
     if (workspace.status.instance.status.gitStatus.totalUntrackedFiles) {
       this.totalUntrackedFiles = workspace.status.instance.status.gitStatus.totalUntrackedFiles;
       this.untrackedFiles = workspace.status.instance.status.gitStatus.untrackedFiles;
@@ -342,8 +342,7 @@ export class IWorkspace implements GitpodDataModel {
   };
 
   public delete = async () => {
-
-    const workspace_id = this.workspaceId
+    const workspace_id = this.workspaceId;
     const response = await fetch(workspaceURLs.deleteWorkspace, {
       method: "POST",
       headers: {
@@ -361,6 +360,6 @@ export class IWorkspace implements GitpodDataModel {
       };
       throw error;
     }
-    return workspace_id
+    return workspace_id;
   };
 }

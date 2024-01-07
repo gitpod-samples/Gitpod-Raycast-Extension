@@ -43,7 +43,10 @@ function SearchRepositories() {
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
 
   const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
-  const { favorites, addFavorite, removeFavorite, moveFavoriteDown, moveFavoriteUp } = useFavorites(searchText, searchFilter);
+  const { favorites, addFavorite, removeFavorite, moveFavoriteDown, moveFavoriteUp } = useFavorites(
+    searchText,
+    searchFilter
+  );
   const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
   const { history: visitedBranches, removeBranch } = useBranchHistory();
   const { history: visitedIssues, removeIssue } = useIssueHistory();

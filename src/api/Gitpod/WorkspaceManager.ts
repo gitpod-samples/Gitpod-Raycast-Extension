@@ -30,7 +30,7 @@ export class WorkspaceManager extends EventEmitter {
     return WorkspaceManager.instance;
   }
 
-  deleteWorkspace(workspace_id: string){
+  deleteWorkspace(workspace_id: string) {
     WorkspaceManager.workspaces.delete(workspace_id);
     return WorkspaceManager.workspaces;
   }
@@ -59,8 +59,8 @@ export class WorkspaceManager extends EventEmitter {
       // update when the workspace is not in the state
       targetWorkspace.setStatus(updateInstance.status);
       targetWorkspace.setIDEURL(updateInstance.ideUrl);
-      if (!targetWorkspace.getWorkspaceClass()){
-        targetWorkspace.setWorkspaceClass(updateInstance.workspaceClass)
+      if (!targetWorkspace.getWorkspaceClass()) {
+        targetWorkspace.setWorkspaceClass(updateInstance.workspaceClass);
       }
       WorkspaceManager.workspaces = WorkspaceManager.workspaces.set(updateInstance.workspaceId, targetWorkspace);
 

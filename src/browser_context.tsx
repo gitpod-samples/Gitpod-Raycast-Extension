@@ -7,90 +7,82 @@ import { WorkspaceManager } from "./api/Gitpod/WorkspaceManager";
 import DefaultOrgForm from "./components/DefaultOrgForm";
 import View from "./components/View";
 import { ErrorListView, errorMessage } from "./components/errorListView";
-import createWorksapceFromContext from "./helpers/createWorkspaceFromContext";
 import { getFocusedBrowserContext } from "./helpers/getFocusedContext";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import { Preferences } from "./preferences/repository_preferences";
 
-
 const BrowserContext = () => {
+  const { push } = useNavigation();
 
-    const { push } = useNavigation()
+  const [defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
+  const EditorPreferences = getPreferenceValues<Preferences>();
 
-    const [defaultOrganization, setDefaultOrganization] = useState<string | undefined>();
-    const EditorPreferences = getPreferenceValues<Preferences>();
+  const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
 
-    const dashboardPreferences = getPreferenceValues<dashboardPreferences>();
+  if (dashboardPreferences.access_token === undefined || dashboardPreferences.access_token.trim() === "") {
+    return <ErrorListView message={errorMessage.invalidAccessToken} />;
+  }
 
-    if (dashboardPreferences.access_token === undefined || dashboardPreferences.access_token.trim() === "") {
-        return <ErrorListView message={errorMessage.invalidAccessToken} />;
+  const workspaceManager = new WorkspaceManager(dashboardPreferences.access_token ?? "");
+
+  const { isLoading, revalidate } = usePromise(async () => {
+    await workspaceManager.init();
+    const defaultOrg = await LocalStorage.getItem("default_organization");
+    if (defaultOrg !== undefined) {
+      setDefaultOrganization(defaultOrg.toString());
     }
+  });
 
-    const workspaceManager = new WorkspaceManager(dashboardPreferences.access_token ?? "");
+  useEffect(() => {
+    if (!isLoading) {
+      if (!defaultOrganization) {
+        push(<DefaultOrgForm revalidate={revalidate} />);
+      } else {
+        getFocusedBrowserContext().then((context_url) => {
+          if (context_url) {
+            console.log(context_url);
+            IWorkspace.create(WorkspaceManager.api, {
+              contextUrl: "https://github.com/" + context_url,
+              organizationId: defaultOrganization.toString(),
+              ignoreRunningPrebuild: true,
+              ignoreRunningWorkspaceOnSameCommit: true,
+              worksspaceClass: EditorPreferences.preferredEditorClass,
+              ideSetting: {
+                defaultIde: EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
+                useLatestVersion: false,
+              },
+            });
 
-    const { isLoading, revalidate } = usePromise(
-        async () => {
-            await workspaceManager.init();
-            const defaultOrg = await LocalStorage.getItem("default_organization");
-            if (defaultOrg !== undefined) {
-                setDefaultOrganization(defaultOrg.toString());
-            }
-        }
-    )
+            setTimeout(() => {
+              launchCommand({
+                name: "gitpod_dashboard",
+                type: LaunchType.UserInitiated,
+              });
+            }, 2000);
+          } else {
+            console.log("Nothing in browser context");
+          }
+        });
+      }
+    }
+  }, [isLoading]);
 
-    useEffect(() => {
-        if (!isLoading) {
-            if (!defaultOrganization) {
-                push(<DefaultOrgForm revalidate={revalidate} />)
-            } else {
-                getFocusedBrowserContext().then((context_url) => {
-                    if (context_url) {
-                        console.log(context_url)
-                        IWorkspace.create(WorkspaceManager.api, {
-                            contextUrl: "https://github.com/" + context_url,
-                            organizationId: defaultOrganization.toString(),
-                            ignoreRunningPrebuild: true,
-                            ignoreRunningWorkspaceOnSameCommit: true,
-                            worksspaceClass: EditorPreferences.preferredEditorClass,
-                            ideSetting: {
-                                defaultIde:
-                                    EditorPreferences.preferredEditor === "ssh" ? "code" : EditorPreferences.preferredEditor,
-                                useLatestVersion: false,
-                            },
-                        });
-                        
-  
-                        setTimeout(() => {
-                            launchCommand({
-                                name: "gitpod_dashboard",
-                                type: LaunchType.UserInitiated,
-                            })
-                        }, 2000);
-                    } else {
-                        console.log("Nothing in browser context")
-                    }
-                })
-            }
-        }
-    }, [isLoading])
-
-    return (
-        <List>
-            <List.EmptyView icon={
-                {
-                    source: "Icons/gitpod_logo_bouncing.gif"
-                }
-            } title="Creating Fresh Workspace" />
-        </List>
-    )
-}
-
-
+  return (
+    <List>
+      <List.EmptyView
+        icon={{
+          source: "Icons/gitpod_logo_bouncing.gif",
+        }}
+        title="Creating Fresh Workspace"
+      />
+    </List>
+  );
+};
 
 export default function Command() {
-    return (
-        <View>
-            <BrowserContext />
-        </View>
-    );
+  return (
+    <View>
+      <BrowserContext />
+    </View>
+  );
 }

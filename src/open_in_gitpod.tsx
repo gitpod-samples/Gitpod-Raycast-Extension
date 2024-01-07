@@ -31,6 +31,7 @@ import { useIssueHistory } from "./helpers/issue";
 import OpenInGitpod, { getPreferencesForContext } from "./helpers/openInGitpod";
 import { usePullReqHistory } from "./helpers/pull-request";
 import { useHistory } from "./helpers/repository";
+import { useFavorites } from "./helpers/repository-favorites";
 import { getGitHubClient } from "./helpers/withGithubClient";
 import { dashboardPreferences } from "./preferences/dashboard_preferences";
 import RepositoryPreference from "./preferences/repository_preferences";
@@ -42,6 +43,7 @@ function SearchRepositories() {
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
 
   const { data: history, visitRepository, removeRepository } = useHistory(searchText, searchFilter);
+  const { favorites, addFavorite, removeFavorite, moveFavoriteDown, moveFavoriteUp } = useFavorites(searchText, searchFilter);
   const { history: visitedPullReqs, removePullReq } = usePullReqHistory();
   const { history: visitedBranches, removeBranch } = useBranchHistory();
   const { history: visitedIssues, removeIssue } = useIssueHistory();
@@ -155,6 +157,24 @@ function SearchRepositories() {
           </ActionPanel>
         }
       />
+      {favorites.length > 0 && (
+        <List.Section title="Favorites" subtitle={String(favorites.length)}>
+          {favorites.map((favorite) => (
+            <RepositoryListItem
+              key={favorite.repository.id}
+              isGitpodified={gitpodArray?.includes(favorite.repository.name) ?? false}
+              repository={favorite.repository}
+              mutateList={mutateList}
+              onVisit={visitRepository}
+              addToFavorites={addFavorite}
+              removeFromFavorites={removeFavorite}
+              moveFavoriteUp={favorite.isFirst ? undefined : moveFavoriteUp}
+              moveFavoriteDown={favorite.isLast ? undefined : moveFavoriteDown}
+              isFavorite={true}
+            />
+          ))}
+        </List.Section>
+      )}
       {searchText == "" && (
         <List.Section
           title="Recent Contexts"
@@ -198,6 +218,9 @@ function SearchRepositories() {
             mutateList={mutateList}
             fromCache={true}
             removeRepository={removeRepository}
+            addToFavorites={addFavorite}
+            removeFromFavorites={removeFavorite}
+            isFavorite={favorites.findIndex((favorite) => favorite.repository.id == repository.id) > 0}
           />
         ))}
       </List.Section>
@@ -215,6 +238,9 @@ function SearchRepositories() {
                 repository={repository}
                 mutateList={mutateList}
                 onVisit={visitRepository}
+                addToFavorites={addFavorite}
+                removeFromFavorites={removeFavorite}
+                isFavorite={favorites.findIndex((favorite) => favorite.repository.id == repository.id) > 0}
               />
             );
           })}

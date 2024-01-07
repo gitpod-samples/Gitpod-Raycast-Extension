@@ -22,7 +22,6 @@ import OpenInGitpod, { getPreferencesForContext } from "../helpers/openInGitpod"
 import { getGitHubUser } from "../helpers/users";
 import SearchContext from "../open_repo_context";
 import { dashboardPreferences } from "../preferences/dashboard_preferences";
-import RepositoryPreference from "../preferences/repository_preferences";
 
 import DefaultOrgForm from "./DefaultOrgForm";
 
@@ -31,6 +30,11 @@ type RepositoryListItemProps = {
   isGitpodified: boolean;
   onVisit: (repository: ExtendedRepositoryFieldsFragment) => void;
   removeRepository?: (repository: ExtendedRepositoryFieldsFragment) => Promise<void>;
+  isFavorite: boolean;
+  addToFavorites?: (repository: ExtendedRepositoryFieldsFragment) => Promise<void>;
+  removeFromFavorites?: (repository: ExtendedRepositoryFieldsFragment) => Promise<void>;
+  moveFavoriteDown?: (repository: ExtendedRepositoryFieldsFragment) => Promise<void>;
+  moveFavoriteUp?: (repository: ExtendedRepositoryFieldsFragment) => Promise<void>;
   mutateList: MutatePromise<ExtendedRepositoryFieldsFragment[] | undefined>;
   fromCache?: boolean;
 };
@@ -41,6 +45,11 @@ export default function RepositoryListItem({
   onVisit,
   fromCache,
   removeRepository,
+  isFavorite,
+  addToFavorites,
+  removeFromFavorites,
+  moveFavoriteDown,
+  moveFavoriteUp,
 }: RepositoryListItemProps) {
   const { push } = useNavigation();
   const owner = getGitHubUser(repository.owner);
@@ -138,6 +147,44 @@ export default function RepositoryListItem({
             }}
             shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
           />
+          <ActionPanel.Section>
+            {!isFavorite && (<Action
+              title="Add to Favorites"
+              icon={Icon.Star}
+              onAction={async () => {
+                await addToFavorites?.(repository);
+                await showToast({
+                  title: `Added "${repository.nameWithOwner}" to favorites`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
+            />)}
+            {isFavorite && (<Action
+              title="Remove from Favorites"
+              icon={Icon.StarDisabled}
+              onAction={async () => {
+                await removeFromFavorites?.(repository);
+                await showToast({
+                  title: `Removed "${repository.nameWithOwner}" to favorites`,
+                  style: Toast.Style.Success,
+                });
+              }}
+              shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
+            />)}
+            {moveFavoriteUp && (<Action
+              title="Move Up in Favorites"
+              icon={Icon.ArrowUp}
+              onAction={async () => moveFavoriteUp(repository)}
+              shortcut={{ modifiers: ["cmd", "opt"], key: "arrowUp" }}
+            />)}
+            {moveFavoriteDown && (<Action
+              title="Move Down in Favorites"
+              icon={Icon.ArrowDown}
+              onAction={async () => moveFavoriteDown(repository)}
+              shortcut={{ modifiers: ["cmd", "opt"], key: "arrowDown" }}
+            />)}
+          </ActionPanel.Section>
           {!fromCache && (
             <Action
               title="Add Repo to Recents"

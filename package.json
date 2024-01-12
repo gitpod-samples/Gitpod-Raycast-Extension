@@ -112,7 +112,7 @@
     },
     {
       "name": "gitpod_dashboard",
-      "title": "All Workspaces",
+      "title": "Manage Workspaces",
       "subtitle": "Manage active and inactive workspaces",
       "description": "Start, Stop or Create New Workspaces just from the extension.",
       "mode": "view"
@@ -121,7 +121,7 @@
       "name": "menubar_workspaces",
       "title": "Recent Workspaces",
       "subtitle": "Quick access to recent workspaces",
-      "description": "Quick access to recent workspaces.",
+      "description": "Quick access to recent workspaces right from your menubar",
       "mode": "menu-bar",
       "interval": "100000d",
       "keywords": [
@@ -153,15 +153,9 @@
       ]
     },
     {
-      "name" : "browser_context",
-      "title": "Open Browser Context",
-      "description": "New New",
-      "mode": "view"
-    },
-    {
-      "name" : "browser_hud",
+      "name": "browser_hud",
       "title": "Browser Hud",
-      "description": "afnd",
+      "description": "surprise surprise",
       "mode": "no-view"
     }
   ],

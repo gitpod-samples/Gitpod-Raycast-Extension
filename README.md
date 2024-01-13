@@ -175,5 +175,14 @@ At last, we would love 🧡 to hear from you to improve the extension, hence we 
 
 
 
+## Contributions
+
+Visit our [WIP section](#wip) or [Open Issues](https://github.com/gitpod-samples/Gitpod-Raycast-Extension/issues) to contribute. Feel free to explore the project and open new issues or pull requests.
+
+<div align='center' width='100%'>
+   <a href="https://www.middlewarehq.com/" target="_blank">
+      <img src="https://open-source-assets.middlewarehq.com/svgs/gitpod-samples-Gitpod-Raycast-Extension-contributor-metrics-dark-widget.svg"></img>
+   </a>
+</div>
 
 
